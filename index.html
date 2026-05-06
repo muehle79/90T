@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>90TC NEON-ULTIMATE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Inter:wght@400;700&display=swap');
+        :root { --neon: #00f2ff; --bg: #050505; --card: #121212; --success: #22c55e; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: #e0e0e0; -webkit-tap-highlight-color: transparent; }
+        .neon-border { border: 1px solid rgba(0, 242, 255, 0.3); }
+        .neon-text { font-family: 'Orbitron', sans-serif; color: var(--neon); text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+        .glass { background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(15px); border-radius: 24px; }
+        button { cursor: pointer; transition: all 0.1s ease; }
+        button:active { transform: scale(0.95); background: rgba(0, 242, 255, 0.2); }
+        input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; text-align: center; outline: none; }
+        input:focus { border-color: var(--neon); }
+        .effort-toggle { width: 60px; height: 32px; background: #333; border-radius: 20px; position: relative; transition: 0.3s; border: 1px solid #444; }
+        .effort-toggle.active { background: var(--success); box-shadow: 0 0 15px var(--success); }
+        .effort-circle { width: 26px; height: 26px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
+        .effort-toggle.active .effort-circle { left: 30px; }
+    </style>
+</head>
+<body class="pb-32 overflow-x-hidden">
+
+    <header class="p-6 sticky top-0 z-50 glass border-b border-white/10 mb-4 flex justify-between items-center">
+        <div>
+            <h1 class="neon-text text-lg italic tracking-tighter">90TC // LARS</h1>
+            <input type="date" id="datePicker" class="text-[10px] bg-transparent border-none p-0 text-slate-500 font-bold uppercase">
+        </div>
+        <div id="saveStatus" class="text-[8px] font-bold px-3 py-1 rounded-full border border-slate-700 text-slate-500 uppercase">BEREIT</div>
+    </header>
+
+    <main class="px-5 space-y-5">
+        <div class="flex gap-2 p-1 bg-white/5 rounded-2xl">
+            <button onclick="tab('log')" id="b-log" class="flex-1 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest bg-white/10 text-white">Daily</button>
+            <button onclick="tab('stats')" id="b-stats" class="flex-1 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest text-slate-500">Analytics</button>
+            <button onclick="tab('photo')" id="b-photo" class="flex-1 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest text-slate-500">Photos</button>
+        </div>
+
+        <div id="view-log" class="space-y-5">
+            <div class="glass neon-border p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Training absolviert?</span>
+                    <div id="effortBtn" onclick="toggleEffort()" class="effort-toggle">
+                        <div class="effort-circle"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-[8px] font-bold text-slate-500 uppercase mb-2">Gewicht (kg)</p>
+                        <input type="number" id="w" step="0.1" class="text-2xl font-black w-full" placeholder="0.0">
+                    </div>
+                    <div>
+                        <p class="text-[8px] font-bold text-slate-500 uppercase mb-2">Schritte</p>
+                        <input type="number" id="s" class="text-2xl font-black w-full" placeholder="0">
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-5 border border-white/5">
+                    <p class="text-[8px] font-bold text-slate-500 uppercase mb-2">Kalorien Ist</p>
+                    <input type="number" id="ak" class="w-full font-bold text-lg">
+                </div>
+                <div class="glass p-5 border border-white/5">
+                    <p class="text-[8px] font-bold text-slate-500 uppercase mb-2">Ziel</p>
+                    <input type="number" id="tk" class="w-full font-bold text-lg text-slate-500" value="2500">
+                </div>
+            </div>
+        </div>
+
+        <div id="view-stats" class="hidden space-y-5">
+            <div class="glass neon-border p-4">
+                <canvas id="recompChart" height="250"></canvas>
+            </div>
+            <div id="measureList" class="space-y-2"></div>
+        </div>
+
+        <div id="view-photo" class="hidden space-y-5">
+            <input type="file" id="pIn" accept="image/*" class="hidden" onchange="handleImage(this)">
+            <button onclick="document.getElementById('pIn').click()" class="w-full glass neon-border p-8 neon-text text-[10px] uppercase tracking-widest font-black">
+                + Foto hochladen
+            </button>
+            <div id="photoGrid" class="grid grid-cols-1 gap-4"></div>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-6 left-5 right-5 z-50">
+        <button onclick="save()" class="w-full glass neon-border py-5 font-black uppercase tracking-[0.3em] text-xs text-white bg-blue-500/10 active:bg-blue-500/30">
+            Speichern
+        </button>
+    </footer>
+
+    <script>
+        const parts = ['Hals', 'Schulter', 'Bizeps_R', 'Taille', 'Bauch', 'Hüfte'];
+        let db = JSON.parse(localStorage.getItem('90TC_FINAL')) || {};
+        let currentDay = new Date().toISOString().split('T')[0];
+        let photoDB;
+
+        const req = indexedDB.open("90TC_Photos", 1);
+        req.onupgradeneeded = e => e.target.result.createObjectStore("images");
+        req.onsuccess = e => { photoDB = e.target.result; renderPhotos(); };
+
+        function init() {
+            const params = new URLSearchParams(window.location.search);
+            if(params.has('steps')) { currentDay = new Date().toISOString().split('T')[0]; }
+            
+            document.getElementById('datePicker').value = currentDay;
+            const container = document.getElementById('measureList');
+            parts.forEach(p => {
+                container.innerHTML += `
+                    <div class="glass p-4 flex justify-between items-center border border-white/5">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${p}</span>
+                        <input type="number" id="m-${p}" class="w-20 font-bold text-xs" placeholder="0">
+                    </div>`;
+            });
+            load();
+            if(params.has('steps')) { 
+                document.getElementById('s').value = params.get('steps');
+                save();
+            }
+            
+            document.getElementById('datePicker').onchange = (e) => { currentDay = e.target.value; load(); renderPhotos(); };
+        }
+
+        function toggleEffort() {
+            const btn = document.getElementById('effortBtn');
+            btn.classList.toggle('active');
+            if(window.navigator.vibrate) window.navigator.vibrate(20);
+        }
+
+        function load() {
+            const d = db[currentDay] || {};
+            document.getElementById('w').value = d.w || "";
+            document.getElementById('s').value = d.s || "";
+            document.getElementById('ak').value = d.ak || "";
+            document.getElementById('tk').value = d.tk || "2500";
+            parts.forEach(p => document.getElementById(`m-${p}`).value = d[`m-${p}`] || "");
+            
+            if(d.effort) document.getElementById('effortBtn').classList.add('active');
+            else document.getElementById('effortBtn').classList.remove('active');
+            statusUpdate("BEREIT", "slate-700");
+        }
+
+        function save() {
+            const d = db[currentDay] || {};
+            d.w = document.getElementById('w').value;
+            d.s = document.getElementById('s').value;
+            d.ak = document.getElementById('ak').value;
+            d.tk = document.getElementById('tk').value;
+            d.effort = document.getElementById('effortBtn').classList.contains('active');
+            parts.forEach(p => d[`m-${p}`] = document.getElementById(`m-${p}`).value);
+            
+            db[currentDay] = d;
+            localStorage.setItem('90TC_FINAL', JSON.stringify(db));
+            statusUpdate("GESPEICHERT", "cyan-400");
+            setTimeout(() => statusUpdate("BEREIT", "slate-700"), 2000);
+        }
+
+        function statusUpdate(txt, color) {
+            const s = document.getElementById('saveStatus');
+            s.innerText = txt;
+            s.className = `text-[8px] font-bold px-3 py-1 rounded-full border border-${color} text-${color} uppercase`;
+        }
+
+        function handleImage(input) {
+            const file = input.files[0];
+            if(!file) return;
+            statusUpdate("KOMPRIMIERE...", "orange-500");
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const scale = 1024 / img.width;
+                    canvas.width = 1024;
+                    canvas.height = img.height * scale;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const tx = photoDB.transaction("images", "readwrite");
+                    tx.objectStore("images").put(canvas.toDataURL('image/jpeg', 0.7), currentDay);
+                    renderPhotos();
+                    statusUpdate("BILD OK", "green-500");
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function renderPhotos() {
+            const container = document.getElementById('photoGrid');
+            container.innerHTML = "";
+            if(!photoDB) return;
+            const store = photoDB.transaction("images", "readonly").objectStore("images");
+            store.getAllKeys().onsuccess = (e) => {
+                e.target.result.sort().reverse().forEach(k => {
+                    store.get(k).onsuccess = (ev) => {
+                        container.innerHTML += `<div class="glass p-2 neon-border mb-4"><img src="${ev.target.result}" class="rounded-2xl w-full"><p class="text-[8px] mt-2 text-center text-slate-500 uppercase">${k}</p></div>`;
+                    };
+                });
+            };
+        }
+
+        function tab(t) {
+            ['log', 'stats', 'photo'].forEach(v => {
+                document.getElementById('view-'+v).classList.toggle('hidden', v !== t);
+                document.getElementById('b-'+v).className = v === t ? 'flex-1 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest bg-white/10 text-white' : 'flex-1 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest text-slate-500';
+            });
+            if(t === 'stats') renderChart();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('recompChart').getContext('2d');
+            const dates = Object.keys(db).sort().slice(-14);
+            if(window.ch) window.ch.destroy();
+            window.ch = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        { label: 'Bizeps', data: dates.map(d => db[d]['m-Bizeps_R']), borderColor: '#00f2ff', tension: 0.4 },
+                        { label: 'Taille', data: dates.map(d => db[d]['m-Taille']), borderColor: '#ff0077', tension: 0.4 }
+                    ]
+                },
+                options: { 
+                    scales: { y: { display: false }, x: { ticks: { color: '#444', font: { size: 8 } } } },
+                    plugins: { legend: { labels: { color: '#fff', font: { size: 8 } } } }
+                }
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
