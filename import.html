@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="90TC Import">
+<meta name="theme-color" content="#F97316">
+<title>90TC · Tagesimport</title>
+<style>
+:root{
+  --bg:#f5f5f7;--card:#fff;--text:#1c1c1e;--text2:#6e6e73;
+  --border:#d1d1d6;--accent:#F97316;--accent-soft:rgba(249,115,22,.1);
+  --green:#22C55E;--radius:16px;--nav-h:0px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#000;--card:#1c1c1e;--text:#fff;--text2:#8e8e93;--border:#38383a;
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{padding-top:calc(var(--safe-top) + 16px);padding-bottom:calc(var(--safe-bottom) + 32px)}
+
+.header{padding:4px 20px 20px;text-align:center}
+.header-date{font-size:13px;color:var(--accent);font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.header-title{font-size:26px;font-weight:800}
+.header-sub{font-size:14px;color:var(--text2);margin-top:4px}
+
+.section{margin:0 16px 12px}
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text2);margin-bottom:8px;padding:0 4px}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+
+.row{display:flex;align-items:center;padding:13px 16px;
+  border-bottom:1px solid var(--border);gap:12px;position:relative}
+.row:last-child{border-bottom:none}
+.row-icon{font-size:20px;width:32px;text-align:center;flex-shrink:0}
+.row-label{flex:1;font-size:15px;font-weight:500}
+.row-hint{font-size:12px;color:var(--text2);margin-top:1px}
+.row-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+input[type=number]{
+  width:88px;text-align:right;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:10px;padding:7px 10px;font-size:16px;
+  color:var(--text);outline:none;
+  -moz-appearance:textfield;appearance:textfield;
+  font-family:inherit;transition:border-color .2s
+}
+input[type=number]:focus{border-color:var(--accent)}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.unit{font-size:13px;color:var(--text2);min-width:28px}
+
+.date-row{display:flex;align-items:center;padding:13px 16px;gap:12px}
+.date-row-label{flex:1;font-size:15px;font-weight:500}
+input[type=date]{
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:10px;padding:7px 10px;font-size:15px;color:var(--text);
+  outline:none;font-family:inherit;transition:border-color .2s
+}
+input[type=date]:focus{border-color:var(--accent)}
+
+.btn-wrap{margin:20px 16px 0}
+.btn{width:100%;padding:16px;border-radius:var(--radius);border:none;
+  font-size:17px;font-weight:700;cursor:pointer;
+  background:var(--accent);color:#fff;
+  transition:opacity .15s;letter-spacing:.01em;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn:active{opacity:.82}
+
+.hint-box{margin:16px 16px 0;padding:14px 16px;
+  background:var(--accent-soft);border-radius:12px;
+  border-left:3px solid var(--accent)}
+.hint-box p{font-size:13px;color:var(--text2);line-height:1.55}
+.hint-box strong{color:var(--accent)}
+
+#toast{position:fixed;bottom:calc(var(--safe-bottom) + 20px);
+  left:50%;transform:translateX(-50%) translateY(16px);
+  background:var(--text);color:var(--card);
+  padding:10px 20px;border-radius:20px;font-size:14px;font-weight:500;
+  opacity:0;transition:all .28s;pointer-events:none;z-index:99;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-date" id="hdr-date"></div>
+  <div class="header-title">🔥 Tagesimport</div>
+  <div class="header-sub">Werte eintragen → In App übertragen</div>
+</div>
+
+<!-- DATUM -->
+<div class="section">
+  <div class="section-label">Datum</div>
+  <div class="card">
+    <div class="date-row">
+      <span class="row-icon">📅</span>
+      <label class="date-row-label" for="f-date">Tag</label>
+      <input type="date" id="f-date">
+    </div>
+  </div>
+</div>
+
+<!-- KÖRPER -->
+<div class="section">
+  <div class="section-label">⚖️ Körper — Happy Scale</div>
+  <div class="card">
+    <div class="row">
+      <span class="row-icon">⚖️</span>
+      <div style="flex:1">
+        <div class="row-label">Gewicht</div>
+        <div class="row-hint">aus Happy Scale</div>
+      </div>
+      <div class="row-right">
+        <input type="number" id="f-weight" step="0.1" inputmode="decimal" placeholder="80.0">
+        <span class="unit">kg</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ERNÄHRUNG -->
+<div class="section">
+  <div class="section-label">🍽️ Ernährung — FDDB</div>
+  <div class="card">
+    <div class="row">
+      <span class="row-icon">🔥</span>
+      <div style="flex:1">
+        <div class="row-label">Kalorien</div>
+        <div class="row-hint">aus FDDB</div>
+      </div>
+      <div class="row-right">
+        <input type="number" id="f-kal" inputmode="numeric" placeholder="1950">
+        <span class="unit">kcal</span>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-icon">🥩</span>
+      <div style="flex:1">
+        <div class="row-label">Protein</div>
+        <div class="row-hint">aus FDDB</div>
+      </div>
+      <div class="row-right">
+        <input type="number" id="f-pro" inputmode="decimal" step="0.1" placeholder="120">
+        <span class="unit">g</span>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-icon">🧈</span>
+      <div style="flex:1">
+        <div class="row-label">Fett</div>
+        <div class="row-hint">aus FDDB</div>
+      </div>
+      <div class="row-right">
+        <input type="number" id="f-fat" inputmode="decimal" step="0.1" placeholder="65">
+        <span class="unit">g</span>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-icon">🍞</span>
+      <div style="flex:1">
+        <div class="row-label">Kohlenhydrate</div>
+        <div class="row-hint">aus FDDB</div>
+      </div>
+      <div class="row-right">
+        <input type="number" id="f-kh" inputmode="decimal" step="0.1" placeholder="236">
+        <span class="unit">g</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AKTIVITÄT -->
+<div class="section">
+  <div class="section-label">👟 Aktivität & Schlaf — Health / StepsApp</div>
+  <div class="card">
+    <div class="row">
+      <span class="row-icon">👟</span>
+      <div style="flex:1">
+        <div class="row-label">Schritte</div>
+        <div class="row-hint">aus StepsApp oder Health</div>
+      </div>
+      <div class="row-right">
+        <input type="number" id="f-steps" inputmode="numeric" placeholder="10000">
+        <span class="unit"></span>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-icon">😴</span>
+      <div style="flex:1">
+        <div class="row-label">Schlaf</div>
+        <div class="row-hint">aus Apple Health</div>
+      </div>
+      <div class="row-right">
+        <input type="number" id="f-sleep" inputmode="decimal" step="0.5" placeholder="7.5">
+        <span class="unit">h</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="hint-box">
+  <p>Nur ausgefüllte Felder werden übertragen. <strong>Alle Werte bleiben in der App anpassbar</strong> — erst nach dem Speichern werden sie gesichert.</p>
+</div>
+
+<div class="btn-wrap">
+  <button class="btn" onclick="importNow()">In 90TC übertragen →</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// Datum vorausfüllen
+(function(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  const iso = `${y}-${m}-${day}`;
+  document.getElementById('f-date').value = iso;
+  // Header-Datum
+  const opts = {weekday:'long', day:'numeric', month:'long'};
+  document.getElementById('hdr-date').textContent =
+    d.toLocaleDateString('de-DE', opts);
+})();
+
+function val(id){ const v = document.getElementById(id).value.trim(); return v || null; }
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 2400);
+}
+
+function importNow(){
+  const date  = val('f-date');
+  const weight= val('f-weight');
+  const kal   = val('f-kal');
+  const pro   = val('f-pro');
+  const fat   = val('f-fat');
+  const kh    = val('f-kh');
+  const steps = val('f-steps');
+  const sleep = val('f-sleep');
+
+  const filled = [weight,kal,pro,fat,kh,steps,sleep].filter(Boolean).length;
+  if(filled === 0){ toast('Bitte mindestens einen Wert eintragen'); return; }
+
+  let url = `https://muehle79.github.io/90T/?import&date=${date||''}`;
+  if(weight) url += `&weight=${weight}`;
+  if(kal)    url += `&kal=${kal}`;
+  if(pro)    url += `&pro=${pro}`;
+  if(fat)    url += `&fat=${fat}`;
+  if(kh)     url += `&kh=${kh}`;
+  if(steps)  url += `&steps=${steps}`;
+  if(sleep)  url += `&sleep=${sleep}`;
+
+  window.location.href = url;
+}
+
+// Enter-Taste springt zum nächsten Feld
+document.querySelectorAll('input').forEach((inp, i, all) => {
+  inp.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      const next = all[i+1];
+      if(next) next.focus(); else importNow();
+    }
+  });
+});
+</script>
+</body>
+</html>
