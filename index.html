@@ -398,7 +398,7 @@ function compressPhoto(file,cb){const reader=new FileReader();reader.onload=e=>{
 function buildMeasGrid(containerId,prefix,data={}){const container=document.getElementById(containerId);if(!container)return;container.innerHTML=MEASUREMENTS.map(m=>`<div class="meas-item"><span class="meas-label">${m.l}</span><div class="meas-inp"><input type="number" step="0.1" placeholder="0.0" id="${prefix}_${m.k}" value="${data[m.k]||''}" inputmode="decimal"><span class="meas-unit">cm</span></div></div>`).join('')}
 function readMeasGrid(prefix){const r={};MEASUREMENTS.forEach(m=>{const el=document.getElementById(`${prefix}_${m.k}`);if(el&&el.value)r[m.k]=parseFloat(el.value)});return r}
 const App={
-_prevScreen:null,_currentDate:null,_photoTarget:null,_calDate:new Date(),_toggleState:{},
+_prevScreen:null,_currentDate:null,_photoTarget:null,_calDate:new Date(),_toggleState:{},_importData:null,_importDate:null,
 init(){
   try{
     buildMeasGrid('sq-meas-grid','sq');
@@ -408,6 +408,15 @@ init(){
     const si=document.getElementById('s-start');if(si)si.value=today;
     const cfg=S.get('settings');
     if(!cfg||!cfg.startDate){this.showRaw('screen-splash')}else{this.showScreen('calendar')}
+    // URL-Import: ?import&date=YYYY-MM-DD&weight=80.2&steps=9000&sleep=7.5&kal=1850&pro=140&fat=60&kh=200
+    const _urlP=new URLSearchParams(location.search);
+    if(_urlP.has('import')){
+      const _d=_urlP.get('date')||today;
+      const _imp={};['weight','steps','sleep','kal','pro','fat','kh'].forEach(k=>{const v=_urlP.get(k);if(v!==null&&v!=='')_imp[k]=v});
+      if(Object.keys(_imp).length>0){this._importData=_imp;this._importDate=_d}
+      history.replaceState({},'',location.pathname);
+      if(cfg&&cfg.startDate&&dayNumber(_d)){setTimeout(()=>{this.openEntry(_d);toast('📥 Importiert — orange Felder prüfen & speichern',3500)},150)}
+    }
     const cfgStart=document.getElementById('cfg-start');
     if(cfgStart)cfgStart.addEventListener('change',()=>{const d=parseDate(cfgStart.value);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(addDays(d,89))});
   }catch(e){document.body.innerHTML=`<div style="padding:40px;font-family:sans-serif;color:red"><h2>Fehler</h2><pre style="font-size:12px;white-space:pre-wrap">${e.message}</pre></div>`}
@@ -525,6 +534,19 @@ openEntry(dateS){
   if(entry.tr_durch!==undefined)this._toggleState['tr_durch']=entry.tr_durch;
   if(entry.tr_prog!==undefined)this._toggleState['tr_prog']=entry.tr_prog;
   document.getElementById('entry-content').innerHTML=`<div class="day-hero"><div class="day-tag">Tag ${dn} von 90</div><div class="day-date">${formatDate(parseDate(dateS))}</div><div class="day-date-sub">${parseDate(dateS).toLocaleDateString('de-DE',{weekday:'long'})}</div></div><div class="quote-box"><div class="quote-text">„${q.t}"</div>${q.a?`<div class="quote-author">— ${q.a}</div>`:''}</div><div class="card"><div class="card-title">Körpergewicht</div><div class="soll-ist"><label>Gewicht</label><span class="soll-badge"></span><input class="inp inp-sm" type="number" id="e_gewicht" step="0.1" inputmode="decimal" value="${entry.gewicht||''}" placeholder="0.0"><span class="inp-unit">kg</span><span></span></div></div><div class="card"><div class="card-title">Ernährung</div>${mkSollIst('Kalorienziel','kal',t.kalorien,'kcal')}${mkSollIst('Protein','pro',t.protein,'g')}${mkSollIst('Fett','fat',t.fett,'g')}${mkSollIst('Kohlenhydrate','kh',t.kh,'g')}</div><div class="card"><div class="card-title">Aktivität &amp; Erholung</div>${mkSollIst('Schlaf','sleep',t.schlaf,'h','0.5','decimal')}${mkSollIst('Schritte','steps',t.schritte,'')}${mkSollIst('Wasser','water',t.wasser,'L','0.1','decimal')}</div><div class="card"><div class="card-title">Krafttraining</div>${mkToggle('Geplant','tr_geplant',entry.tr_geplant)}${mkToggle('Durchgeführt','tr_durch',entry.tr_durch)}${mkToggle('Progression','tr_prog',entry.tr_prog)}</div><div class="card"><div class="card-title">3 Dinge, die gestern gut liefen</div>${mkTextRow('Was lief gut?','gut',entry.gut?.[0],1)}${mkTextRow('Was lief gut?','gut',entry.gut?.[1],2)}${mkTextRow('Was lief gut?','gut',entry.gut?.[2],3)}</div><div class="card"><div class="card-title">3 Dinge, die ich heute umsetze</div>${mkTextRow('Was setze ich um?','heute',entry.heute?.[0],1)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[1],2)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[2],3)}</div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveEntry()">Eintrag speichern ✓</button></div>`;
+  // Import-Daten anwenden (vorausgefüllt, aber editierbar)
+  if(this._importData&&this._importDate===dateS){
+    const _imp=this._importData;
+    const _af=(id,val)=>{const el=document.getElementById(id);if(el&&val!==undefined){el.value=val;el.style.borderColor='var(--accent)';el.style.borderWidth='2px'}};
+    _af('e_gewicht',_imp.weight);
+    if(_imp.kal){_af('e_kal',_imp.kal);this.updateProg('kal',t.kalorien)}
+    if(_imp.pro){_af('e_pro',_imp.pro);this.updateProg('pro',t.protein)}
+    if(_imp.fat){_af('e_fat',_imp.fat);this.updateProg('fat',t.fett)}
+    if(_imp.kh){_af('e_kh',_imp.kh);this.updateProg('kh',t.kh)}
+    if(_imp.sleep){_af('e_sleep',_imp.sleep);this.updateProg('sleep',t.schlaf)}
+    if(_imp.steps){_af('e_steps',_imp.steps);this.updateProg('steps',t.schritte)}
+    this._importData=null;
+  }
   this.showScreen('entry');window.scrollTo(0,0);
 },
 setToggle(key,val,btn){
