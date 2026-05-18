@@ -537,7 +537,7 @@ openEntry(dateS){
   // Import-Daten anwenden (vorausgefüllt, aber editierbar)
   if(this._importData&&this._importDate===dateS){
     const _imp=this._importData;
-    const _af=(id,val)=>{const el=document.getElementById(id);if(el&&val!==undefined){el.value=val;el.style.borderColor='var(--accent)';el.style.borderWidth='2px'}};
+    const _af=(id,val)=>{const el=document.getElementById(id);if(el&&val!==undefined){const _cv=(v)=>{const s=String(v).trim();return s.includes(',')?s.replace(/\./g,'').replace(',','.'):s};el.value=_cv(val);el.style.borderColor='var(--accent)';el.style.borderWidth='2px'}};
     _af('e_gewicht',_imp.weight);
     if(_imp.kal){_af('e_kal',_imp.kal);this.updateProg('kal',t.kalorien)}
     if(_imp.pro){_af('e_pro',_imp.pro);this.updateProg('pro',t.protein)}
