@@ -172,6 +172,19 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 .splash-title{font-size:32px;font-weight:800;margin-bottom:8px}
 .splash-sub{font-size:16px;color:var(--text2);margin-bottom:40px;line-height:1.5}
 @media(min-width:480px){.card,.btn-wrap{max-width:480px;margin-left:auto;margin-right:auto}#nav{justify-content:center}.nav-btn{max-width:120px}}
+.chart-container{padding:12px 16px 0}
+.chart-legend{display:flex;gap:16px;padding:10px 0 4px;flex-wrap:wrap}
+.chart-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.chart-legend-dot{width:20px;height:3px;border-radius:2px}
+.foto-compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px}
+.foto-compare-item{border-radius:var(--radius);overflow:hidden;background:var(--card2);aspect-ratio:3/4;position:relative}
+.foto-compare-item img{width:100%;height:100%;object-fit:cover}
+.foto-compare-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:600;text-align:center;padding:5px}
+.foto-compare-row-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin:16px 16px 6px}
+.export-reminder{margin:12px 16px 0;padding:12px 16px;background:var(--yellow-soft);border-left:4px solid var(--yellow);border-radius:var(--radius);display:flex;align-items:center;gap:12px;cursor:pointer}
+.export-reminder-text{flex:1;font-size:14px;color:var(--text)}
+.notif-status{font-size:12px;color:var(--text2);padding:2px 0}
+
 </style>
 </head>
 <body>
@@ -274,6 +287,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
     <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--green)"></div>Vollständig</div>
     <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--yellow)"></div>Teilweise</div>
     <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--accent)"></div>Check-Tag</div>
+    <div class="cal-legend-item" style="margin-left:auto"><button onclick="App.openChart()" style="border:none;background:var(--card2);color:var(--accent);font-size:13px;font-weight:600;border-radius:8px;padding:5px 12px;cursor:pointer">📊 Fortschritt</button></div>
   </div>
 </div>
 
@@ -322,6 +336,24 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
   <div id="statusquo-content"></div>
 </div>
 
+<div id="screen-chart" class="screen">
+  <div class="header">
+    <button class="header-btn" onclick="App.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h1>Fortschritt</h1>
+    <div style="width:36px"></div>
+  </div>
+  <div id="chart-content"></div>
+</div>
+
+<div id="screen-fotocompare" class="screen">
+  <div class="header">
+    <button class="header-btn" onclick="App.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h1>Foto-Vergleich</h1>
+    <div style="width:36px"></div>
+  </div>
+  <div id="fotocompare-content"></div>
+</div>
+
 <div id="screen-settings" class="screen">
   <div class="header" style="position:relative;top:0">
     <h1 style="flex:1;text-align:left;font-size:22px;font-weight:700;padding-top:4px">Einstellungen</h1>
@@ -353,6 +385,10 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
         <label>Status Quo bearbeiten</label>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
+      <div class="settings-row" onclick="App.openFotoCompare()" style="cursor:pointer">
+        <label>Vorher/Nachher Vergleich</label>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
     </div>
   </div>
   <div class="settings-section">
@@ -364,6 +400,23 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
       <div class="settings-row" style="gap:10px">
         <button class="btn btn-primary" style="flex:1;padding:10px 0;font-size:14px" onclick="App.exportData()">📤 Exportieren</button>
         <button class="btn" style="flex:1;padding:10px 0;font-size:14px;background:var(--card2);color:var(--text)" onclick="App.importData()">📥 Importieren</button>
+      </div>
+    </div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-section-title">Tägliche Erinnerung</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <label>Erinnerung aktivieren</label>
+        <input type="checkbox" id="cfg-notif-enabled" style="width:22px;height:22px;accent-color:var(--accent)">
+      </div>
+      <div class="settings-row">
+        <label>Uhrzeit</label>
+        <input type="time" id="cfg-notif-time" value="20:00" style="background:var(--bg2);border:1.5px solid transparent;border-radius:8px;padding:6px 10px;font-size:15px;color:var(--text);outline:none;font-family:inherit">
+      </div>
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+        <div id="notif-status-text" class="notif-status"></div>
+        <button onclick="App.requestNotifications()" style="border:none;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;border-radius:8px;padding:7px 14px;cursor:pointer;margin-top:4px">Berechtigung anfragen</button>
       </div>
     </div>
   </div>
@@ -427,7 +480,7 @@ init(){
       const _imp={};['weight','steps','sleep','kal','pro','fat','kh'].forEach(k=>{const v=_urlP.get(k);if(v!==null&&v!=='')_imp[k]=v});
       if(Object.keys(_imp).length>0){this._importData=_imp;this._importDate=_d}
       history.replaceState({},'',location.pathname);
-      if(cfg&&cfg.startDate&&dayNumber(_d)){setTimeout(()=>{this.openEntry(_d);toast('📥 Importiert — orange Felder prüfen & speichern',3500)},150)}
+      if(cfg&&cfg.startDate&&dayNumber(_d)){setTimeout(()=>{this.openEntry(_d);toast('📥 Importiert — orange Felder prüfen & speichern',3500)},150)}setTimeout(()=>this.checkReminderNotif(),1000);
     }
     const cfgStart=document.getElementById('cfg-start');
     if(cfgStart)cfgStart.addEventListener('change',()=>{const d=parseDate(cfgStart.value);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(addDays(d,89))});
@@ -489,6 +542,21 @@ handlePhoto(e){
   e.target.value='';
 },
 renderCalendar(){
+  // Export-Reminder
+  const lastExp=S.get('lastExport',0);
+  const sevenDays=7*24*3600*1000;
+  const showReminder=S.get('settings')&&(lastExp===0||Date.now()-lastExp>sevenDays);
+  const existingReminder=document.getElementById('export-reminder-banner');
+  if(existingReminder)existingReminder.remove();
+  if(showReminder){
+    const banner=document.createElement('div');
+    banner.id='export-reminder-banner';
+    banner.className='export-reminder';
+    banner.onclick=()=>App.exportData();
+    banner.innerHTML='<span style="font-size:20px">💾</span><div class="export-reminder-text"><strong>Datensicherung empfohlen</strong><br><span style="font-size:12px;color:var(--text2)">Letzte Sicherung: '+(lastExp?new Date(lastExp).toLocaleDateString('de-DE'):'noch nie')+'</span></div><span style="font-size:13px;color:var(--yellow);font-weight:600">Jetzt →</span>';
+    const statsBar=document.getElementById('cal-stats');
+    statsBar.parentNode.insertBefore(banner,statsBar);
+  }
   const cfg=S.get('settings');if(!cfg)return;
   const year=this._calDate.getFullYear(),month=this._calDate.getMonth();
   document.getElementById('cal-month-label').textContent=new Date(year,month,1).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
@@ -654,7 +722,7 @@ openFinal(){
     return`<tr><td>${m.l}</td><td style="color:var(--text2)">${startV||'—'}</td><td><input class="td-inp" type="number" step="0.1" id="fm_${m.k}" value="${nowV}" inputmode="decimal"></td><td><span class="${delta!==null?(+delta>0?'delta-pos':'delta-neg'):''}">${delta!==null?fmtDelta(delta,'cm'):'—'}</span></td></tr>`;
   }).join('');
   const mkFoto=(key,label)=>{const img=fin.fotos?.[key];return`<div class="photo-slot${img?' has-img':''}" id="fps-${key}" onclick="App._photoTarget='final_${key}';document.getElementById('photo-input').click()">${img?`<img src="${img}" alt="${label}">`:`<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M7 20c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg><span class="photo-label">${label}</span>`}</div>`};
-  document.getElementById('final-content').innerHTML=`<div class="final-hero"><div class="trophy">🏆</div><h1>90 Tage geschafft!</h1><p>Trag deine finalen Maße ein und vergleiche mit Tag 1.</p></div><div class="card"><div class="card-title">Körpergewicht</div><div class="weight-compare"><div class="wc-item"><div class="wc-val">${startW||'—'}</div><div class="wc-lbl">Tag 1</div></div><div class="wc-item"><div class="wc-val">${avgNow||'—'}</div><div class="wc-lbl">Tag 90</div></div><div class="wc-item"><div class="wc-val ${deltaW!==null?(+deltaW>0?'wc-delta-pos':'wc-delta-neg'):''}">${deltaW!==null?fmtDelta(deltaW,'kg'):'—'}</div><div class="wc-lbl">Veränderung</div></div></div></div><div class="card" style="padding-bottom:0"><div class="card-title">Umfänge — Vergleich</div><div style="overflow-x:auto"><table class="meas-table"><thead><tr><th>Messung</th><th>Tag 1</th><th>Tag 90</th><th>Δ</th></tr></thead><tbody>${rows}</tbody></table></div></div><div class="card"><div class="card-title">Nachher-Fotos</div><div class="photo-grid">${mkFoto('vorn','Von vorn')}${mkFoto('hinten','Von hinten')}${mkFoto('seitlich','Seitlich')}</div></div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveFinal()">Auswertung speichern ✓</button></div>`;
+  document.getElementById('final-content').innerHTML=`<div class="final-hero"><div class="trophy">🏆</div><h1>90 Tage geschafft!</h1><p>Trag deine finalen Maße ein und vergleiche mit Tag 1.</p></div><div class="card"><div class="card-title">Körpergewicht</div><div class="weight-compare"><div class="wc-item"><div class="wc-val">${startW||'—'}</div><div class="wc-lbl">Tag 1</div></div><div class="wc-item"><div class="wc-val">${avgNow||'—'}</div><div class="wc-lbl">Tag 90</div></div><div class="wc-item"><div class="wc-val ${deltaW!==null?(+deltaW>0?'wc-delta-pos':'wc-delta-neg'):''}">${deltaW!==null?fmtDelta(deltaW,'kg'):'—'}</div><div class="wc-lbl">Veränderung</div></div></div></div><div class="card" style="padding-bottom:0"><div class="card-title">Umfänge — Vergleich</div><div style="overflow-x:auto"><table class="meas-table"><thead><tr><th>Messung</th><th>Tag 1</th><th>Tag 90</th><th>Δ</th></tr></thead><tbody>${rows}</tbody></table></div></div><div class="card"><div class="card-title">Nachher-Fotos</div><div class="photo-grid">${mkFoto('vorn','Von vorn')}${mkFoto('hinten','Von hinten')}${mkFoto('seitlich','Seitlich')}</div></div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveFinal()">Auswertung speichern ✓</button></div><div class="btn-wrap" style="margin-top:10px"><button class="btn" style="background:var(--card2);color:var(--text)" onclick="App.openFotoCompare()">🔍 Vorher/Nachher Vergleich</button></div>`;
   this.showScreen('final');window.scrollTo(0,0);
 },
 saveFinal(){
@@ -676,6 +744,18 @@ saveStatusQuo(){
   S.set('statusQuo',sq);toast('Status Quo gespeichert ✓');
 },
 renderSettings(){
+  // Notifications Status
+  const notifStatus=document.getElementById('notif-status-text');
+  if(notifStatus){
+    const perm='Notification' in window?Notification.permission:'unsupported';
+    notifStatus.textContent=perm==='granted'?'✅ Berechtigung erteilt':perm==='denied'?'❌ In iOS-Einstellungen blockiert — dort entsperren':perm==='unsupported'?'⚠️ Nicht unterstützt (iOS-Hinweis: nur in der installierten Web-App verfügbar)':'ℹ️ Berechtigung noch nicht erteilt — Knopf unten drücken';
+  }
+  const cfg=S.get('settings')||{};
+  const reminder=cfg.reminder||{};
+  const notifEnabled=document.getElementById('cfg-notif-enabled');
+  const notifTime=document.getElementById('cfg-notif-time');
+  if(notifEnabled)notifEnabled.checked=!!reminder.enabled;
+  if(notifTime&&reminder.time)notifTime.value=reminder.time;
   const cfg=S.get('settings')||{},t=cfg.targets||{};
   const fields={'cfg-start':cfg.startDate||'','cfg-name':cfg.name||'','cfg-kal':t.kalorien||'','cfg-pro':t.protein||'','cfg-fat':t.fett||'','cfg-kh':t.kh||'','cfg-sleep':t.schlaf||'','cfg-steps':t.schritte||'','cfg-water':t.wasser||''};
   Object.entries(fields).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v});
@@ -684,11 +764,128 @@ renderSettings(){
 saveSettings(){
   const startDate=document.getElementById('cfg-start')?.value;
   if(!startDate){toast('Bitte Startdatum eingeben');return}
-  S.set('settings',{startDate,name:document.getElementById('cfg-name')?.value||'',targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5}});
+  const notifEnabled=document.getElementById('cfg-notif-enabled')?.checked||false;
+  const notifTime=document.getElementById('cfg-notif-time')?.value||'20:00';
+  S.set('settings',{startDate,name:document.getElementById('cfg-name')?.value||'',targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5},reminder:{enabled:notifEnabled,time:notifTime}});
   const end=addDays(parseDate(startDate),89);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);
   toast('Einstellungen gespeichert ✓');
 },
-exportData(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_'));if(!keys.length){toast('Keine Daten zum Exportieren');return}const data={};keys.forEach(k=>{data[k.replace('90tc_','')]=JSON.parse(localStorage.getItem(k))});const json=JSON.stringify(data);const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📤 Daten exportieren</div><div style='font-size:13px;color:var(--text2)'>Kopiere den Text unten und speichere ihn (z.B. in Notizen). Beim Importieren einfach wieder einfügen.</div><textarea style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' readonly>${json}</textarea><button class='btn btn-primary' onclick='navigator.clipboard?.writeText(this.previousElementSibling.value).then(()=>{},()=>{});this.textContent="✓ Kopiert!";setTimeout(()=>{this.textContent="Kopieren"},2000)'>Kopieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Schließen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},importData(){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📥 Daten importieren</div><div style='font-size:13px;color:var(--text2)'>Füge den exportierten Text hier ein und tippe auf Importieren. Bestehende Daten werden überschrieben.</div><textarea id='import-ta' style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' placeholder='Exportierten Text hier einfügen...'></textarea><button class='btn btn-primary' onclick='App._doImport()'>Importieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Abbrechen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},_doImport(){const ta=document.getElementById('import-ta');if(!ta)return;try{const data=JSON.parse(ta.value.trim());const keys=Object.keys(data);if(!keys.length)throw new Error('Leer');keys.forEach(k=>localStorage.setItem('90tc_'+k,JSON.stringify(data[k])));document.querySelectorAll('[data-overlay]').forEach(el=>el.remove());toast('✅ '+keys.length+' Datensätze importiert — App wird neu gestartet...',3000);setTimeout(()=>window.location.reload(),1500);}catch(e){toast('❌ Ungültige Daten — bitte vollständigen Export-Text einfügen',3000)}},confirmReset(){if(confirm('Alle Daten löschen?')){S.clear();window.location.reload()}}
+exportData(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_'));if(!keys.length){toast('Keine Daten zum Exportieren');return}S.set('lastExport',Date.now());const data={};keys.forEach(k=>{data[k.replace('90tc_','')]=JSON.parse(localStorage.getItem(k))});const json=JSON.stringify(data);const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📤 Daten exportieren</div><div style='font-size:13px;color:var(--text2)'>Kopiere den Text unten und speichere ihn (z.B. in Notizen). Beim Importieren einfach wieder einfügen.</div><textarea style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' readonly>${json}</textarea><button class='btn btn-primary' onclick='navigator.clipboard?.writeText(this.previousElementSibling.value).then(()=>{},()=>{});this.textContent="✓ Kopiert!";setTimeout(()=>{this.textContent="Kopieren"},2000)'>Kopieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Schließen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},importData(){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📥 Daten importieren</div><div style='font-size:13px;color:var(--text2)'>Füge den exportierten Text hier ein und tippe auf Importieren. Bestehende Daten werden überschrieben.</div><textarea id='import-ta' style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' placeholder='Exportierten Text hier einfügen...'></textarea><button class='btn btn-primary' onclick='App._doImport()'>Importieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Abbrechen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},_doImport(){const ta=document.getElementById('import-ta');if(!ta)return;try{const data=JSON.parse(ta.value.trim());const keys=Object.keys(data);if(!keys.length)throw new Error('Leer');keys.forEach(k=>localStorage.setItem('90tc_'+k,JSON.stringify(data[k])));document.querySelectorAll('[data-overlay]').forEach(el=>el.remove());toast('✅ '+keys.length+' Datensätze importiert — App wird neu gestartet...',3000);setTimeout(()=>window.location.reload(),1500);}catch(e){toast('❌ Ungültige Daten — bitte vollständigen Export-Text einfügen',3000)}},requestNotifications(){
+  if(!('Notification' in window)){toast('Benachrichtigungen werden von diesem Browser nicht unterstützt');this.renderSettings();return}
+  Notification.requestPermission().then(perm=>{
+    toast(perm==='granted'?'✅ Benachrichtigungen aktiviert':'❌ Berechtigung verweigert — iOS-Einstellungen prüfen',3000);
+    this.renderSettings();
+  });
+},
+checkReminderNotif(){
+  const cfg=S.get('settings')||{};
+  const reminder=cfg.reminder;
+  if(!reminder?.enabled||!reminder?.time)return;
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const today=dateStr(new Date());
+  if(S.get('notifShown_'+today))return;
+  const [h,m]=reminder.time.split(':').map(Number);
+  const now=new Date();
+  if(now.getHours()<h||(now.getHours()===h&&now.getMinutes()<m))return;
+  const entry=S.get('daily_'+today);
+  if(entry&&(entry.gewicht||entry.kal_ist))return;
+  S.set('notifShown_'+today,true);
+  try{new Notification('90-Tage-Challenge 💪',{body:'Dein Tageseintrag für heute fehlt noch! Bleib dran! 🔥',icon:'icon-192.png',badge:'icon-192.png'})}catch(e){}
+},
+openChart(){
+  const cfg=S.get('settings');
+  if(!cfg?.startDate){toast('Noch kein Startdatum gesetzt');return}
+  const start=parseDate(cfg.startDate);
+  const weights=[],mavgArr=[];
+  for(let i=0;i<90;i++){
+    const d=dateStr(addDays(start,i));
+    const entry=S.get('daily_'+d);
+    const w=entry?.gewicht?parseFloat(entry.gewicht):null;
+    weights.push({day:i+1,w,d});
+    const ma=movingAvg(d);
+    mavgArr.push(ma?parseFloat(ma):null);
+  }
+  const allW=weights.filter(x=>x.w!==null).map(x=>x.w);
+  const today=dateStr(new Date());
+  const todayEntry=S.get('daily_'+today);
+  const todayW=todayEntry?.gewicht?parseFloat(todayEntry.gewicht):null;
+  if(!allW.length){
+    document.getElementById('chart-content').innerHTML='<div class="empty-state"><h3>Noch keine Daten</h3><p>Trag zuerst Gewichtswerte im Tageseintrag ein, dann erscheint hier dein Chart.</p></div>';
+    this.showScreen('chart');return;
+  }
+  const minW=Math.min(...allW)-1.5,maxW=Math.max(...allW)+1.5,wRange=maxW-minW;
+  const W=320,H=170,pL=36,pR=8,pT=10,pB=28;
+  const cW=W-pL-pR,cH=H-pT-pB;
+  const sx=day=>pL+((day-1)/89)*cW;
+  const sy=w=>pT+cH-((w-minW)/wRange)*cH;
+  let linePath='',dotHtml='',maPath='';
+  weights.forEach(({day,w})=>{
+    if(w!==null){
+      const px=sx(day).toFixed(1),py=sy(w).toFixed(1);
+      linePath+=(linePath?'L':'M')+px+','+py;
+      dotHtml+=`<circle cx="${px}" cy="${py}" r="2.5" fill="var(--accent)" opacity="0.8"/>`;
+    }
+  });
+  let maPrev=null;
+  mavgArr.forEach((ma,i)=>{
+    if(ma!==null){
+      const px=sx(i+1).toFixed(1),py=sy(ma).toFixed(1);
+      maPath+=(maPath?'L':'M')+px+','+py;
+    }
+  });
+  const ySteps=4;
+  const yLabels=Array.from({length:ySteps+1},(_,i)=>{const val=minW+wRange*(i/ySteps);return{val:val.toFixed(1),y:sy(val).toFixed(1)}});
+  const weekMarks=[7,14,21,28,35,42,49,56,63,70,77,84,90].map(d=>({day:d,x:sx(d).toFixed(1)}));
+  const startW=allW[0]||null;
+  const lastW=allW[allW.length-1]||null;
+  const deltaTotal=startW&&lastW?(lastW-startW).toFixed(1):null;
+  const svgHtml=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">
+    ${yLabels.map(l=>`<line x1="${pL}" y1="${l.y}" x2="${W-pR}" y2="${l.y}" stroke="var(--border)" stroke-width="1"/><text x="${pL-4}" y="${(+l.y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--text2)" font-family="-apple-system,sans-serif">${l.val}</text>`).join('')}
+    ${weekMarks.map(m=>`<line x1="${m.x}" y1="${pT}" x2="${m.x}" y2="${H-pB}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/>`).join('')}
+    ${weekMarks.filter((_,i)=>i%2===0).map(m=>`<text x="${m.x}" y="${H-pB+12}" text-anchor="middle" font-size="8" fill="var(--text2)" font-family="-apple-system,sans-serif">W${Math.ceil(m.day/7)}</text>`).join('')}
+    ${maPath?`<path d="${maPath}" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>`:''}
+    ${linePath?`<path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>`:''}
+    ${dotHtml}
+  </svg>`;
+  const statsHtml=`<div class="stats-bar" style="margin:12px 16px 0">
+    <div class="stat-item"><div class="stat-val">${allW[0]?.toFixed(1)||'—'} kg</div><div class="stat-lbl">Start</div></div>
+    <div class="stat-item"><div class="stat-val">${allW[allW.length-1]?.toFixed(1)||'—'} kg</div><div class="stat-lbl">Aktuell</div></div>
+    <div class="stat-item"><div class="stat-val ${deltaTotal!==null?(+deltaTotal>0?'wc-delta-pos':'wc-delta-neg'):''}">${deltaTotal!==null?(+deltaTotal>0?'+':'')+deltaTotal+' kg':'—'}</div><div class="stat-lbl">Gesamt</div></div>
+    <div class="stat-item"><div class="stat-val">${allW.length}</div><div class="stat-lbl">Messtage</div></div>
+  </div>`;
+  document.getElementById('chart-content').innerHTML=statsHtml+`<div class="card" style="margin-top:12px;padding:12px 8px 8px">
+    <div class="card-title">Gewichtsverlauf</div>
+    ${svgHtml}
+    <div class="chart-legend">
+      <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--accent);height:3px"></div>Tagesgewicht</div>
+      <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--blue)"></div>7-Tage Schnitt</div>
+    </div>
+  </div>`;
+  this.showScreen('chart');window.scrollTo(0,0);
+},
+openFotoCompare(){
+  const sq=S.get('statusQuo')||{};
+  const fin=S.get('final')||{};
+  const views=[{key:'vorn',label:'Von vorn'},{key:'hinten',label:'Von hinten'},{key:'seitlich',label:'Seitlich'}];
+  const hasSq=sq.fotos&&Object.keys(sq.fotos).length>0;
+  const hasFin=fin.fotos&&Object.keys(fin.fotos).length>0;
+  if(!hasSq&&!hasFin){
+    document.getElementById('fotocompare-content').innerHTML='<div class="empty-state"><h3>Noch keine Fotos</h3><p>Füge zuerst Vorher-Fotos im Status-Quo-Bereich hinzu.</p></div>';
+    this.showScreen('fotocompare');return;
+  }
+  const mkSlot=(fotos,key,label)=>{
+    const img=fotos?.[key];
+    return img?`<div class="foto-compare-item"><img src="${img}" alt="${label}"><div class="foto-compare-label">${label}</div></div>`
+      :`<div class="foto-compare-item" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M7 20c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg><div class="foto-compare-label" style="position:static;background:transparent;color:var(--text2)">${label}</div></div>`;
+  };
+  let rowsHtml='';
+  views.forEach(({key,label})=>{
+    rowsHtml+=`<div class="foto-compare-row-label">${label}</div><div class="foto-compare-grid"><div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px">VORHER</div>${mkSlot(sq.fotos,key,label)}</div><div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px">NACHHER</div>${mkSlot(fin.fotos,key,label)}</div></div>`;
+  });
+  document.getElementById('fotocompare-content').innerHTML='<div class="card" style="padding:0;overflow:hidden"><div style="background:linear-gradient(135deg,var(--accent),#f59e0b);padding:16px 20px;color:#fff;text-align:center"><div style="font-size:20px font-weight:800">📸 Vorher / Nachher</div></div></div>'+rowsHtml+'<div style="height:20px"></div>';
+  this.showScreen('fotocompare');window.scrollTo(0,0);
+},
+confirmReset(){if(confirm('Alle Daten löschen?')){S.clear();window.location.reload()}}
 };
 window.App=App;
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
