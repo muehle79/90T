@@ -750,13 +750,12 @@ renderSettings(){
     const perm='Notification' in window?Notification.permission:'unsupported';
     notifStatus.textContent=perm==='granted'?'✅ Berechtigung erteilt':perm==='denied'?'❌ In iOS-Einstellungen blockiert — dort entsperren':perm==='unsupported'?'⚠️ Nicht unterstützt (iOS-Hinweis: nur in der installierten Web-App verfügbar)':'ℹ️ Berechtigung noch nicht erteilt — Knopf unten drücken';
   }
-  const cfg=S.get('settings')||{};
+  const cfg=S.get('settings')||{},t=cfg.targets||{};
   const reminder=cfg.reminder||{};
   const notifEnabled=document.getElementById('cfg-notif-enabled');
   const notifTime=document.getElementById('cfg-notif-time');
   if(notifEnabled)notifEnabled.checked=!!reminder.enabled;
   if(notifTime&&reminder.time)notifTime.value=reminder.time;
-  const cfg=S.get('settings')||{},t=cfg.targets||{};
   const fields={'cfg-start':cfg.startDate||'','cfg-name':cfg.name||'','cfg-kal':t.kalorien||'','cfg-pro':t.protein||'','cfg-fat':t.fett||'','cfg-kh':t.kh||'','cfg-sleep':t.schlaf||'','cfg-steps':t.schritte||'','cfg-water':t.wasser||''};
   Object.entries(fields).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v});
   if(cfg.startDate){const end=addDays(parseDate(cfg.startDate),89);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end)}
