@@ -3,8 +3,8 @@
 **Stand:** 2026-05-28  
 **Live-URL:** https://muehle79.github.io/90T/  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.2.2` (Konstante `APP_VERSION` in index.html)  
-**Letzter Commit:** `80c3458` — feat: App-Versionierung v1.2.2 in Einstellungen anzeigen
+**Aktuelle Version:** `1.3.0` (Konstante `APP_VERSION` in index.html)  
+**Letzter Commit:** `feat: Makro-basierte Kalorienberechnung & wöchentliche Zielwert-Anpassungen`
 
 ---
 
@@ -17,6 +17,7 @@
 | 1.2.0 | `dc9617a` | 4 Features: Gewichts-Chart, Foto-Vergleich, Export-Reminder, Notifications |
 | 1.2.1 | `8b5c4b0` | Hotfix: doppeltes `const cfg` in `renderSettings()` — App startete nicht |
 | 1.2.2 | `151a150` + `80c3458` | Hotfix: iOS Notifications via `SW.showNotification()`, App-Versionierung |
+| 1.3.0 | `tbd` | Feat: Makro-basierte Kalorienberechnung & wöchentliche Zielwert-Anpassungen |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
