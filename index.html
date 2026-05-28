@@ -79,8 +79,8 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 .cal-day.empty{pointer-events:none}
 .cal-day.out-range{opacity:.3;pointer-events:none}
 .cal-day.today .cal-day-num{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff}
-.cal-day.done .cal-day-dot{background:var(--green)}
-.cal-day.partial .cal-day-dot{background:var(--yellow)}
+.cal-day-dot.done{background:var(--green)}
+.cal-day-dot.partial{background:var(--yellow)}
 .cal-day.check-day{background:var(--accent-soft);border-radius:var(--radius-sm)}
 .cal-day.check-day .cal-day-num{color:var(--accent)}
 .cal-legend{display:flex;gap:16px;padding:12px 20px 8px;flex-wrap:wrap}
@@ -245,7 +245,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
         <span class="photo-label">Seitlich</span>
       </div>
     </div>
-    <input type="file" id="photo-input" accept="image/*" capture="camera" style="display:none" onchange="App.handlePhoto(event)">
+    <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="App.handlePhoto(event)">
     <p class="text-center text-sm text-muted" style="margin:12px 16px">Fotos sind optional — jederzeit in den Einstellungen hinzufügbar.</p>
     <div class="btn-wrap spacer-top" style="display:flex;gap:8px">
       <button class="btn btn-secondary" style="flex:.4" onclick="App.wizardBack(3)">&#x2190; Zurück</button>
@@ -352,6 +352,18 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
       <div class="settings-row" onclick="App.showScreen('statusquo')" style="cursor:pointer">
         <label>Status Quo bearbeiten</label>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-section-title">Datensicherung (PWA / Geräte-Wechsel)</div>
+    <div class="settings-card">
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <label style="font-size:13px;color:var(--text2);font-weight:400">Exportiere alle Daten als Text und importiere sie auf einem anderen Gerät oder in der Web-App.</label>
+      </div>
+      <div class="settings-row" style="gap:10px">
+        <button class="btn btn-primary" style="flex:1;padding:10px 0;font-size:14px" onclick="App.exportData()">📤 Exportieren</button>
+        <button class="btn" style="flex:1;padding:10px 0;font-size:14px;background:var(--card2);color:var(--text)" onclick="App.importData()">📥 Importieren</button>
       </div>
     </div>
   </div>
@@ -508,11 +520,13 @@ calPrev(){this._calDate.setMonth(this._calDate.getMonth()-1);this.renderCalendar
 calNext(){this._calDate.setMonth(this._calDate.getMonth()+1);this.renderCalendar()},
 openDay(dateS){
   const dn=dayNumber(dateS);if(!dn)return;
-  const ct=checkType(dn);this._currentDate=dateS;
+  this._currentDate=dateS;
+  this.openEntry(dateS);
+},
+openCheck(ct,num,dateS){
   if(ct==='final')this.openFinal();
-  else if(ct==='monthly')this.openMonthly(monthNum(dn),dateS);
-  else if(ct==='weekly')this.openWeekly(weekNum(dn),dateS);
-  else this.openEntry(dateS);
+  else if(ct==='monthly')this.openMonthly(num,dateS);
+  else if(ct==='weekly')this.openWeekly(num,dateS);
 },
 openToday(){
   const today=dateStr(new Date()),dn=dayNumber(today);
@@ -533,7 +547,7 @@ openEntry(dateS){
   if(entry.tr_geplant!==undefined)this._toggleState['tr_geplant']=entry.tr_geplant;
   if(entry.tr_durch!==undefined)this._toggleState['tr_durch']=entry.tr_durch;
   if(entry.tr_prog!==undefined)this._toggleState['tr_prog']=entry.tr_prog;
-  document.getElementById('entry-content').innerHTML=`<div class="day-hero"><div class="day-tag">Tag ${dn} von 90</div><div class="day-date">${formatDate(parseDate(dateS))}</div><div class="day-date-sub">${parseDate(dateS).toLocaleDateString('de-DE',{weekday:'long'})}</div></div><div class="quote-box"><div class="quote-text">„${q.t}"</div>${q.a?`<div class="quote-author">— ${q.a}</div>`:''}</div><div class="card"><div class="card-title">Körpergewicht</div><div class="soll-ist"><label>Gewicht</label><span class="soll-badge"></span><input class="inp inp-sm" type="number" id="e_gewicht" step="0.1" inputmode="decimal" value="${entry.gewicht||''}" placeholder="0.0"><span class="inp-unit">kg</span><span></span></div></div><div class="card"><div class="card-title">Ernährung</div>${mkSollIst('Kalorienziel','kal',t.kalorien,'kcal')}${mkSollIst('Protein','pro',t.protein,'g')}${mkSollIst('Fett','fat',t.fett,'g')}${mkSollIst('Kohlenhydrate','kh',t.kh,'g')}</div><div class="card"><div class="card-title">Aktivität &amp; Erholung</div>${mkSollIst('Schlaf','sleep',t.schlaf,'h','0.5','decimal')}${mkSollIst('Schritte','steps',t.schritte,'')}${mkSollIst('Wasser','water',t.wasser,'L','0.1','decimal')}</div><div class="card"><div class="card-title">Krafttraining</div>${mkToggle('Geplant','tr_geplant',entry.tr_geplant)}${mkToggle('Durchgeführt','tr_durch',entry.tr_durch)}${mkToggle('Progression','tr_prog',entry.tr_prog)}</div><div class="card"><div class="card-title">3 Dinge, die gestern gut liefen</div>${mkTextRow('Was lief gut?','gut',entry.gut?.[0],1)}${mkTextRow('Was lief gut?','gut',entry.gut?.[1],2)}${mkTextRow('Was lief gut?','gut',entry.gut?.[2],3)}</div><div class="card"><div class="card-title">3 Dinge, die ich heute umsetze</div>${mkTextRow('Was setze ich um?','heute',entry.heute?.[0],1)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[1],2)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[2],3)}</div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveEntry()">Eintrag speichern ✓</button></div>`;
+  const ct=checkType(dn);const checkBanner=ct&&ct!=='daily'?`<div class="card" style="background:var(--accent-soft);border-left:4px solid var(--accent);margin-bottom:0"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><div style="font-weight:700;color:var(--accent)">${ct==='weekly'?'📋 Wöchentlicher Check':ct==='monthly'?'📊 Monatlicher Check':'🏆 Abschluss-Check'}</div><div style="font-size:13px;color:var(--text2);margin-top:2px">Heute ist ein Check-Tag!</div></div><button class="btn btn-primary" style="padding:8px 14px;font-size:13px;white-space:nowrap" onclick="App.openCheck('${ct}',${ct==='weekly'?weekNum(dn):monthNum(dn)},'${dateS}')">Zum Check →</button></div></div>`:''; document.getElementById('entry-content').innerHTML=`<div class="day-hero"><div class="day-tag">Tag ${dn} von 90</div><div class="day-date">${formatDate(parseDate(dateS))}</div><div class="day-date-sub">${parseDate(dateS).toLocaleDateString('de-DE',{weekday:'long'})}</div></div>${checkBanner}<div class="quote-box"><div class="quote-text">„${q.t}"</div>${q.a?`<div class="quote-author">— ${q.a}</div>`:''}</div><div class="card"><div class="card-title">Körpergewicht</div><div class="soll-ist"><label>Gewicht</label><span class="soll-badge"></span><input class="inp inp-sm" type="number" id="e_gewicht" step="0.1" inputmode="decimal" value="${entry.gewicht||''}" placeholder="0.0"><span class="inp-unit">kg</span><span></span></div></div><div class="card"><div class="card-title">Ernährung</div>${mkSollIst('Kalorienziel','kal',t.kalorien,'kcal')}${mkSollIst('Protein','pro',t.protein,'g')}${mkSollIst('Fett','fat',t.fett,'g')}${mkSollIst('Kohlenhydrate','kh',t.kh,'g')}</div><div class="card"><div class="card-title">Aktivität &amp; Erholung</div>${mkSollIst('Schlaf','sleep',t.schlaf,'h','0.5','decimal')}${mkSollIst('Schritte','steps',t.schritte,'')}${mkSollIst('Wasser','water',t.wasser,'L','0.1','decimal')}</div><div class="card"><div class="card-title">Krafttraining</div>${mkToggle('Geplant','tr_geplant',entry.tr_geplant)}${mkToggle('Durchgeführt','tr_durch',entry.tr_durch)}${mkToggle('Progression','tr_prog',entry.tr_prog)}</div><div class="card"><div class="card-title">3 Dinge, die gestern gut liefen</div>${mkTextRow('Was lief gut?','gut',entry.gut?.[0],1)}${mkTextRow('Was lief gut?','gut',entry.gut?.[1],2)}${mkTextRow('Was lief gut?','gut',entry.gut?.[2],3)}</div><div class="card"><div class="card-title">3 Dinge, die ich heute umsetze</div>${mkTextRow('Was setze ich um?','heute',entry.heute?.[0],1)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[1],2)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[2],3)}</div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveEntry()">Eintrag speichern ✓</button></div>`;
   // Import-Daten anwenden (vorausgefüllt, aber editierbar)
   if(this._importData&&this._importDate===dateS){
     const _imp=this._importData;
@@ -674,7 +688,7 @@ saveSettings(){
   const end=addDays(parseDate(startDate),89);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);
   toast('Einstellungen gespeichert ✓');
 },
-confirmReset(){if(confirm('Alle Daten löschen?')){S.clear();window.location.reload()}}
+exportData(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_'));if(!keys.length){toast('Keine Daten zum Exportieren');return}const data={};keys.forEach(k=>{data[k.replace('90tc_','')]=JSON.parse(localStorage.getItem(k))});const json=JSON.stringify(data);const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📤 Daten exportieren</div><div style='font-size:13px;color:var(--text2)'>Kopiere den Text unten und speichere ihn (z.B. in Notizen). Beim Importieren einfach wieder einfügen.</div><textarea style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' readonly>${json}</textarea><button class='btn btn-primary' onclick='navigator.clipboard?.writeText(this.previousElementSibling.value).then(()=>{},()=>{});this.textContent="✓ Kopiert!";setTimeout(()=>{this.textContent="Kopieren"},2000)'>Kopieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Schließen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},importData(){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📥 Daten importieren</div><div style='font-size:13px;color:var(--text2)'>Füge den exportierten Text hier ein und tippe auf Importieren. Bestehende Daten werden überschrieben.</div><textarea id='import-ta' style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' placeholder='Exportierten Text hier einfügen...'></textarea><button class='btn btn-primary' onclick='App._doImport()'>Importieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Abbrechen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},_doImport(){const ta=document.getElementById('import-ta');if(!ta)return;try{const data=JSON.parse(ta.value.trim());const keys=Object.keys(data);if(!keys.length)throw new Error('Leer');keys.forEach(k=>localStorage.setItem('90tc_'+k,JSON.stringify(data[k])));document.querySelectorAll('[data-overlay]').forEach(el=>el.remove());toast('✅ '+keys.length+' Datensätze importiert — App wird neu gestartet...',3000);setTimeout(()=>window.location.reload(),1500);}catch(e){toast('❌ Ungültige Daten — bitte vollständigen Export-Text einfügen',3000)}},confirmReset(){if(confirm('Alle Daten löschen?')){S.clear();window.location.reload()}}
 };
 window.App=App;
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
