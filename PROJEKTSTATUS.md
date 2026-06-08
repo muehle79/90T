@@ -1,10 +1,10 @@
 # 90-Tage-Challenge PWA — Projektstatus
 
-**Stand:** 2026-05-28  
+**Stand:** 2026-06-08  
 **Live-URL:** https://muehle79.github.io/90T/  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.3.1` (Konstante `APP_VERSION` in index.html)  
-**Letzter Commit:** `feat: Historische Zielwerte via getTargetsForDay dynamic backward propagation`
+**Aktuelle Version:** `1.4.0` (Konstante `APP_VERSION` in index.html)  
+**Letzter Commit:** `feat: Kalorien-Statistiken und -Chart im Fortschritt-Screen`
 
 ---
 
@@ -19,6 +19,7 @@
 | 1.2.2 | `151a150` + `80c3458` | Hotfix: iOS Notifications via `SW.showNotification()`, App-Versionierung |
 | 1.3.0 | `tbd` | Feat: Makro-basierte Kalorienberechnung & wöchentliche Zielwert-Anpassungen |
 | 1.3.1 | `tbd` | Feat: Historische Zielwerte (Anpassungen gelten nur für zukünftige Wochen) |
+| 1.4.0 | `tbd` | Feat: Kalorien-Statistiken (Gesamt-Ø, Wochen-Ø) + Kalorienverlauf-Chart im Fortschritt-Screen |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
