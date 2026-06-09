@@ -3,8 +3,8 @@
 **Stand:** 2026-06-09  
 **Live-URL:** https://muehle79.github.io/90T/  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.4.2` (Konstante `APP_VERSION` in index.html)  
-**Letzter Commit:** `feat: empirische Erhaltungskalorien-Schätzung im Fortschritt-Screen (v1.4.2)`
+**Aktuelle Version:** `1.4.3` (Konstante `APP_VERSION` in index.html)  
+**Letzter Commit:** `feat: Größe und Geburtsdatum im Setup-Wizard und Einstellungen (v1.4.3)`
 
 ---
 
@@ -22,6 +22,7 @@
 | 1.4.0 | `3ded09d` | Feat: Kalorien-Statistiken (Gesamt-Ø, Wochen-Ø) + Kalorienverlauf-Chart im Fortschritt-Screen |
 | 1.4.1 | `7d6bb9f` | Feat: Ø Kalorien IST im Wochencheck (diese Woche, Δ Vorwoche, Δ Ø seit Tag 1) |
 | 1.4.2 | `669a512` | Feat: Empirische Erhaltungskalorien-Schätzung (TDEE) im Fortschritt-Screen |
+| 1.4.3 | `e070447` | Feat: Größe (cm) und Geburtsdatum im Setup-Wizard + Einstellungen, Altersberechnung |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
@@ -73,6 +74,8 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 {
   "startDate": "YYYY-MM-DD",
   "name": "string",
+  "groesse": 175,
+  "geburtsdatum": "YYYY-MM-DD",
   "targets": {
     "kalorien": 1950, "protein": 120, "fett": 65,
     "kh": 236, "schlaf": 8, "schritte": 10000, "wasser": 2.5
@@ -170,6 +173,12 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 - Tippen auf Notification → App öffnet sich
 - **Voraussetzung iOS:** Installierte PWA (Home-Screen), iOS 16.4+
 
+### Körperdaten im Profil
+- Größe (cm) und Geburtsdatum im Setup-Wizard (Schritt 1) und Einstellungen
+- Live-Altersanzeige: beim Eintippen des Geburtsdatums erscheint sofort `→ X Jahre`
+- Altersanzeige in Einstellungen als read-only Feld, aktualisiert sich live und beim Öffnen
+- Hilfsfunktion `calcAge(dateStr)` → Alter in Jahren (ganzzahlig, korrekt um Geburtstag)
+
 ### App-Versionierung
 - `APP_VERSION` Konstante oben im JS
 - Kleine Anzeige ganz unten im Einstellungsmenü
@@ -219,6 +228,7 @@ weekNum(dn)          → 1–9
 monthNum(dn)         → 1–2
 addDays(date, n)     → Date
 movingAvg(dateS)     → string (7-Tage-Schnitt) | null
+calcAge(dateStr)     → number (Alter in Jahren) | null
 toast(msg, ms)       → Toast-Benachrichtigung
 progColor(pct)       → 'green'|'yellow'|'red'
 ```
