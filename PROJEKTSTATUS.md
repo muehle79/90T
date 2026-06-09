@@ -3,8 +3,8 @@
 **Stand:** 2026-06-09  
 **Live-URL:** https://muehle79.github.io/90T/  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.4.1` (Konstante `APP_VERSION` in index.html)  
-**Letzter Commit:** `feat: Ø Kalorien IST im wöchentlichen Check`
+**Aktuelle Version:** `1.4.2` (Konstante `APP_VERSION` in index.html)  
+**Letzter Commit:** `feat: empirische Erhaltungskalorien-Schätzung im Fortschritt-Screen (v1.4.2)`
 
 ---
 
@@ -17,10 +17,11 @@
 | 1.2.0 | `dc9617a` | 4 Features: Gewichts-Chart, Foto-Vergleich, Export-Reminder, Notifications |
 | 1.2.1 | `8b5c4b0` | Hotfix: doppeltes `const cfg` in `renderSettings()` — App startete nicht |
 | 1.2.2 | `151a150` + `80c3458` | Hotfix: iOS Notifications via `SW.showNotification()`, App-Versionierung |
-| 1.3.0 | `tbd` | Feat: Makro-basierte Kalorienberechnung & wöchentliche Zielwert-Anpassungen |
-| 1.3.1 | `tbd` | Feat: Historische Zielwerte (Anpassungen gelten nur für zukünftige Wochen) |
-| 1.4.0 | `tbd` | Feat: Kalorien-Statistiken (Gesamt-Ø, Wochen-Ø) + Kalorienverlauf-Chart im Fortschritt-Screen |
-| 1.4.1 | `tbd` | Feat: Ø Kalorien IST im Wochencheck (diese Woche, Δ Vorwoche, Δ Ø seit Tag 1) |
+| 1.3.0 | `af040a0` | Feat: Makro-basierte Kalorienberechnung & wöchentliche Zielwert-Anpassungen |
+| 1.3.1 | `e9683fa` | Feat: Historische Zielwerte (Anpassungen gelten nur für zukünftige Wochen) |
+| 1.4.0 | `3ded09d` | Feat: Kalorien-Statistiken (Gesamt-Ø, Wochen-Ø) + Kalorienverlauf-Chart im Fortschritt-Screen |
+| 1.4.1 | `7d6bb9f` | Feat: Ø Kalorien IST im Wochencheck (diese Woche, Δ Vorwoche, Δ Ø seit Tag 1) |
+| 1.4.2 | `669a512` | Feat: Empirische Erhaltungskalorien-Schätzung (TDEE) im Fortschritt-Screen |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
@@ -152,6 +153,12 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 - SVG-basiert, keine externe Library, offline-fähig
 - Tägliche Punkte + 7-Tage gleitender Durchschnitt
 - Statistik-Bar: Start / Aktuell / Delta / Messtage
+
+### Erhaltungskalorien-Schätzung (TDEE)
+- Empirische Berechnung: `TDEE = Ø Kalorien IST − (Gewichtsdelta × 7700 / Tage)`
+- Erscheint im Fortschritt-Screen ab ≥ 7 Tagen Gewichts- + Kaloriendaten
+- Zeigt: TDEE-Wert, Basis (Tage), Ø Kalorien IST, Gewichtsveränderung (farbcodiert)
+- Plausibilitätsfilter: nur bei Ergebnis 800–6000 kcal sichtbar
 
 ### Vorher/Nachher Foto-Vergleich
 - 3 Zeilen × 2 Spalten (Vorher | Nachher)
