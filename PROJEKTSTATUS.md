@@ -23,7 +23,7 @@
 | 1.4.1 | `7d6bb9f` | Feat: Ø Kalorien IST im Wochencheck (diese Woche, Δ Vorwoche, Δ Ø seit Tag 1) |
 | 1.4.2 | `669a512` | Feat: Empirische Erhaltungskalorien-Schätzung (TDEE) im Fortschritt-Screen |
 | 1.4.3 | `e070447` | Feat: Größe (cm) und Geburtsdatum im Setup-Wizard + Einstellungen, Altersberechnung |
-| 1.4.4 | `—` | Feat: Geschlecht + formelbasierte TDEE (Mifflin-St Jeor) mit Aktivitätslevel-Selektor |
+| 1.4.4 | `cf6566f` | Feat: Geschlecht + formelbasierte TDEE (Mifflin-St Jeor) mit Aktivitätslevel-Selektor |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
