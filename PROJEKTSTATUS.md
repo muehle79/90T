@@ -1,10 +1,10 @@
 # 90-Tage-Challenge PWA — Projektstatus
 
-**Stand:** 2026-06-08  
+**Stand:** 2026-06-09  
 **Live-URL:** https://muehle79.github.io/90T/  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.4.0` (Konstante `APP_VERSION` in index.html)  
-**Letzter Commit:** `feat: Kalorien-Statistiken und -Chart im Fortschritt-Screen`
+**Aktuelle Version:** `1.4.1` (Konstante `APP_VERSION` in index.html)  
+**Letzter Commit:** `feat: Ø Kalorien IST im wöchentlichen Check`
 
 ---
 
@@ -20,6 +20,7 @@
 | 1.3.0 | `tbd` | Feat: Makro-basierte Kalorienberechnung & wöchentliche Zielwert-Anpassungen |
 | 1.3.1 | `tbd` | Feat: Historische Zielwerte (Anpassungen gelten nur für zukünftige Wochen) |
 | 1.4.0 | `tbd` | Feat: Kalorien-Statistiken (Gesamt-Ø, Wochen-Ø) + Kalorienverlauf-Chart im Fortschritt-Screen |
+| 1.4.1 | `tbd` | Feat: Ø Kalorien IST im Wochencheck (diese Woche, Δ Vorwoche, Δ Ø seit Tag 1) |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
