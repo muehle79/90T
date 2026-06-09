@@ -3,8 +3,8 @@
 **Stand:** 2026-06-09  
 **Live-URL:** https://muehle79.github.io/90T/  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.4.3` (Konstante `APP_VERSION` in index.html)  
-**Letzter Commit:** `feat: Größe und Geburtsdatum im Setup-Wizard und Einstellungen (v1.4.3)`
+**Aktuelle Version:** `1.4.4` (Konstante `APP_VERSION` in index.html)  
+**Letzter Commit:** `feat: formelbasierte TDEE-Berechnung (Mifflin-St Jeor) mit Aktivitätslevel-Selektor (v1.4.4)`
 
 ---
 
@@ -23,6 +23,7 @@
 | 1.4.1 | `7d6bb9f` | Feat: Ø Kalorien IST im Wochencheck (diese Woche, Δ Vorwoche, Δ Ø seit Tag 1) |
 | 1.4.2 | `669a512` | Feat: Empirische Erhaltungskalorien-Schätzung (TDEE) im Fortschritt-Screen |
 | 1.4.3 | `e070447` | Feat: Größe (cm) und Geburtsdatum im Setup-Wizard + Einstellungen, Altersberechnung |
+| 1.4.4 | `—` | Feat: Geschlecht + formelbasierte TDEE (Mifflin-St Jeor) mit Aktivitätslevel-Selektor |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
@@ -76,6 +77,7 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
   "name": "string",
   "groesse": 175,
   "geburtsdatum": "YYYY-MM-DD",
+  "geschlecht": "m|w",
   "targets": {
     "kalorien": 1950, "protein": 120, "fett": 65,
     "kh": 236, "schlaf": 8, "schritte": 10000, "wasser": 2.5
@@ -157,11 +159,15 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 - Tägliche Punkte + 7-Tage gleitender Durchschnitt
 - Statistik-Bar: Start / Aktuell / Delta / Messtage
 
-### Erhaltungskalorien-Schätzung (TDEE)
-- Empirische Berechnung: `TDEE = Ø Kalorien IST − (Gewichtsdelta × 7700 / Tage)`
-- Erscheint im Fortschritt-Screen ab ≥ 7 Tagen Gewichts- + Kaloriendaten
+### Erhaltungskalorien-Schätzung (TDEE) — zwei Methoden
+**Formelbasiert (Mifflin-St Jeor):** Erscheint wenn Größe, Alter und Geschlecht hinterlegt
+- BMR-Anzeige + Aktivitätslevel-Dropdown (×1,2 bis ×1,9), TDEE aktualisiert live
+- Basis: aktuelles Gewicht (7-Tage-Schnitt), Größe, Alter, Geschlecht
+
+**Empirisch:** Erscheint ab ≥ 7 Tagen Gewichts- + Kaloriendaten
+- `TDEE = Ø Kalorien IST − (Gewichtsdelta × 7.700 / Tage)`
 - Zeigt: TDEE-Wert, Basis (Tage), Ø Kalorien IST, Gewichtsveränderung (farbcodiert)
-- Plausibilitätsfilter: nur bei Ergebnis 800–6000 kcal sichtbar
+- Plausibilitätsfilter: nur bei Ergebnis 800–6.000 kcal sichtbar
 
 ### Vorher/Nachher Foto-Vergleich
 - 3 Zeilen × 2 Spalten (Vorher | Nachher)
@@ -174,7 +180,7 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 - **Voraussetzung iOS:** Installierte PWA (Home-Screen), iOS 16.4+
 
 ### Körperdaten im Profil
-- Größe (cm) und Geburtsdatum im Setup-Wizard (Schritt 1) und Einstellungen
+- Größe (cm), Geburtsdatum und Geschlecht im Setup-Wizard (Schritt 1) und Einstellungen
 - Live-Altersanzeige: beim Eintippen des Geburtsdatums erscheint sofort `→ X Jahre`
 - Altersanzeige in Einstellungen als read-only Feld, aktualisiert sich live und beim Öffnen
 - Hilfsfunktion `calcAge(dateStr)` → Alter in Jahren (ganzzahlig, korrekt um Geburtstag)
