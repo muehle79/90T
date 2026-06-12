@@ -653,6 +653,7 @@ async init(){
     const cfg=S.get('settings');
     if(!cfg||!cfg.startDate){this.showRaw('screen-splash')}else{this.showScreen('calendar')}
     setTimeout(()=>this.showChangelogIfNeeded(),400);
+    setTimeout(()=>this.checkReminderNotif(),1000);
     // URL-Import: ?import&date=YYYY-MM-DD&weight=80.2&steps=9000&sleep=7.5&kal=1850&pro=140&fat=60&kh=200
     const _urlP=new URLSearchParams(location.search);
     if(_urlP.has('import')){
@@ -660,7 +661,7 @@ async init(){
       const _imp={};['weight','steps','sleep','kal','pro','fat','kh'].forEach(k=>{const v=_urlP.get(k);if(v!==null&&v!=='')_imp[k]=v});
       if(Object.keys(_imp).length>0){this._importData=_imp;this._importDate=_d}
       history.replaceState({},'',location.pathname);
-      if(cfg&&cfg.startDate&&dayNumber(_d)){setTimeout(()=>{this.openEntry(_d);toast('📥 Importiert — orange Felder prüfen & speichern',3500)},150)}setTimeout(()=>this.checkReminderNotif(),1000);
+      if(cfg&&cfg.startDate&&dayNumber(_d)){setTimeout(()=>{this.openEntry(_d);toast('📥 Importiert — orange Felder prüfen & speichern',3500)},150)}
     }
     const cfgStart=document.getElementById('cfg-start');
     if(cfgStart)cfgStart.addEventListener('change',()=>{const d=parseDate(cfgStart.value);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(addDays(d,89))});
