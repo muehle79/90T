@@ -490,8 +490,9 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.7.0';
 const CHANGELOG=[
+  {version:'1.7.0',items:['🔄 Echtzeit-Sync: Daten werden sofort nach jedem Speichern auf den Server hochgeladen','🔄 App-Start lädt immer den aktuellen Stand vom Server — alle Geräte immer synchron']},
   {version:'1.6.0',items:['🔔 Update-Hinweise: Diese Box zeigt dir nach jedem Update alle Neuerungen']},
   {version:'1.5.3',items:['🔄 Import markiert jetzt korrekt die Sync-Queue','🔄 Neuer „Sync erzwingen"-Button in den Einstellungen']},
   {version:'1.5.2',items:['🔐 Bugfix: Login-Screen wurde nicht korrekt ausgeblendet']},
@@ -642,6 +643,7 @@ async init(){
   let _authed=false;
   try{const _r=await fetch('/api/me',{credentials:'include'});_authed=_r.ok;}catch{}
   if(!_authed){this.showRaw('screen-auth');return;}
+  await sync();
   try{
     buildMeasGrid('sq-meas-grid','sq');
     const wp=document.getElementById('wizard-progress');
@@ -856,7 +858,7 @@ saveEntry(){
   entry.gut=[1,2,3].map(i=>document.getElementById(`e_gut_${i}`)?.value||'');
   entry.heute=[1,2,3].map(i=>document.getElementById(`e_heute_${i}`)?.value||'');
   S.set('daily_'+ds,entry);this._toggleState={};
-  toast('Gespeichert ✓');setTimeout(()=>this.back(),500);
+  toast('Gespeichert ✓');sync();setTimeout(()=>this.back(),500);
 },
 openWeekly(wn,dateS){
   this._currentDate=dateS;
@@ -907,7 +909,7 @@ saveWeekly(){
     data.kh=+document.getElementById('w-kh')?.value||236;
     data.kalorien=this.calcCalories(data.protein,data.fett,data.kh);
   }
-  S.set('weekly_'+wn,data);toast('Wochencheck gespeichert ✓');setTimeout(()=>this.back(),500);
+  S.set('weekly_'+wn,data);toast('Wochencheck gespeichert ✓');sync();setTimeout(()=>this.back(),500);
 },
 openMonthly(mn,dateS){
   this._currentDate=dateS;
@@ -947,7 +949,7 @@ saveMonthly(){
     data.kh=+document.getElementById('m-kh')?.value||236;
     data.kalorien=this.calcCalories(data.protein,data.fett,data.kh);
   }
-  S.set('monthly_'+mn,data);toast('Monatscheck gespeichert ✓');setTimeout(()=>this.back(),500);
+  S.set('monthly_'+mn,data);toast('Monatscheck gespeichert ✓');sync();setTimeout(()=>this.back(),500);
 },
 openFinal(){
   const sq=S.get('statusQuo')||{},fin=S.get('final')||{},cfg=S.get('settings')||{};
@@ -964,7 +966,7 @@ openFinal(){
 saveFinal(){
   const fin=S.get('final')||{};if(!fin.umfaenge)fin.umfaenge={};
   MEASUREMENTS.forEach(m=>{const el=document.getElementById('fm_'+m.k);if(el&&el.value)fin.umfaenge[m.k]=parseFloat(el.value)});
-  S.set('final',fin);toast('Abschlussauswertung gespeichert 🏆');
+  S.set('final',fin);toast('Abschlussauswertung gespeichert 🏆');sync();
 },
 renderStatusQuo(){
   const sq=S.get('statusQuo')||{};
@@ -977,7 +979,7 @@ saveStatusQuo(){
   sq.gewicht=+document.getElementById('sqe-weight')?.value||sq.gewicht;
   sq.kfa=+document.getElementById('sqe-kfa')?.value||sq.kfa;
   sq.umfaenge=readMeasGrid('sqe');
-  S.set('statusQuo',sq);toast('Status Quo gespeichert ✓');
+  S.set('statusQuo',sq);toast('Status Quo gespeichert ✓');sync();
 },
 renderSettings(){
   // Notifications Status
@@ -1007,7 +1009,7 @@ saveSettings(){
   const notifTime=document.getElementById('cfg-notif-time')?.value||'20:00';
   S.set('settings',{startDate,name:document.getElementById('cfg-name')?.value||'',groesse:+document.getElementById('cfg-groesse')?.value||null,geburtsdatum:document.getElementById('cfg-geburt')?.value||'',geschlecht:document.getElementById('cfg-geschlecht')?.value||'',targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5},reminder:{enabled:notifEnabled,time:notifTime}});
   const end=addDays(parseDate(startDate),89);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);
-  toast('Einstellungen gespeichert ✓');
+  toast('Einstellungen gespeichert ✓');sync();
 },
 exportData(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_'));if(!keys.length){toast('Keine Daten zum Exportieren');return}S.set('lastExport',Date.now());const data={};keys.forEach(k=>{data[k.replace('90tc_','')]=JSON.parse(localStorage.getItem(k))});const json=JSON.stringify(data);const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📤 Daten exportieren</div><div style='font-size:13px;color:var(--text2)'>Kopiere den Text unten und speichere ihn (z.B. in Notizen). Beim Importieren einfach wieder einfügen.</div><textarea style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' readonly>${json}</textarea><button class='btn btn-primary' onclick='navigator.clipboard?.writeText(this.previousElementSibling.value).then(()=>{},()=>{});this.textContent="✓ Kopiert!";setTimeout(()=>{this.textContent="Kopieren"},2000)'>Kopieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Schließen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},importData(){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📥 Daten importieren</div><div style='font-size:13px;color:var(--text2)'>Füge den exportierten Text hier ein und tippe auf Importieren. Bestehende Daten werden überschrieben.</div><textarea id='import-ta' style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' placeholder='Exportierten Text hier einfügen...'></textarea><button class='btn btn-primary' onclick='App._doImport()'>Importieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Abbrechen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},_doImport(){const ta=document.getElementById('import-ta');if(!ta)return;try{const data=JSON.parse(ta.value.trim());const keys=Object.keys(data);if(!keys.length)throw new Error('Leer');const now=Date.now();const dirty=S._gd();keys.forEach(k=>{localStorage.setItem('90tc_'+k,JSON.stringify(data[k]));dirty[k]=now;});localStorage.setItem('90tc__dirty',JSON.stringify(dirty));document.querySelectorAll('[data-overlay]').forEach(el=>el.remove());toast('✅ '+keys.length+' Datensätze importiert — Sync läuft...',3000);sync().then(()=>App.init()).catch(()=>App.init());}catch(e){toast('❌ Ungültige Daten — bitte vollständigen Export-Text einfügen',3000)}},forceSync(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_')&&!k.startsWith('90tc__'));if(!keys.length){toast('Keine lokalen Daten gefunden');return;}const now=Date.now();const dirty={};keys.forEach(k=>dirty[k.replace('90tc_','')]=now);localStorage.setItem('90tc__dirty',JSON.stringify(dirty));toast('⬆ Lade '+keys.length+' Einträge hoch...',2000);sync().then(()=>{toast('✅ Sync abgeschlossen',2000);}).catch(()=>toast('❌ Sync fehlgeschlagen',2000));},requestNotifications(){
   if(!('Notification' in window)){toast('Benachrichtigungen werden von diesem Browser nicht unterstützt');this.renderSettings();return}
