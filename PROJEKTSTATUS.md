@@ -5,7 +5,7 @@
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
 **Aktuelle Version:** `1.7.0`  
-**Letzter Commit:** `feat: Multi-Device-Sync — sync() bei App-Start und nach jedem Speichern (v1.7.0)`
+**Letzter Commit:** `fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import)`
 
 ---
 
@@ -32,6 +32,10 @@
 | 1.5.3 | `7ef1690` | Feat: Neues App-Icon "Kinetic Meridian" + favicon & apple-touch-icon |
 | 1.6.0 | `fd82f44` | Feat: Changelog-Modal — zeigt Neuerungen nach jedem Versionssprung |
 | 1.7.0 | `89093c4` | Feat: sync() bei App-Start + nach jedem Speichern — Geräte immer synchron |
+| 1.7.0 | `b706306` | Fix: sw.js Network-First für index.html — kein manueller Cache-Clear mehr nötig |
+| 1.7.0 | `48700d3` | Fix: Changelog-Modal auch nach Cache-Clear anzeigen (bestehende Nutzer) |
+| 1.7.0 | `3fac75b` | Fix: controllerchange-Listener — PWA lädt automatisch neu wenn neuer SW aktiv |
+| 1.7.0 | `207c436` | Fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import) |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
@@ -177,6 +181,10 @@ PAT: im Memory-System der KI gespeichert (memory/project_90tc.md).
 | 1.5.1 | 11 | Auth-Screen erscheint nicht (JS-Syntaxfehler) | `async/await` statt `.then()` in `init()` |
 | 1.5.2 | 12 | Auth-Screen bleibt unsichtbar | CSS `.active`-Selektor + inline-style entfernt |
 | 1.5.3 | 13 | Import lädt nicht zum Server hoch | `_doImport` setzt dirty-queue + ruft `sync()` auf |
+| 1.7.0 | 14 | Alte App-Version nach Update im Browser | sw.js auf Network-First für index.html umgestellt |
+| 1.7.0 | 15 | Changelog-Modal erscheint nicht nach Cache-Clear | `lastSeen=null` + `settings` vorhanden → `lastSeen='0.0.0'` |
+| 1.7.0 | 16 | PWA vom Homescreen lädt alte Version | `controllerchange`-Listener löst automatischen Reload aus |
+| 1.7.0 | 17 | Tägliche Erinnerung kommt nie | `checkReminderNotif()` nur bei URL-Import aufgerufen → jetzt bei jedem Start |
 
 ---
 
@@ -186,5 +194,5 @@ PAT: im Memory-System der KI gespeichert (memory/project_90tc.md).
 |---|---|
 | localStorage ~5 MB Limit | Fotos sparsam einsetzen |
 | iOS löscht PWA-Storage bei Inaktivität | Daten liegen jetzt auf dem Server — kein Datenverlust mehr |
-| Service Worker Cache nach Updates | SW-Cache leeren oder privates Fenster nutzen |
+| ~~Service Worker Cache nach Updates~~ | ~~SW-Cache leeren~~ → behoben in 1.7.0 (Network-First + controllerchange) |
 | Fotos noch in localStorage (Base64) | Zukünftiger Upload auf Server (Phase 6 aus Migrationsplan) |
