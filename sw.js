@@ -19,7 +19,22 @@ self.addEventListener('fetch', e => {
     e.respondWith(fetch(e.request));
     return;
   }
-  // Statische Dateien: Cache-First, Fallback auf Netz, dann index.html
+
+  // index.html / App-Shell: Network-First — immer aktuelle Version laden,
+  // gecachte Version nur als Offline-Fallback
+  const url = new URL(e.request.url);
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    e.respondWith(
+      fetch(e.request).then(r => {
+        const clone = r.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return r;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Andere statische Assets (Icons, Manifest): Cache-First
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/index.html')))
   );
