@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.7.0`  
-**Letzter Commit:** `fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import)`
+**Aktuelle Version:** `1.7.1`  
+**Letzter Commit:** `feat: APP_VERSION auf 1.7.1 — Fixes fuer PWA-Update und Push-Erinnerung`
 
 ---
 
@@ -36,6 +36,7 @@
 | 1.7.0 | `48700d3` | Fix: Changelog-Modal auch nach Cache-Clear anzeigen (bestehende Nutzer) |
 | 1.7.0 | `3fac75b` | Fix: controllerchange-Listener — PWA lädt automatisch neu wenn neuer SW aktiv |
 | 1.7.0 | `207c436` | Fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import) |
+| 1.7.1 | — | Versionssprung für alle 1.7.0-Fixes — Changelog-Modal + Push-Erinnerung sichtbar |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
