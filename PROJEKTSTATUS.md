@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.6.0`  
-**Letzter Commit:** `feat: Changelog-Modal — zeigt Neuerungen nach jedem Update`
+**Aktuelle Version:** `1.7.0`  
+**Letzter Commit:** `feat: Multi-Device-Sync — sync() bei App-Start und nach jedem Speichern (v1.7.0)`
 
 ---
 
@@ -30,7 +30,8 @@
 | 1.5.2 | `8fa4d31` | Fix: screen-auth CSS .active-Selektor + inline-style entfernt |
 | 1.5.3 | `36cf6ab` | Fix: _doImport markiert dirty-queue + forceSync Button |
 | 1.5.3 | `7ef1690` | Feat: Neues App-Icon "Kinetic Meridian" + favicon & apple-touch-icon |
-| 1.6.0 | — | Feat: Changelog-Modal — zeigt Neuerungen nach jedem Versionssprung |
+| 1.6.0 | `fd82f44` | Feat: Changelog-Modal — zeigt Neuerungen nach jedem Versionssprung |
+| 1.7.0 | `89093c4` | Feat: sync() bei App-Start + nach jedem Speichern — Geräte immer synchron |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
