@@ -1301,7 +1301,12 @@ async doLogout(){
 }
 };
 window.App=App;
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
+  // Wenn ein neuer Service Worker übernimmt (nach Update): Seite neu laden
+  // → garantiert dass immer die aktuelle index.html geladen wird (auch als installierte PWA)
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{window.location.reload()});
+}
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',()=>App.init())}else{App.init()}
 </script>
 </div>
