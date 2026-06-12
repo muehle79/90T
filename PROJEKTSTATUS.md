@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.5.3`  
-**Letzter Commit:** `fix: _doImport markiert dirty-queue + forceSync Button (v1.5.3)`
+**Aktuelle Version:** `1.6.0`  
+**Letzter Commit:** `feat: Changelog-Modal — zeigt Neuerungen nach jedem Update`
 
 ---
 
@@ -29,6 +29,8 @@
 | 1.5.1 | `4e3ca60` | Fix: async/await Auth-Check in init() — JS-Syntaxfehler behoben |
 | 1.5.2 | `8fa4d31` | Fix: screen-auth CSS .active-Selektor + inline-style entfernt |
 | 1.5.3 | `36cf6ab` | Fix: _doImport markiert dirty-queue + forceSync Button |
+| 1.5.3 | `7ef1690` | Feat: Neues App-Icon "Kinetic Meridian" + favicon & apple-touch-icon |
+| 1.6.0 | — | Feat: Changelog-Modal — zeigt Neuerungen nach jedem Versionssprung |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
@@ -67,7 +69,7 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | `index.html` | Komplette App — HTML + CSS + JS in einer Datei |
 | `manifest.json` | PWA-Manifest (start_url: challenge.blue-bulls-flechtorf.de) |
 | `sw.js` | Service Worker v3 — /api/* network-only, static cache-first |
-| `icon-192.png` / `icon-512.png` | App-Icons |
+| `icon-192.png` / `icon-512.png` / `favicon.png` | App-Icons (Kinetic Meridian Design, ohne feste Tageszahl) |
 | `import.html` | Hilfsseite für URL-basierten Daten-Import (iOS Kurzbefehl) |
 | `export.html` | Einmal-Export-Seite ohne Auth (für Migration von alten Daten) |
 | `server/app.py` | Flask-Backend: Auth + KV-Sync + statische Dateien |
