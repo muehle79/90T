@@ -1034,8 +1034,13 @@ checkReminderNotif(){
   const notifPayload={body:'Dein Tageseintrag für heute fehlt noch! Bleib dran! 🔥',icon:'icon-192.png',badge:'icon-192.png',tag:'90tc-daily',renotify:false,requireInteraction:false};  if(navigator.serviceWorker?.controller){    navigator.serviceWorker.ready.then(reg=>{      reg.showNotification('90-Tage-Challenge 💪',notifPayload);    }).catch(()=>{});  }else{    try{new Notification('90-Tage-Challenge 💪',notifPayload)}catch(e){}  }
 },
 showChangelogIfNeeded(){
-  const lastSeen=localStorage.getItem('90tc__lastSeenVersion');
-  if(!lastSeen){localStorage.setItem('90tc__lastSeenVersion',APP_VERSION);return;}
+  let lastSeen=localStorage.getItem('90tc__lastSeenVersion');
+  if(!lastSeen){
+    // Kein lastSeen: entweder neuer Nutzer ODER Cache wurde gelöscht.
+    // Wenn Settings vorhanden → bestehender Nutzer → Changelog trotzdem zeigen.
+    if(!S.get('settings')){localStorage.setItem('90tc__lastSeenVersion',APP_VERSION);return;}
+    lastSeen='0.0.0'; // bestehender Nutzer: alle Einträge zeigen
+  }
   if(lastSeen===APP_VERSION)return;
   function semverGt(a,b){const pa=a.split('.').map(Number),pb=b.split('.').map(Number);for(let i=0;i<3;i++){if((pa[i]||0)>(pb[i]||0))return true;if((pa[i]||0)<(pb[i]||0))return false;}return false;}
   const toShow=CHANGELOG.filter(c=>semverGt(c.version,lastSeen));
