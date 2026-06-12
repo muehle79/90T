@@ -2,7 +2,7 @@
   "name": "90-Tage-Challenge",
   "short_name": "90TC",
   "description": "Dein persönliches 90-Tage-Challenge Tagebuch",
-  "start_url": "./index.html",
+  "start_url": "https://challenge.blue-bulls-flechtorf.de/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#F97316",
@@ -20,5 +20,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "https://challenge.blue-bulls-flechtorf.de/"
 }
