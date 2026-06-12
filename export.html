@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>90TC Daten-Export</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#eee;padding:24px;max-width:600px;margin:0 auto}
+h2{color:#f90}
+textarea{width:100%;height:200px;background:#222;color:#0f0;border:1px solid #444;padding:8px;font-size:12px;border-radius:6px;box-sizing:border-box}
+button{background:#f90;color:#000;border:none;padding:12px 24px;font-size:16px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:12px;width:100%}
+.info{background:#1a1a2e;border-left:3px solid #f90;padding:12px;margin-bottom:16px;border-radius:4px;font-size:14px}
+#status{margin-top:8px;color:#0f0;font-size:14px}
+</style>
+</head>
+<body>
+<h2>📦 90TC Daten-Export</h2>
+<div class="info">Diese Seite liest deine lokalen Challenge-Daten aus und zeigt sie als JSON an. Kopiere den Text und importiere ihn in der neuen App.</div>
+<textarea id="out" readonly placeholder="Lade Daten..."></textarea>
+<button onclick="doCopy()">📋 JSON kopieren</button>
+<div id="status"></div>
+<script>
+(function(){
+  const d={};
+  let count=0;
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('90tc_')){d[k]=localStorage.getItem(k);count++;}
+  }
+  const ta=document.getElementById('out');
+  const st=document.getElementById('status');
+  if(count===0){
+    ta.value='Keine Daten gefunden. Bist du im richtigen Browser/Gerät?';
+    st.style.color='#f66';
+    st.textContent='⚠ 0 Einträge gefunden';
+  } else {
+    ta.value=JSON.stringify(d);
+    st.textContent='✓ '+count+' Einträge gefunden';
+  }
+  function doCopy(){
+    if(count===0)return;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(ta.value).then(()=>{document.getElementById('status').textContent='✓ In Zwischenablage kopiert!'});
+    } else {
+      ta.select();document.execCommand('copy');
+      document.getElementById('status').textContent='✓ Kopiert!';
+    }
+  }
+  window.doCopy=doCopy;
+})();
+</script>
+</body>
+</html>
