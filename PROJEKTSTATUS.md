@@ -1,10 +1,11 @@
 # 90-Tage-Challenge PWA — Projektstatus
 
-**Stand:** 2026-06-09  
-**Live-URL:** https://muehle79.github.io/90T/  
+**Stand:** 2026-06-12  
+**Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
+**Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.4.4` (Konstante `APP_VERSION` in index.html)  
-**Letzter Commit:** `feat: formelbasierte TDEE-Berechnung (Mifflin-St Jeor) mit Aktivitätslevel-Selektor (v1.4.4)`
+**Aktuelle Version:** `1.5.3`  
+**Letzter Commit:** `fix: _doImport markiert dirty-queue + forceSync Button (v1.5.3)`
 
 ---
 
@@ -19,78 +20,72 @@
 | 1.2.2 | `151a150` + `80c3458` | Hotfix: iOS Notifications via `SW.showNotification()`, App-Versionierung |
 | 1.3.0 | `af040a0` | Feat: Makro-basierte Kalorienberechnung & wöchentliche Zielwert-Anpassungen |
 | 1.3.1 | `e9683fa` | Feat: Historische Zielwerte (Anpassungen gelten nur für zukünftige Wochen) |
-| 1.4.0 | `3ded09d` | Feat: Kalorien-Statistiken (Gesamt-Ø, Wochen-Ø) + Kalorienverlauf-Chart im Fortschritt-Screen |
-| 1.4.1 | `7d6bb9f` | Feat: Ø Kalorien IST im Wochencheck (diese Woche, Δ Vorwoche, Δ Ø seit Tag 1) |
-| 1.4.2 | `669a512` | Feat: Empirische Erhaltungskalorien-Schätzung (TDEE) im Fortschritt-Screen |
-| 1.4.3 | `e070447` | Feat: Größe (cm) und Geburtsdatum im Setup-Wizard + Einstellungen, Altersberechnung |
-| 1.4.4 | `cf6566f` | Feat: Geschlecht + formelbasierte TDEE (Mifflin-St Jeor) mit Aktivitätslevel-Selektor |
+| 1.4.0 | `3ded09d` | Feat: Kalorien-Statistiken (Gesamt-Ø, Wochen-Ø) + Kalorienverlauf-Chart |
+| 1.4.1 | `7d6bb9f` | Feat: Ø Kalorien IST im Wochencheck |
+| 1.4.2 | `669a512` | Feat: Empirische TDEE-Schätzung |
+| 1.4.3 | `e070447` | Feat: Größe (cm) und Geburtsdatum im Profil |
+| 1.4.4 | `cf6566f` | Feat: Geschlecht + formelbasierte TDEE (Mifflin-St Jeor) |
+| 1.5.0 | `c3badf6` | **Migration:** Auth-Screen, Dirty-Queue-Sync, sw.js v3, manifest.json, server/ |
+| 1.5.1 | `4e3ca60` | Fix: async/await Auth-Check in init() — JS-Syntaxfehler behoben |
+| 1.5.2 | `8fa4d31` | Fix: screen-auth CSS .active-Selektor + inline-style entfernt |
+| 1.5.3 | `36cf6ab` | Fix: _doImport markiert dirty-queue + forceSync Button |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
 ---
 
+## Architektur (aktuell)
+
+```
+iPhone/Mac/Browser
+    ── HTTPS ──▶ Cloudflare (SSL, Tunnel)
+                    ── cloudflared ──▶ Raspberry Pi 4 (dartsserver, Debian 12)
+                                          ├── Flask + Gunicorn :8080 (90tc.service)
+                                          │     ├── GET /  → static/index.html
+                                          │     ├── POST /api/register + /api/login
+                                          │     ├── GET /api/me
+                                          │     ├── GET /api/sync?since=<ts>
+                                          │     └── PUT /api/kv
+                                          └── SQLite: /home/pi/90tc-app/db/90tc.db
+```
+
+**Subdomain:** `challenge.blue-bulls-flechtorf.de`  
+**Tunnel:** `darts-tunnel` (ID: `3a2878de-1b4a-45b3-9383-865a4a6dee03`)  
+**Service:** `90tc.service` (User=pi, Gunicorn -w 2 -b 127.0.0.1:8080)  
+**Backup:** Cron täglich 03:00 → `/home/pi/90tc-app/backups/90tc-YYYY-MM-DD.db` (30 Tage Aufbewahrung)
+
+---
+
 ## Projektbeschreibung
 
-Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert auf dem 90TC_Workbook.pdf (S. 70–180). Kein Framework, kein Backend — alle Daten im `localStorage`. Deployment via GitHub Pages (automatisch bei Push auf `main`, ca. 30–60 Sek.).
+Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert auf dem 90TC_Workbook.pdf (S. 70–180). **Offline-first** — alle Daten primär im `localStorage`, Sync zum eigenen Server über Dirty-Queue (Last-Write-Wins pro Key).
 
 **Dateien im Repo:**
 
 | Datei | Zweck |
 |---|---|
-| `index.html` | Komplette App — HTML + CSS + JS in einer Datei (minifiziert) |
-| `manifest.json` | PWA-Manifest für Home-Screen-Installation |
-| `sw.js` | Service Worker — Offline-Cache + Notification-Click-Handler |
+| `index.html` | Komplette App — HTML + CSS + JS in einer Datei |
+| `manifest.json` | PWA-Manifest (start_url: challenge.blue-bulls-flechtorf.de) |
+| `sw.js` | Service Worker v3 — /api/* network-only, static cache-first |
 | `icon-192.png` / `icon-512.png` | App-Icons |
 | `import.html` | Hilfsseite für URL-basierten Daten-Import (iOS Kurzbefehl) |
-| `PROJEKTSTATUS.md` | Diese Datei — wird bei jeder Änderung mit committet |
+| `export.html` | Einmal-Export-Seite ohne Auth (für Migration von alten Daten) |
+| `server/app.py` | Flask-Backend: Auth + KV-Sync + statische Dateien |
+| `server/setup_db.py` | SQLite-Schema-Initialisierung |
+| `server/90tc.service` | systemd-Unit |
+| `server/install.sh` | Installations-Skript für Raspberry Pi |
+| `PROJEKTSTATUS.md` | Diese Datei |
 
 ---
 
-## Technische Architektur
+## Auth & Sync
 
-| Schicht | Details |
-|---|---|
-| Storage | `localStorage` mit Prefix `90tc_` (Wrapper: `S.get/set/del/clear`) |
-| Foto-Speicherung | Base64-kodiert, komprimiert via Canvas (max 900px, JPEG 72%) |
-| Routing | `App.showScreen(name)` — kein URL-Routing, `back()` via `_prevScreen` |
-| Offline | Service Worker cached `index.html`, `manifest.json`, Icons |
-| Notifications | `serviceWorker.ready.then(reg => reg.showNotification(...))` — iOS-kompatibel |
-| URL-Import | `?import&date=YYYY-MM-DD&weight=X&kal=X&pro=X&fat=X&kh=X&steps=X&sleep=X` |
-
-**localStorage-Keys:**
-
-| Key | Inhalt |
-|---|---|
-| `settings` | Startdatum, Name, Zielwerte, Reminder-Config |
-| `statusQuo` | Gewicht, KFA, Umfänge, Vorher-Fotos (Base64) |
-| `daily_YYYY-MM-DD` | Tageseintrag (Gewicht, Macros, Training, Texte) |
-| `weekly_N` | Wochencheck N (Umfänge) |
-| `monthly_N` | Monatscheck N (Umfänge, Kalorienanpassung) |
-| `final` | Abschlussauswertung (Umfänge, Nachher-Fotos) |
-| `lastExport` | Timestamp letzter Daten-Export (für Reminder) |
-| `notifShown_YYYY-MM-DD` | Verhindert mehrfache Notification pro Tag |
-
-**Settings-Objekt-Schema:**
-```json
-{
-  "startDate": "YYYY-MM-DD",
-  "name": "string",
-  "groesse": 175,
-  "geburtsdatum": "YYYY-MM-DD",
-  "geschlecht": "m|w",
-  "targets": {
-    "kalorien": 1950, "protein": 120, "fett": 65,
-    "kh": 236, "schlaf": 8, "schritte": 10000, "wasser": 2.5
-  },
-  "reminder": { "enabled": true, "time": "20:00" }
-}
-```
-
-**Tag-Typen (`checkType(dayN)`):**
-- `daily` — Tage 1–90 (außer Check-Tage)
-- `weekly` — Tag 7, 14, 21, 35, 42, 49, 63, 70, 77
-- `monthly` — Tag 28, 56
-- `final` — Tag 90
+- **Registrierung:** Invite-Code geschützt (in `/home/pi/90tc-app/.env`)
+- **Session:** httpOnly + Secure + SameSite=Lax Cookie, 1 Jahr Laufzeit
+- **Passwörter:** bcrypt-Hash
+- **Sync-Strategie:** Offline-first, Dirty-Queue in localStorage (`90tc__dirty`), Last-Write-Wins pro Key anhand `updated_at` (Unix-ms)
+- **Sync-Aufruf:** App-Start (nach Auth), nach jedem S.set(), bei `online`-Event
+- **Multi-Device:** iPhone → Server → Mac (und zurück) ✓
 
 ---
 
@@ -98,7 +93,8 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 
 | Screen-ID | Zweck | Erreichbar via |
 |---|---|---|
-| `screen-splash` | Startscreen / Onboarding | App-Start ohne Settings |
+| `screen-auth` | Login / Registrieren | App-Start ohne gültige Session |
+| `screen-splash` | Startscreen / Onboarding | Nach Login ohne Settings |
 | `screen-setup` | 3-Schritt-Wizard Ersteinrichtung | Splash |
 | `screen-calendar` | Kalender + Statistiken | Nav-Bar |
 | `screen-entry` | Tageseintrag | Kalender-Tag, Nav "Heute" |
@@ -108,7 +104,56 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | `screen-statusquo` | Status Quo bearbeiten | Einstellungen |
 | `screen-chart` | SVG Gewichtsverlauf-Chart | Kalender → "📊 Fortschritt" |
 | `screen-fotocompare` | Vorher/Nachher Vergleich | Abschluss-Screen, Einstellungen |
-| `screen-settings` | Einstellungen + Datensicherung + Notifications | Nav-Bar |
+| `screen-settings` | Einstellungen + Datensicherung | Nav-Bar |
+
+---
+
+## Server-Wartung
+
+```bash
+# Service-Status
+systemctl status 90tc.service
+
+# Logs
+sudo journalctl -u 90tc.service -n 50 --no-pager
+
+# Backup manuell
+sqlite3 /home/pi/90tc-app/db/90tc.db ".backup /home/pi/90tc-app/backups/90tc-$(date +%F)-manual.db"
+
+# App-Update (neue Version deployen)
+cd /home/pi/90tc-app/static
+curl -sL "https://raw.githubusercontent.com/muehle79/90T/main/index.html" -o index.html
+curl -sL "https://raw.githubusercontent.com/muehle79/90T/main/sw.js" -o sw.js
+```
+
+---
+
+## Workflow für Code-Änderungen
+
+```bash
+# Repo klonen (frische Session):
+git clone https://muehle79:[PAT]@github.com/muehle79/90T.git /tmp/90t-repo
+
+# Nach Änderungen:
+# 1. APP_VERSION in index.html erhöhen
+# 2. PROJEKTSTATUS.md aktualisieren
+# 3. JS validieren:
+node -e "const h=require('fs').readFileSync('index.html','utf8');
+  new Function(h.slice(h.indexOf('<script>')+8,h.lastIndexOf('</script>')));
+  console.log('OK')"
+# 4. Committen & pushen:
+git add index.html sw.js manifest.json PROJEKTSTATUS.md
+git commit -m "..."
+git push origin main
+
+# 5. Auf Raspi deployen:
+# ssh pi@dartsserver
+# cd /home/pi/90tc-app/static
+# curl -sL "https://raw.githubusercontent.com/muehle79/90T/main/index.html" -o index.html
+# curl -sL "https://raw.githubusercontent.com/muehle79/90T/main/sw.js" -o sw.js
+```
+
+PAT: im Memory-System der KI gespeichert (memory/project_90tc.md).
 
 ---
 
@@ -126,79 +171,9 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | 1.1.0 | 8 | PWA startet ohne Daten | iOS-Design → Export/Import-Workaround |
 | 1.2.1 | 9 | App startet nicht (weiße Seite) | Doppeltes `const cfg` in `renderSettings()` |
 | 1.2.2 | 10 | Notifications trotz Berechtigung stumm | `new Notification()` → `SW.showNotification()` |
-
----
-
-## Alle implementierten Features
-
-### Kern (aus Workbook)
-- Tägliches Tracking: Gewicht, Kalorien/Protein/Fett/KH, Schlaf, Schritte, Wasser
-- Krafttraining-Toggles (Geplant / Durchgeführt / Progression)
-- Freitexte: "3 Dinge die gut liefen", "3 Dinge für heute"
-- Fortschritts-Balken Soll/Ist für alle Felder
-- Wöchentliche + monatliche Checks mit Umfangsmessungen (10 Körperstellen)
-- Abschluss-Auswertung Tag 90
-- 90 Motivationszitate (einer pro Tag)
-
-### Kalender & Navigation
-- Monatskalender mit Vor/Zurück
-- Status-Dots: 🟢 vollständig · 🟡 teilweise · 🟠 Check offen · 🔵 Check erledigt
-- An Check-Tagen: immer zuerst Tageseintrag, dann Banner "Zum Check →"
-
-### Foto-System
-- Vorher + Nachher-Fotos (vorn / hinten / seitlich)
-- Kamera und Fotorolle wählbar
-
-### Datensicherung & Import
-- URL-Parameter-Import (iOS Kurzbefehl)
-- JSON-Export (alles kopierbar) + JSON-Import (Paste & Reload)
-- Export-Reminder-Banner nach 7 Tagen ohne Sicherung
-
-### Gewichtsverlauf-Chart
-- SVG-basiert, keine externe Library, offline-fähig
-- Tägliche Punkte + 7-Tage gleitender Durchschnitt
-- Statistik-Bar: Start / Aktuell / Delta / Messtage
-
-### Erhaltungskalorien-Schätzung (TDEE) — zwei Methoden
-**Formelbasiert (Mifflin-St Jeor):** Erscheint wenn Größe, Alter und Geschlecht hinterlegt
-- BMR-Anzeige + Aktivitätslevel-Dropdown (×1,2 bis ×1,9), TDEE aktualisiert live
-- Basis: aktuelles Gewicht (7-Tage-Schnitt), Größe, Alter, Geschlecht
-
-**Empirisch:** Erscheint ab ≥ 7 Tagen Gewichts- + Kaloriendaten
-- `TDEE = Ø Kalorien IST − (Gewichtsdelta × 7.700 / Tage)`
-- Zeigt: TDEE-Wert, Basis (Tage), Ø Kalorien IST, Gewichtsveränderung (farbcodiert)
-- Plausibilitätsfilter: nur bei Ergebnis 800–6.000 kcal sichtbar
-
-### Vorher/Nachher Foto-Vergleich
-- 3 Zeilen × 2 Spalten (Vorher | Nachher)
-- Erreichbar aus Abschluss-Screen und Einstellungen
-
-### Tägliche Erinnerung (Web Notifications)
-- Konfigurierbar: Checkbox + Uhrzeit in Einstellungen
-- Auslieferung via `ServiceWorkerRegistration.showNotification()` (iOS-kompatibel)
-- Tippen auf Notification → App öffnet sich
-- **Voraussetzung iOS:** Installierte PWA (Home-Screen), iOS 16.4+
-
-### Körperdaten im Profil
-- Größe (cm), Geburtsdatum und Geschlecht im Setup-Wizard (Schritt 1) und Einstellungen
-- Live-Altersanzeige: beim Eintippen des Geburtsdatums erscheint sofort `→ X Jahre`
-- Altersanzeige in Einstellungen als read-only Feld, aktualisiert sich live und beim Öffnen
-- Hilfsfunktion `calcAge(dateStr)` → Alter in Jahren (ganzzahlig, korrekt um Geburtstag)
-
-### App-Versionierung
-- `APP_VERSION` Konstante oben im JS
-- Kleine Anzeige ganz unten im Einstellungsmenü
-
----
-
-## iOS Kurzbefehl (URL-Import)
-
-```
-https://muehle79.github.io/90T/?import&date=YYYY-MM-DD&weight=75.3&kal=2100&pro=150&fat=70&kh=220&steps=8500&sleep=7.5
-```
-
-Manuell auf dem Gerät erstellt (unsigned `.shortcut` werden von iOS blockiert).  
-Quellen: Happy Scale + StepsApp → Apple Health | FDDB → manuell.
+| 1.5.1 | 11 | Auth-Screen erscheint nicht (JS-Syntaxfehler) | `async/await` statt `.then()` in `init()` |
+| 1.5.2 | 12 | Auth-Screen bleibt unsichtbar | CSS `.active`-Selektor + inline-style entfernt |
+| 1.5.3 | 13 | Import lädt nicht zum Server hoch | `_doImport` setzt dirty-queue + ruft `sync()` auf |
 
 ---
 
@@ -207,54 +182,6 @@ Quellen: Happy Scale + StepsApp → Apple Health | FDDB → manuell.
 | Einschränkung | Workaround |
 |---|---|
 | localStorage ~5 MB Limit | Fotos sparsam einsetzen |
-| iOS PWA ≠ Safari localStorage | Export aus Safari → Import in PWA |
-| iOS löscht PWA-Storage bei Inaktivität | Regelmäßig exportieren |
-| Notifications nur in installierter PWA | In Safari: kein Support |
-
----
-
-## Für andere KI-Agenten: Schnellreferenz
-
-**Stack:** Einzelne `index.html`, minifiziertes JS, kein Build-Step, kein Framework.
-
-**Zentrale Objekte:**
-- `App = { ... }` — alle UI-Methoden
-- `S = { get, set, del, clear }` — localStorage-Wrapper mit `90tc_`-Prefix
-- `APP_VERSION` — Versionsstring, bei jeder Änderung erhöhen
-- `QUOTES[89]` — Motivationszitate (Index = Tag-1)
-- `MEASUREMENTS[]` — Umfang-Felder `{k, l}`
-
-**Wichtige Hilfsfunktionen:**
-```
-parseDate(str)       → Date
-dateStr(date)        → 'YYYY-MM-DD'
-dayNumber(dateS)     → 1–90 | null
-checkType(dayN)      → 'daily'|'weekly'|'monthly'|'final'
-weekNum(dn)          → 1–9
-monthNum(dn)         → 1–2
-addDays(date, n)     → Date
-movingAvg(dateS)     → string (7-Tage-Schnitt) | null
-calcAge(dateStr)     → number (Alter in Jahren) | null
-toast(msg, ms)       → Toast-Benachrichtigung
-progColor(pct)       → 'green'|'yellow'|'red'
-```
-
-**Workflow für Änderungen:**
-```bash
-# Repo klonen (frische Session):
-git clone https://muehle79:[PAT]@github.com/muehle79/90T.git /tmp/90t-repo
-
-# Nach Änderungen:
-# 1. APP_VERSION in index.html erhöhen
-# 2. PROJEKTSTATUS.md aktualisieren
-# 3. JS validieren:
-node -e "const h=require('fs').readFileSync('index.html','utf8');
-  new Function(h.slice(h.indexOf('<script>')+8,h.lastIndexOf('</script>')));
-  console.log('OK')"
-# 4. Committen & pushen:
-git add index.html sw.js PROJEKTSTATUS.md
-git commit -m "..."
-git push origin main
-```
-
-PAT: im Memory-System der KI gespeichert (memory/project_90tc.md).
+| iOS löscht PWA-Storage bei Inaktivität | Daten liegen jetzt auf dem Server — kein Datenverlust mehr |
+| Service Worker Cache nach Updates | SW-Cache leeren oder privates Fenster nutzen |
+| Fotos noch in localStorage (Base64) | Zukünftiger Upload auf Server (Phase 6 aus Migrationsplan) |
