@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.9.1`  
-**Letzter Commit:** `46e5c7b feat: Kalorien-Modus-Toggle — aus Makros oder manuell (v1.9.1)`
+**Aktuelle Version:** `1.9.3`  
+**Letzter Commit:** `10c81b0 fix: iOS-Toggle-Breite — inline style überschreibt settings-row label flex:1 (v1.9.3)`
 
 ---
 
@@ -37,6 +37,8 @@
 | 1.7.0 | `3fac75b` | Fix: controllerchange-Listener — PWA lädt automatisch neu wenn neuer SW aktiv |
 | 1.7.0 | `207c436` | Fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import) |
 | 1.7.1 | — | Versionssprung für alle 1.7.0-Fixes — Changelog-Modal + Push-Erinnerung sichtbar |
+| 1.9.3 | `10c81b0` | Fix: iOS-Toggle-Breite — CSS-Spezifität-Kollision, inline style als Lösung |
+| 1.9.2 | `f75a000` | Fix: kcal-Modus-Toggle Darstellung + Funktion in Tageseinträgen |
 | 1.9.1 | `46e5c7b` | Feat: Kalorien-Modus-Toggle — automatisch aus Makros oder manuell eingeben |
 | 1.9.0 | `5429233` | Feat: Frei wählbare Challenge-Dauer (90T / eigener Zeitraum / ∞), Tracking fortführen oder beenden, Neue Challenge starten |
 | 1.8.0 | `47f03d0` | Feat: Echte Web-Push via VAPID — server-seitig, funktioniert auch wenn App geschlossen |
