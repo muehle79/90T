@@ -5,7 +5,7 @@
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
 **Aktuelle Version:** `2.0.0`  
-**Letzter Commit:** `— (noch nicht committed)`
+**Letzter Commit:** `128133e feat: Analyse-Screen — Datenanalyse auf Knopfdruck (v2.0.0)`
 
 ---
 
@@ -13,7 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
-| 2.0.0 | `—` | Feat: Analyse-Screen — Gewichtstrend, Compliance, Korrelationen, Report-Download, DB-Speicherung |
+| 2.0.0 | `128133e` | Feat: Analyse-Screen — Gewichtstrend, Compliance, Korrelationen, Report-Download, DB-Speicherung |
 | 1.0.x | `8038f32` | Initiale Builds, URL-Import (iOS Kurzbefehl), Locale-Fix |
 | 1.1.0 | `05d6a68` | 4 Bug-Fixes: Foto-Upload, Check-Tage, Kalender-Dots, PWA-Export/Import |
 | 1.2.0 | `dc9617a` | 4 Features: Gewichts-Chart, Foto-Vergleich, Export-Reminder, Notifications |
