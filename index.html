@@ -440,7 +440,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
           <label>Kalorien aus Makros</label>
           <span id="cfg-kcal-mode-hint" style="font-size:12px;color:var(--text2)">Kalorienziel wird automatisch berechnet</span>
         </div>
-        <label class="ios-toggle">
+        <label class="ios-toggle" style="flex:none;width:50px">
           <input type="checkbox" id="cfg-kcal-from-macros" checked onchange="App.toggleKcalMode()">
           <span class="slider"></span>
         </label>
@@ -532,7 +532,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='1.9.2';
+const APP_VERSION='1.9.3';
 const CHANGELOG=[
   {version:'1.9.1',items:['🔢 Kalorien-Modus wählbar: automatisch aus Makros berechnen oder manuell eingeben']},
   {version:'1.9.0',items:['⏱ Frei wählbare Challenge-Dauer: 90 Tage, eigener Zeitraum oder unendlich','🔄 Nach Abschluss: Tracking fortführen oder Challenge beenden','🚀 Neue Challenge starten — bisherige Daten bleiben als Vergleich erhalten']},
