@@ -988,9 +988,9 @@ renderSettings(){
   const notifStatus=document.getElementById('notif-status-text');
   if(notifStatus){
     const perm='Notification' in window?Notification.permission:'unsupported';
-    if(location.protocol!=='https:'&&location.hostname!=='localhost'){notifStatus.textContent='ℹ️ Push-Erinnerungen nur auf dem Live-Server verfügbar (HTTPS erforderlich)';return;}
-    notifStatus.textContent=perm==='denied'?'❌ In iOS-Einstellungen blockiert — dort entsperren':perm==='unsupported'?'⚠️ Nicht unterstützt (iOS-Hinweis: nur in der installierten Web-App verfügbar)':perm!=='granted'?'ℹ️ Berechtigung noch nicht erteilt — Knopf unten drücken':'✅ Berechtigung erteilt';
-    if(perm==='granted'&&'PushManager' in window&&'serviceWorker' in navigator){navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription()).then(sub=>{if(notifStatus)notifStatus.textContent=sub?'✅ Push aktiv — Erinnerungen kommen auch wenn die App geschlossen ist':'⚠️ Berechtigung erteilt, aber kein Push-Abo aktiv — Einstellungen speichern zum Aktivieren';});}
+    if(location.protocol!=='https:'&&location.hostname!=='localhost'){notifStatus.textContent='ℹ️ Push-Erinnerungen nur auf dem Live-Server verfügbar (HTTPS erforderlich)';}
+    else{notifStatus.textContent=perm==='denied'?'❌ In iOS-Einstellungen blockiert — dort entsperren':perm==='unsupported'?'⚠️ Nicht unterstützt (iOS-Hinweis: nur in der installierten Web-App verfügbar)':perm!=='granted'?'ℹ️ Berechtigung noch nicht erteilt — Knopf unten drücken':'✅ Berechtigung erteilt';
+    if(perm==='granted'&&'PushManager' in window&&'serviceWorker' in navigator){navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription()).then(sub=>{if(notifStatus)notifStatus.textContent=sub?'✅ Push aktiv — Erinnerungen kommen auch wenn die App geschlossen ist':'⚠️ Berechtigung erteilt, aber kein Push-Abo aktiv — Einstellungen speichern zum Aktivieren';});}}
   }
   const cfg=S.get('settings')||{};
   const todayN=dayNumber(dateStr(new Date()))||1;
