@@ -150,29 +150,50 @@ curl -sL "https://raw.githubusercontent.com/muehle79/90T/main/sw.js" -o sw.js
 
 ---
 
-## Workflow für Code-Änderungen
+## Lokaler Testserver (Entwicklung)
+
+**Pfad:** `/home/test/90TC_APP`  
+**IP:** `192.168.178.110:8080`  
+**Starten:** `bash dev.sh` (Vordergrund) oder:
 
 ```bash
-# Repo klonen (frische Session):
-git clone https://muehle79:[PAT]@github.com/muehle79/90T.git /tmp/90t-repo
+export $(grep -v '^#' server/.env | xargs) && nohup server/venv/bin/python server/app.py > /tmp/90tc-dev.log 2>&1 & echo $! > /tmp/90tc-dev.pid
+```
 
-# Nach Änderungen:
-# 1. APP_VERSION in index.html erhöhen
-# 2. PROJEKTSTATUS.md aktualisieren
-# 3. JS validieren:
-node -e "const h=require('fs').readFileSync('index.html','utf8');
-  new Function(h.slice(h.indexOf('<script>')+8,h.lastIndexOf('</script>')));
-  console.log('OK')"
-# 4. Committen & pushen:
-git add index.html sw.js manifest.json PROJEKTSTATUS.md
-git commit -m "..."
-git push origin main
+**Stoppen:** `kill $(cat /tmp/90tc-dev.pid)`  
+**Logs:** `tail -f /tmp/90tc-dev.log`
 
-# 5. Auf Raspi deployen:
-# ssh pi@dartsserver
-# cd /home/pi/90tc-app/static
-# curl -sL "https://raw.githubusercontent.com/muehle79/90T/main/index.html" -o index.html
-# curl -sL "https://raw.githubusercontent.com/muehle79/90T/main/sw.js" -o sw.js
+Lokale Artefakte sind in `.gitignore` — kein Konflikt mit dem Pi möglich:
+
+| Pfad | Zweck | Im Repo? |
+|---|---|---|
+| `server/venv/` | Python-Umgebung | nein |
+| `server/db/` | lokale SQLite | nein |
+| `server/static/` | Symlink → Repo-Root | nein |
+| `server/.env` | lokale Konfiguration (SECURE_COOKIE=false) | nein |
+
+**Hinweis:** Ohne HTTPS kein Service Worker / kein Push im lokalen Netz — für UI-Tests reicht HTTP.
+
+---
+
+## Workflow für Code-Änderungen
+
+```
+1. Änderungen in index.html / sw.js / server/ machen
+2. Lokal testen: http://192.168.178.110:8080
+3. JS validieren:
+   node -e "const h=require('fs').readFileSync('index.html','utf8');
+     new Function(h.slice(h.indexOf('<script>')+8,h.lastIndexOf('</script>')));
+     console.log('OK')"
+4. APP_VERSION in index.html erhöhen
+5. PROJEKTSTATUS.md aktualisieren (Version + Commit)
+6. Committen & pushen:
+   git add index.html sw.js manifest.json PROJEKTSTATUS.md
+   git commit -m "..."
+   git push origin main
+7. Auf Pi deployen:
+   ssh pi@dartsserver
+   bash /home/pi/90tc-repo/server/deploy.sh
 ```
 
 PAT: im Memory-System der KI gespeichert (memory/project_90tc.md).
