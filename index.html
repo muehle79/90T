@@ -490,8 +490,9 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='1.7.1';
+const APP_VERSION='1.8.0';
 const CHANGELOG=[
+  {version:'1.8.0',items:['🔔 Echte Push-Erinnerungen — kommen jetzt zuverlässig auch wenn die App geschlossen ist']},
   {version:'1.7.1',items:['🔔 Push-Erinnerung funktioniert jetzt zuverlässig','📲 PWA vom Homescreen lädt nach Updates automatisch die neue Version']},
   {version:'1.7.0',items:['🔄 Echtzeit-Sync: Daten werden sofort nach jedem Speichern auf den Server hochgeladen','🔄 App-Start lädt immer den aktuellen Stand vom Server — alle Geräte immer synchron']},
   {version:'1.6.0',items:['🔔 Update-Hinweise: Diese Box zeigt dir nach jedem Update alle Neuerungen']},
@@ -654,7 +655,6 @@ async init(){
     const cfg=S.get('settings');
     if(!cfg||!cfg.startDate){this.showRaw('screen-splash')}else{this.showScreen('calendar')}
     setTimeout(()=>this.showChangelogIfNeeded(),400);
-    setTimeout(()=>this.checkReminderNotif(),1000);
     // URL-Import: ?import&date=YYYY-MM-DD&weight=80.2&steps=9000&sleep=7.5&kal=1850&pro=140&fat=60&kh=200
     const _urlP=new URLSearchParams(location.search);
     if(_urlP.has('import')){
@@ -988,7 +988,8 @@ renderSettings(){
   const notifStatus=document.getElementById('notif-status-text');
   if(notifStatus){
     const perm='Notification' in window?Notification.permission:'unsupported';
-    notifStatus.textContent=perm==='granted'?'✅ Berechtigung erteilt':perm==='denied'?'❌ In iOS-Einstellungen blockiert — dort entsperren':perm==='unsupported'?'⚠️ Nicht unterstützt (iOS-Hinweis: nur in der installierten Web-App verfügbar)':'ℹ️ Berechtigung noch nicht erteilt — Knopf unten drücken';
+    notifStatus.textContent=perm==='denied'?'❌ In iOS-Einstellungen blockiert — dort entsperren':perm==='unsupported'?'⚠️ Nicht unterstützt (iOS-Hinweis: nur in der installierten Web-App verfügbar)':perm!=='granted'?'ℹ️ Berechtigung noch nicht erteilt — Knopf unten drücken':'✅ Berechtigung erteilt';
+    if(perm==='granted'&&'PushManager' in window&&'serviceWorker' in navigator){navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription()).then(sub=>{if(notifStatus)notifStatus.textContent=sub?'✅ Push aktiv — Erinnerungen kommen auch wenn die App geschlossen ist':'⚠️ Berechtigung erteilt, aber kein Push-Abo aktiv — Einstellungen speichern zum Aktivieren';});}
   }
   const cfg=S.get('settings')||{};
   const todayN=dayNumber(dateStr(new Date()))||1;
@@ -1004,37 +1005,44 @@ renderSettings(){
   const alterLbl=document.getElementById('cfg-alter-label');if(alterLbl){const age=calcAge(cfg.geburtsdatum);alterLbl.textContent=age!==null?age+' Jahre':'—'}
   const vLbl=document.getElementById('app-version-label');if(vLbl)vLbl.textContent=APP_VERSION;
 },
-saveSettings(){
+async saveSettings(){
   const startDate=document.getElementById('cfg-start')?.value;
   if(!startDate){toast('Bitte Startdatum eingeben');return}
   const notifEnabled=document.getElementById('cfg-notif-enabled')?.checked||false;
   const notifTime=document.getElementById('cfg-notif-time')?.value||'20:00';
   S.set('settings',{startDate,name:document.getElementById('cfg-name')?.value||'',groesse:+document.getElementById('cfg-groesse')?.value||null,geburtsdatum:document.getElementById('cfg-geburt')?.value||'',geschlecht:document.getElementById('cfg-geschlecht')?.value||'',targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5},reminder:{enabled:notifEnabled,time:notifTime}});
   const end=addDays(parseDate(startDate),89);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);
+  if(notifEnabled&&Notification.permission==='granted'){await this.subscribePush();}else if(!notifEnabled){await this.unsubscribePush();}
   toast('Einstellungen gespeichert ✓');sync();
 },
-exportData(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_'));if(!keys.length){toast('Keine Daten zum Exportieren');return}S.set('lastExport',Date.now());const data={};keys.forEach(k=>{data[k.replace('90tc_','')]=JSON.parse(localStorage.getItem(k))});const json=JSON.stringify(data);const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📤 Daten exportieren</div><div style='font-size:13px;color:var(--text2)'>Kopiere den Text unten und speichere ihn (z.B. in Notizen). Beim Importieren einfach wieder einfügen.</div><textarea style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' readonly>${json}</textarea><button class='btn btn-primary' onclick='navigator.clipboard?.writeText(this.previousElementSibling.value).then(()=>{},()=>{});this.textContent="✓ Kopiert!";setTimeout(()=>{this.textContent="Kopieren"},2000)'>Kopieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Schließen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},importData(){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📥 Daten importieren</div><div style='font-size:13px;color:var(--text2)'>Füge den exportierten Text hier ein und tippe auf Importieren. Bestehende Daten werden überschrieben.</div><textarea id='import-ta' style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' placeholder='Exportierten Text hier einfügen...'></textarea><button class='btn btn-primary' onclick='App._doImport()'>Importieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Abbrechen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},_doImport(){const ta=document.getElementById('import-ta');if(!ta)return;try{const data=JSON.parse(ta.value.trim());const keys=Object.keys(data);if(!keys.length)throw new Error('Leer');const now=Date.now();const dirty=S._gd();keys.forEach(k=>{localStorage.setItem('90tc_'+k,JSON.stringify(data[k]));dirty[k]=now;});localStorage.setItem('90tc__dirty',JSON.stringify(dirty));document.querySelectorAll('[data-overlay]').forEach(el=>el.remove());toast('✅ '+keys.length+' Datensätze importiert — Sync läuft...',3000);sync().then(()=>App.init()).catch(()=>App.init());}catch(e){toast('❌ Ungültige Daten — bitte vollständigen Export-Text einfügen',3000)}},forceSync(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_')&&!k.startsWith('90tc__'));if(!keys.length){toast('Keine lokalen Daten gefunden');return;}const now=Date.now();const dirty={};keys.forEach(k=>dirty[k.replace('90tc_','')]=now);localStorage.setItem('90tc__dirty',JSON.stringify(dirty));toast('⬆ Lade '+keys.length+' Einträge hoch...',2000);sync().then(()=>{toast('✅ Sync abgeschlossen',2000);}).catch(()=>toast('❌ Sync fehlgeschlagen',2000));},requestNotifications(){
-  if(!('Notification' in window)){toast('Benachrichtigungen werden von diesem Browser nicht unterstützt');this.renderSettings();return}
-  Notification.requestPermission().then(perm=>{
-    toast(perm==='granted'?'✅ Benachrichtigungen aktiviert':'❌ Berechtigung verweigert — iOS-Einstellungen prüfen',3000);
-    this.renderSettings();
-  });
+exportData(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_'));if(!keys.length){toast('Keine Daten zum Exportieren');return}S.set('lastExport',Date.now());const data={};keys.forEach(k=>{data[k.replace('90tc_','')]=JSON.parse(localStorage.getItem(k))});const json=JSON.stringify(data);const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📤 Daten exportieren</div><div style='font-size:13px;color:var(--text2)'>Kopiere den Text unten und speichere ihn (z.B. in Notizen). Beim Importieren einfach wieder einfügen.</div><textarea style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' readonly>${json}</textarea><button class='btn btn-primary' onclick='navigator.clipboard?.writeText(this.previousElementSibling.value).then(()=>{},()=>{});this.textContent="✓ Kopiert!";setTimeout(()=>{this.textContent="Kopieren"},2000)'>Kopieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Schließen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},importData(){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';overlay.innerHTML=`<div style='background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px'><div style='font-weight:700;font-size:17px'>📥 Daten importieren</div><div style='font-size:13px;color:var(--text2)'>Füge den exportierten Text hier ein und tippe auf Importieren. Bestehende Daten werden überschrieben.</div><textarea id='import-ta' style='font-size:11px;font-family:monospace;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;flex:1;min-height:180px;resize:none' placeholder='Exportierten Text hier einfügen...'></textarea><button class='btn btn-primary' onclick='App._doImport()'>Importieren</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Abbrechen</button></div>`;overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};document.body.appendChild(overlay);},_doImport(){const ta=document.getElementById('import-ta');if(!ta)return;try{const data=JSON.parse(ta.value.trim());const keys=Object.keys(data);if(!keys.length)throw new Error('Leer');const now=Date.now();const dirty=S._gd();keys.forEach(k=>{localStorage.setItem('90tc_'+k,JSON.stringify(data[k]));dirty[k]=now;});localStorage.setItem('90tc__dirty',JSON.stringify(dirty));document.querySelectorAll('[data-overlay]').forEach(el=>el.remove());toast('✅ '+keys.length+' Datensätze importiert — Sync läuft...',3000);sync().then(()=>App.init()).catch(()=>App.init());}catch(e){toast('❌ Ungültige Daten — bitte vollständigen Export-Text einfügen',3000)}},forceSync(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('90tc_')&&!k.startsWith('90tc__'));if(!keys.length){toast('Keine lokalen Daten gefunden');return;}const now=Date.now();const dirty={};keys.forEach(k=>dirty[k.replace('90tc_','')]=now);localStorage.setItem('90tc__dirty',JSON.stringify(dirty));toast('⬆ Lade '+keys.length+' Einträge hoch...',2000);sync().then(()=>{toast('✅ Sync abgeschlossen',2000);}).catch(()=>toast('❌ Sync fehlgeschlagen',2000));},async requestNotifications(){
+  if(!('Notification' in window)){toast('Benachrichtigungen werden von diesem Browser nicht unterstützt');return;}
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted'){toast('❌ Berechtigung verweigert — iOS-Einstellungen prüfen',3000);this.renderSettings();return;}
+  const ok=await this.subscribePush();
+  toast(ok?'✅ Push-Erinnerungen aktiviert — auch wenn die App geschlossen ist!':'✅ Berechtigung erteilt — beim Speichern wird abonniert',3000);
+  this.renderSettings();
 },
-checkReminderNotif(){
-  const cfg=S.get('settings')||{};
-  const reminder=cfg.reminder;
-  if(!reminder?.enabled||!reminder?.time)return;
-  if(!('Notification' in window)||Notification.permission!=='granted')return;
-  const today=dateStr(new Date());
-  if(S.get('notifShown_'+today))return;
-  const [h,m]=reminder.time.split(':').map(Number);
-  const now=new Date();
-  if(now.getHours()<h||(now.getHours()===h&&now.getMinutes()<m))return;
-  const entry=S.get('daily_'+today);
-  if(entry&&(entry.gewicht||entry.kal_ist))return;
-  S.set('notifShown_'+today,true);
-  const notifPayload={body:'Dein Tageseintrag für heute fehlt noch! Bleib dran! 🔥',icon:'icon-192.png',badge:'icon-192.png',tag:'90tc-daily',renotify:false,requireInteraction:false};  if(navigator.serviceWorker?.controller){    navigator.serviceWorker.ready.then(reg=>{      reg.showNotification('90-Tage-Challenge 💪',notifPayload);    }).catch(()=>{});  }else{    try{new Notification('90-Tage-Challenge 💪',notifPayload)}catch(e){}  }
+async subscribePush(){
+  if(!('PushManager' in window)||!('serviceWorker' in navigator))return false;
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    const res=await fetch('/api/vapid-key');
+    if(!res.ok)return false;
+    const {publicKey}=await res.json();
+    const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:this._u2a(publicKey)});
+    await fetch('/api/push/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sub.toJSON())});
+    return true;
+  }catch(e){console.error('subscribePush',e);return false;}
 },
+async unsubscribePush(){
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.getSubscription();
+    if(sub){const endpoint=sub.endpoint;await sub.unsubscribe();await fetch('/api/push/subscribe',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint})});}
+  }catch(e){}
+},
+_u2a(b){const p='='.repeat((4-b.length%4)%4);const s=atob((b+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...s].map(c=>c.charCodeAt(0)));},
 showChangelogIfNeeded(){
   let lastSeen=localStorage.getItem('90tc__lastSeenVersion');
   if(!lastSeen){

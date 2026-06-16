@@ -1,6 +1,13 @@
 import os, json, sqlite3, bcrypt, secrets
+from datetime import datetime
 from functools import wraps
 from flask import Flask, request, jsonify, send_from_directory, make_response, g
+
+try:
+    from pywebpush import webpush, WebPushException
+    PUSH_AVAILABLE = True
+except ImportError:
+    PUSH_AVAILABLE = False
 
 BASE   = os.path.dirname(os.path.abspath(__file__))
 DB     = os.path.join(BASE, 'db', '90tc.db')
@@ -8,7 +15,11 @@ STATIC = os.path.join(BASE, 'static')
 
 app = Flask(__name__, static_folder=None)
 app.secret_key = os.environ['SECRET_KEY']
-INVITE_CODE    = os.environ.get('INVITE_CODE', '')
+INVITE_CODE         = os.environ.get('INVITE_CODE', '')
+VAPID_PRIVATE_PEM   = os.environ.get('VAPID_PRIVATE_PEM', '')   # Pfad zur PEM-Datei
+VAPID_PUBLIC_KEY    = os.environ.get('VAPID_PUBLIC_KEY', '')     # base64url-kodierter öffentlicher Schlüssel
+VAPID_CLAIMS_EMAIL  = os.environ.get('VAPID_CLAIMS_EMAIL', 'mailto:admin@example.com')
+PUSH_TRIGGER_SECRET = os.environ.get('PUSH_TRIGGER_SECRET', '')
 
 def get_db():
     if 'db' not in g:
@@ -142,6 +153,114 @@ def kv_put():
         """, (g.user['id'], item['key'], json.dumps(item['value']), item['updated_at']))
     db.commit()
     return jsonify({'ok': True, 'written': len(items)})
+
+# ── Web Push ──────────────────────────────────────────────────────────────────
+@app.route('/api/vapid-key')
+def vapid_key():
+    if not VAPID_PUBLIC_KEY:
+        return jsonify({'error': 'Push nicht konfiguriert'}), 503
+    return jsonify({'publicKey': VAPID_PUBLIC_KEY})
+
+@app.route('/api/push/subscribe', methods=['POST'])
+@login_required
+def push_subscribe():
+    data = request.get_json(force=True) or {}
+    endpoint = data.get('endpoint', '')
+    keys     = data.get('keys', {})
+    p256dh   = keys.get('p256dh', '')
+    auth     = keys.get('auth', '')
+    if not endpoint or not p256dh or not auth:
+        return jsonify({'error': 'Ungültige Subscription'}), 400
+    db = get_db()
+    db.execute("""
+        INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?,?,?,?)
+        ON CONFLICT(endpoint) DO UPDATE
+          SET p256dh=excluded.p256dh, auth=excluded.auth, user_id=excluded.user_id
+    """, (g.user['id'], endpoint, p256dh, auth))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/push/subscribe', methods=['DELETE'])
+@login_required
+def push_unsubscribe():
+    data     = request.get_json(force=True) or {}
+    endpoint = data.get('endpoint', '')
+    if endpoint:
+        db = get_db()
+        db.execute("DELETE FROM push_subscriptions WHERE user_id=? AND endpoint=?",
+                   (g.user['id'], endpoint))
+        db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/push/trigger', methods=['POST'])
+def push_trigger():
+    """Wird jede Minute vom Cron-Job aufgerufen."""
+    secret = request.headers.get('X-Push-Secret', '')
+    if not PUSH_TRIGGER_SECRET or secret != PUSH_TRIGGER_SECRET:
+        return '', 403
+    if not PUSH_AVAILABLE or not VAPID_PRIVATE_PEM:
+        return jsonify({'ok': True, 'sent': 0, 'reason': 'push not configured'})
+
+    tz_name = 'Europe/Berlin'
+    try:
+        import zoneinfo
+        now = datetime.now(zoneinfo.ZoneInfo(tz_name))
+    except Exception:
+        now = datetime.now()
+    current_time = now.strftime('%H:%M')
+
+    db = get_db()
+    subs = db.execute(
+        "SELECT user_id, endpoint, p256dh, auth FROM push_subscriptions"
+    ).fetchall()
+
+    sent = 0
+    to_delete = []
+    for row in subs:
+        kv_row = db.execute(
+            "SELECT value FROM kv WHERE user_id=? AND key='settings'",
+            (row['user_id'],)
+        ).fetchone()
+        if not kv_row:
+            continue
+        try:
+            settings = json.loads(kv_row['value'])
+        except Exception:
+            continue
+        reminder = settings.get('reminder', {})
+        if not reminder.get('enabled') or reminder.get('time') != current_time:
+            continue
+
+        payload = json.dumps({
+            'title': '90-Tage-Challenge 💪',
+            'body':  'Dein Tageseintrag fehlt noch! Bleib dran! 🔥',
+            'icon':  '/icon-192.png',
+            'badge': '/icon-192.png',
+            'tag':   '90tc-daily',
+            'url':   '/'
+        })
+        try:
+            webpush(
+                subscription_info={
+                    'endpoint': row['endpoint'],
+                    'keys': {'p256dh': row['p256dh'], 'auth': row['auth']}
+                },
+                data=payload,
+                vapid_private_key=VAPID_PRIVATE_PEM,
+                vapid_claims={'sub': VAPID_CLAIMS_EMAIL}
+            )
+            sent += 1
+        except Exception as ex:
+            resp = getattr(ex, 'response', None)
+            if resp is not None and resp.status_code in (404, 410):
+                to_delete.append(row['endpoint'])
+
+    for ep in to_delete:
+        db.execute("DELETE FROM push_subscriptions WHERE endpoint=?", (ep,))
+    if to_delete:
+        db.commit()
+
+    return jsonify({'ok': True, 'sent': sent, 'time': current_time})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=False)

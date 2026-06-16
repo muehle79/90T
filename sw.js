@@ -40,6 +40,23 @@ self.addEventListener('fetch', e => {
   );
 });
 
+// Server-seitige Push-Notification empfangen (App muss NICHT offen sein)
+self.addEventListener('push', e => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch(_) {}
+  const title   = data.title  || '90-Tage-Challenge 💪';
+  const options = {
+    body:             data.body  || 'Dein Tageseintrag fehlt noch! Bleib dran! 🔥',
+    icon:             data.icon  || '/icon-192.png',
+    badge:            data.badge || '/icon-192.png',
+    tag:              data.tag   || '90tc-daily',
+    renotify:         false,
+    requireInteraction: false,
+    data:             { url: data.url || '/' }
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
 // Notification-Klick: App öffnen oder in den Vordergrund bringen
 self.addEventListener('notificationclick', e => {
   e.notification.close();

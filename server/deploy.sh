@@ -41,6 +41,10 @@ for f in app.py setup_db.py; do
 done
 
 if [ "$BACKEND_CHANGED" = true ]; then
+  echo "  → Python-Pakete aktualisieren..."
+  "$APP/venv/bin/pip" install --quiet pywebpush 2>/dev/null || true
+  echo "  → Datenbank-Schema aktualisieren..."
+  "$APP/venv/bin/python" "$APP/setup_db.py"
   echo "  → Service wird neugestartet..."
   sudo systemctl restart 90tc.service
   sleep 2

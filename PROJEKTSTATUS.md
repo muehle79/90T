@@ -1,11 +1,11 @@
 # 90-Tage-Challenge PWA — Projektstatus
 
-**Stand:** 2026-06-12  
+**Stand:** 2026-06-16  
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.7.1`  
-**Letzter Commit:** `feat: APP_VERSION auf 1.7.1 — Fixes fuer PWA-Update und Push-Erinnerung`
+**Aktuelle Version:** `1.8.0`  
+**Letzter Commit:** `feat: echte Web-Push-Erinnerungen (VAPID, server-seitig, unabhängig von App-Status)`
 
 ---
 
@@ -37,6 +37,7 @@
 | 1.7.0 | `3fac75b` | Fix: controllerchange-Listener — PWA lädt automatisch neu wenn neuer SW aktiv |
 | 1.7.0 | `207c436` | Fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import) |
 | 1.7.1 | — | Versionssprung für alle 1.7.0-Fixes — Changelog-Modal + Push-Erinnerung sichtbar |
+| 1.8.0 | — | Feat: Echte Web-Push via VAPID — server-seitig, funktioniert auch wenn App geschlossen |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
@@ -186,6 +187,7 @@ PAT: im Memory-System der KI gespeichert (memory/project_90tc.md).
 | 1.7.0 | 15 | Changelog-Modal erscheint nicht nach Cache-Clear | `lastSeen=null` + `settings` vorhanden → `lastSeen='0.0.0'` |
 | 1.7.0 | 16 | PWA vom Homescreen lädt alte Version | `controllerchange`-Listener löst automatischen Reload aus |
 | 1.7.0 | 17 | Tägliche Erinnerung kommt nie | `checkReminderNotif()` nur bei URL-Import aufgerufen → jetzt bei jedem Start |
+| 1.8.0 | 18 | Push-Erinnerung nur wenn App geöffnet | Umstieg auf echtes Web Push (VAPID): Server sendet Push vom Pi, SW zeigt Notification unabhängig vom App-Status |
 
 ---
 
