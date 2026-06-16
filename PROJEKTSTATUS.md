@@ -5,7 +5,7 @@
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
 **Aktuelle Version:** `2.1.0`  
-**Letzter Commit:** `— (noch nicht committed)`
+**Letzter Commit:** `916a7c9 feat: KI-Bericht im Analyse-Screen via Claude Haiku (v2.1.0)`
 
 ---
 
@@ -13,7 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
-| 2.1.0 | `—` | Feat: KI-Bericht im Analyse-Screen (Claude Haiku, /api/ai-report, ANTHROPIC_API_KEY) |
+| 2.1.0 | `916a7c9` | Feat: KI-Bericht im Analyse-Screen (Claude Haiku, /api/ai-report, ANTHROPIC_API_KEY) |
 | 2.0.0 | `128133e` | Feat: Analyse-Screen — Gewichtstrend, Compliance, Korrelationen, Report-Download, DB-Speicherung |
 | 1.0.x | `8038f32` | Initiale Builds, URL-Import (iOS Kurzbefehl), Locale-Fix |
 | 1.1.0 | `05d6a68` | 4 Bug-Fixes: Foto-Upload, Check-Tage, Kalender-Dots, PWA-Export/Import |
