@@ -95,6 +95,8 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 .stat-lbl{font-size:10px;color:var(--text2);margin-top:2px;font-weight:500;text-transform:uppercase}
 .wizard-step{display:none}
 .wizard-step.active{display:block}
+.dur-btn{flex:1;padding:9px 4px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;line-height:1.3}
+.dur-btn.dur-btn-active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .wizard-progress{display:flex;gap:6px;padding:16px 20px 0}
 .wizard-pip{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
 .wizard-pip.done{background:var(--accent)}
@@ -245,6 +247,18 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
   <div class="wizard-step" id="ws-1">
     <h2 class="wizard-title">Willkommen! &#x1F44B;</h2>
     <p class="wizard-sub">Leg deinen Challenge-Zeitraum und deine täglichen Zielwerte fest.</p>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">Dauer</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button type="button" id="dur-btn-90" class="dur-btn dur-btn-active" onclick="App.setDuration(90)">90 Tage</button>
+        <button type="button" id="dur-btn-custom" class="dur-btn" onclick="App.setDuration('custom')">Eigener<br>Zeitraum</button>
+        <button type="button" id="dur-btn-inf" class="dur-btn" onclick="App.setDuration(null)">Unendlich<br>&#x221E;</button>
+      </div>
+      <div id="dur-custom-row" style="display:none;align-items:center;gap:8px;padding-top:4px">
+        <input type="number" id="s-dur-days" min="1" max="9999" placeholder="Anzahl Tage" class="inp inp-sm" style="width:120px">
+        <span class="inp-unit">Tage</span>
+      </div>
+    </div>
     <div class="card">
       <div class="card-title">Zeitraum</div>
       <div class="inp-row"><label>Startdatum</label><input class="inp inp-sm" type="date" id="s-start"></div>
@@ -403,7 +417,8 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
     <div class="settings-section-title">Challenge-Zeitraum</div>
     <div class="settings-card">
       <div class="settings-row"><label>Startdatum</label><input type="date" id="cfg-start"></div>
-      <div class="settings-row"><label>Enddatum (90 Tage)</label><span id="cfg-end-label" style="color:var(--text2);font-size:14px"></span></div>
+      <div class="settings-row"><label id="cfg-end-label-title">Enddatum</label><span id="cfg-end-label" style="color:var(--text2);font-size:14px"></span></div>
+      <div class="settings-row"><label>Dauer</label><span id="cfg-dur-label" style="color:var(--text2);font-size:14px"></span></div>
       <div class="settings-row"><label>Name</label><input type="text" id="cfg-name" placeholder="Optional"></div>
       <div class="settings-row"><label>Größe</label><input type="number" id="cfg-groesse" placeholder="175" min="100" max="250" style="width:80px;text-align:right"><span class="settings-row-unit">cm</span></div>
       <div class="settings-row"><label>Geburtsdatum</label><input type="date" id="cfg-geburt" oninput="App.updateAgeLabel()"></div>
@@ -466,6 +481,17 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
     </div>
   </div>
   <div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveSettings()">Speichern</button></div>
+  <div class="settings-section" style="margin-top:20px">
+    <div class="settings-section-title">Challenge</div>
+    <div class="settings-card">
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <label style="font-size:13px;color:var(--text2);font-weight:400">Challenge abgeschlossen? Starte eine neue — deine bisherigen Daten bleiben für den späteren Vergleich erhalten.</label>
+      </div>
+      <div class="settings-row">
+        <button class="btn btn-primary" style="width:100%;padding:12px 0;font-size:15px" onclick="App.newChallenge()">🚀 Neue Challenge starten</button>
+      </div>
+    </div>
+  </div>
   <div class="btn-wrap" style="margin-top:10px"><button class="danger-btn" onclick="App.confirmReset()">Alle Daten löschen</button></div>
   <div style="height:20px"></div>
   <div style="text-align:center;padding:0 16px 12px;color:var(--text2);font-size:11px;letter-spacing:.04em">Version <span id="app-version-label"></span> · 90-Tage-Challenge</div>
@@ -490,8 +516,9 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='1.8.0';
+const APP_VERSION='1.9.0';
 const CHANGELOG=[
+  {version:'1.9.0',items:['⏱ Frei wählbare Challenge-Dauer: 90 Tage, eigener Zeitraum oder unendlich','🔄 Nach Abschluss: Tracking fortführen oder Challenge beenden','🚀 Neue Challenge starten — bisherige Daten bleiben als Vergleich erhalten']},
   {version:'1.8.0',items:['🔔 Echte Push-Erinnerungen — kommen jetzt zuverlässig auch wenn die App geschlossen ist']},
   {version:'1.7.1',items:['🔔 Push-Erinnerung funktioniert jetzt zuverlässig','📲 PWA vom Homescreen lädt nach Updates automatisch die neue Version']},
   {version:'1.7.0',items:['🔄 Echtzeit-Sync: Daten werden sofort nach jedem Speichern auf den Server hochgeladen','🔄 App-Start lädt immer den aktuellen Stand vom Server — alle Geräte immer synchron']},
@@ -548,8 +575,8 @@ function dateStr(d){const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2
 function parseDate(s){const[y,m,d]=s.split('-');return new Date(y,m-1,d)}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r}
 function formatDate(d,long=false){const opts=long?{weekday:'long',day:'numeric',month:'long',year:'numeric'}:{day:'numeric',month:'long',year:'numeric'};return d.toLocaleDateString('de-DE',opts)}
-function dayNumber(dateS){const cfg=S.get('settings');if(!cfg||!cfg.startDate)return null;const start=parseDate(cfg.startDate);const d=parseDate(dateS);const diff=Math.round((d-start)/86400000)+1;if(diff<1||diff>90)return null;return diff}
-function checkType(dayN){if(!dayN)return null;if(dayN===90)return'final';if(dayN===28||dayN===56)return'monthly';if(dayN%7===0)return'weekly';return'daily'}
+function dayNumber(dateS){const cfg=S.get('settings');if(!cfg||!cfg.startDate)return null;const start=parseDate(cfg.startDate);const d=parseDate(dateS);const diff=Math.round((d-start)/86400000)+1;if(diff<1)return null;const dur=cfg.durationDays!==undefined?cfg.durationDays:90;if(dur!==null&&diff>dur)return null;return diff}
+function checkType(dayN){if(!dayN)return null;const cfg=S.get('settings')||{};const dur=cfg.durationDays!==undefined?cfg.durationDays:90;if(dur!==null&&dayN===dur)return'final';if(dayN%28===0)return'monthly';if(dayN%7===0)return'weekly';return'daily'}
 function weekNum(dayN){return Math.ceil(dayN/7)}
 function monthNum(dayN){return dayN<=28?1:dayN<=56?2:3}
 function movingAvg(dateS){let sum=0,count=0;for(let i=0;i<7;i++){const d=addDays(parseDate(dateS),-i);const entry=S.get('daily_'+dateStr(d));if(entry&&entry.gewicht){sum+=parseFloat(entry.gewicht);count++}}return count>0?(sum/count).toFixed(2):null}
@@ -696,7 +723,9 @@ wizardNext(step){
   if(step===1){
     const startDate=document.getElementById('s-start')?.value;
     if(!startDate){toast('Bitte ein Startdatum wählen');return}
-    S.set('settings',{startDate,name:document.getElementById('s-name')?.value||'',groesse:+document.getElementById('s-groesse')?.value||null,geburtsdatum:document.getElementById('s-geburt')?.value||'',geschlecht:document.getElementById('s-geschlecht')?.value||'',targets:{kalorien:+document.getElementById('t-kal').value||1950,protein:+document.getElementById('t-pro').value||120,fett:+document.getElementById('t-fat').value||65,kh:+document.getElementById('t-kh').value||236,schlaf:+document.getElementById('t-sleep').value||8,schritte:+document.getElementById('t-steps').value||10000,wasser:+document.getElementById('t-water').value||2.5}});
+    const _wDurSel=this._setupDuration!==undefined?this._setupDuration:90;
+    const durationDays=_wDurSel==='custom'?(+document.getElementById('s-dur-days')?.value||90):_wDurSel;
+    S.set('settings',{startDate,durationDays,name:document.getElementById('s-name')?.value||'',groesse:+document.getElementById('s-groesse')?.value||null,geburtsdatum:document.getElementById('s-geburt')?.value||'',geschlecht:document.getElementById('s-geschlecht')?.value||'',targets:{kalorien:+document.getElementById('t-kal').value||1950,protein:+document.getElementById('t-pro').value||120,fett:+document.getElementById('t-fat').value||65,kh:+document.getElementById('t-kh').value||236,schlaf:+document.getElementById('t-sleep').value||8,schritte:+document.getElementById('t-steps').value||10000,wasser:+document.getElementById('t-water').value||2.5}});
     this.wizardGo(2);
   }else if(step===2){
     const sq={datum:S.get('settings').startDate,gewicht:+document.getElementById('sq-weight')?.value||null,kfa:+document.getElementById('sq-kfa')?.value||null,fotos:S.get('statusQuo')?.fotos||{},umfaenge:readMeasGrid('sq')};
@@ -705,6 +734,13 @@ wizardNext(step){
 },
 wizardBack(step){this.wizardGo(step-1)},
 wizardFinish(){this.showScreen('calendar')},
+setDuration(val){
+  this._setupDuration=val;
+  ['dur-btn-90','dur-btn-custom','dur-btn-inf'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.remove('dur-btn-active')});
+  const btnId=val===90?'dur-btn-90':val==='custom'?'dur-btn-custom':'dur-btn-inf';
+  const btn=document.getElementById(btnId);if(btn)btn.classList.add('dur-btn-active');
+  const customRow=document.getElementById('dur-custom-row');if(customRow)customRow.style.display=val==='custom'?'flex':'none';
+},
 triggerPhoto(target){this._photoTarget=target;document.getElementById('photo-input').click()},
 handlePhoto(e){
   const file=e.target.files[0];if(!file)return;
@@ -742,11 +778,13 @@ renderCalendar(){
   const cfg=S.get('settings');if(!cfg)return;
   const year=this._calDate.getFullYear(),month=this._calDate.getMonth();
   document.getElementById('cal-month-label').textContent=new Date(year,month,1).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
-  const start=parseDate(cfg.startDate),end=addDays(start,89),today=dateStr(new Date());
+  const _dur=cfg.durationDays!==undefined?cfg.durationDays:90;
+  const start=parseDate(cfg.startDate),today=dateStr(new Date());
   const statsEl=document.getElementById('cal-stats');
   const todayN=dayNumber(today);let daysLogged=0;
-  for(let i=0;i<90;i++){const d=dateStr(addDays(start,i));if(S.get('daily_'+d))daysLogged++}
-  const daysLeft=todayN?Math.max(0,90-todayN):90;
+  if(_dur!==null){for(let i=0;i<_dur;i++){const d=dateStr(addDays(start,i));if(S.get('daily_'+d))daysLogged++;}}
+  else{daysLogged=Object.keys(localStorage).filter(k=>k.startsWith('90tc_daily_')&&dayNumber(k.replace('90tc_daily_',''))&&!!S.get('daily_'+k.replace('90tc_daily_',''))).length;}
+  const daysLeft=_dur!==null?(todayN?Math.max(0,_dur-todayN):_dur):'∞';
   statsEl.innerHTML=`<div class="stat-item"><div class="stat-val">${todayN||'–'}</div><div class="stat-lbl">Tag</div></div><div class="stat-item"><div class="stat-val">${daysLogged}</div><div class="stat-lbl">Einträge</div></div><div class="stat-item"><div class="stat-val">${daysLeft}</div><div class="stat-lbl">Verbleibend</div></div>`;
   const firstDay=new Date(year,month,1);let dow=firstDay.getDay();dow=dow===0?6:dow-1;
   const daysInMonth=new Date(year,month+1,0).getDate();
@@ -786,6 +824,7 @@ openToday(){
 openEntry(dateS){
   this._currentDate=dateS;
   const dn=dayNumber(dateS),q=QUOTES[dn-1]||QUOTES[0],entry=S.get('daily_'+dateS)||{},t=getTargetsForDay(dn);
+  const _eCfg=S.get('settings')||{};const _eDur=_eCfg.durationDays!==undefined?_eCfg.durationDays:90;const _eDurStr=_eDur!==null?' von '+_eDur:'';
   document.getElementById('entry-header-title').textContent='Tag '+dn;
   const mkSollIst=(label,keyPfx,soll,unit,step='1',im='numeric')=>{
     const ist=entry[keyPfx+'_ist']||'',pct=soll&&ist?Math.min(ist/soll,1.5):0,pc=progColor(pct),barW=Math.min(pct*100,100);
@@ -797,7 +836,7 @@ openEntry(dateS){
   if(entry.tr_geplant!==undefined)this._toggleState['tr_geplant']=entry.tr_geplant;
   if(entry.tr_durch!==undefined)this._toggleState['tr_durch']=entry.tr_durch;
   if(entry.tr_prog!==undefined)this._toggleState['tr_prog']=entry.tr_prog;
-  const ct=checkType(dn);const checkBanner=ct&&ct!=='daily'?`<div class="card" style="background:var(--accent-soft);border-left:4px solid var(--accent);margin-bottom:0"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><div style="font-weight:700;color:var(--accent)">${ct==='weekly'?'📋 Wöchentlicher Check':ct==='monthly'?'📊 Monatlicher Check':'🏆 Abschluss-Check'}</div><div style="font-size:13px;color:var(--text2);margin-top:2px">Heute ist ein Check-Tag!</div></div><button class="btn btn-primary" style="padding:8px 14px;font-size:13px;white-space:nowrap" onclick="App.openCheck('${ct}',${ct==='weekly'?weekNum(dn):monthNum(dn)},'${dateS}')">Zum Check →</button></div></div>`:''; document.getElementById('entry-content').innerHTML=`<div class="day-hero"><div class="day-tag">Tag ${dn} von 90</div><div class="day-date">${formatDate(parseDate(dateS))}</div><div class="day-date-sub">${parseDate(dateS).toLocaleDateString('de-DE',{weekday:'long'})}</div></div>${checkBanner}<div class="quote-box"><div class="quote-text">„${q.t}"</div>${q.a?`<div class="quote-author">— ${q.a}</div>`:''}</div><div class="card"><div class="card-title">Körpergewicht</div><div class="soll-ist"><label>Gewicht</label><span class="soll-badge"></span><input class="inp inp-sm" type="number" id="e_gewicht" step="0.1" inputmode="decimal" value="${entry.gewicht||''}" placeholder="0.0"><span class="inp-unit">kg</span><span></span></div></div><div class="card"><div class="card-title">Ernährung</div>${mkSollIst('Kalorienziel','kal',t.kalorien,'kcal')}${mkSollIst('Protein','pro',t.protein,'g')}${mkSollIst('Fett','fat',t.fett,'g')}${mkSollIst('Kohlenhydrate','kh',t.kh,'g')}</div><div class="card"><div class="card-title">Aktivität &amp; Erholung</div>${mkSollIst('Schlaf','sleep',t.schlaf,'h','0.5','decimal')}${mkSollIst('Schritte','steps',t.schritte,'')}${mkSollIst('Wasser','water',t.wasser,'L','0.1','decimal')}</div><div class="card"><div class="card-title">Krafttraining</div>${mkToggle('Geplant','tr_geplant',entry.tr_geplant)}${mkToggle('Durchgeführt','tr_durch',entry.tr_durch)}${mkToggle('Progression','tr_prog',entry.tr_prog)}</div><div class="card"><div class="card-title">3 Dinge, die gestern gut liefen</div>${mkTextRow('Was lief gut?','gut',entry.gut?.[0],1)}${mkTextRow('Was lief gut?','gut',entry.gut?.[1],2)}${mkTextRow('Was lief gut?','gut',entry.gut?.[2],3)}</div><div class="card"><div class="card-title">3 Dinge, die ich heute umsetze</div>${mkTextRow('Was setze ich um?','heute',entry.heute?.[0],1)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[1],2)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[2],3)}</div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveEntry()">Eintrag speichern ✓</button></div>`;
+  const ct=checkType(dn);const checkBanner=ct&&ct!=='daily'?`<div class="card" style="background:var(--accent-soft);border-left:4px solid var(--accent);margin-bottom:0"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><div style="font-weight:700;color:var(--accent)">${ct==='weekly'?'📋 Wöchentlicher Check':ct==='monthly'?'📊 Monatlicher Check':'🏆 Abschluss-Check'}</div><div style="font-size:13px;color:var(--text2);margin-top:2px">Heute ist ein Check-Tag!</div></div><button class="btn btn-primary" style="padding:8px 14px;font-size:13px;white-space:nowrap" onclick="App.openCheck('${ct}',${ct==='weekly'?weekNum(dn):monthNum(dn)},'${dateS}')">Zum Check →</button></div></div>`:''; document.getElementById('entry-content').innerHTML=`<div class="day-hero"><div class="day-tag">Tag ${dn}${_eDurStr}</div><div class="day-date">${formatDate(parseDate(dateS))}</div><div class="day-date-sub">${parseDate(dateS).toLocaleDateString('de-DE',{weekday:'long'})}</div></div>${checkBanner}<div class="quote-box"><div class="quote-text">„${q.t}"</div>${q.a?`<div class="quote-author">— ${q.a}</div>`:''}</div><div class="card"><div class="card-title">Körpergewicht</div><div class="soll-ist"><label>Gewicht</label><span class="soll-badge"></span><input class="inp inp-sm" type="number" id="e_gewicht" step="0.1" inputmode="decimal" value="${entry.gewicht||''}" placeholder="0.0"><span class="inp-unit">kg</span><span></span></div></div><div class="card"><div class="card-title">Ernährung</div>${mkSollIst('Kalorienziel','kal',t.kalorien,'kcal')}${mkSollIst('Protein','pro',t.protein,'g')}${mkSollIst('Fett','fat',t.fett,'g')}${mkSollIst('Kohlenhydrate','kh',t.kh,'g')}</div><div class="card"><div class="card-title">Aktivität &amp; Erholung</div>${mkSollIst('Schlaf','sleep',t.schlaf,'h','0.5','decimal')}${mkSollIst('Schritte','steps',t.schritte,'')}${mkSollIst('Wasser','water',t.wasser,'L','0.1','decimal')}</div><div class="card"><div class="card-title">Krafttraining</div>${mkToggle('Geplant','tr_geplant',entry.tr_geplant)}${mkToggle('Durchgeführt','tr_durch',entry.tr_durch)}${mkToggle('Progression','tr_prog',entry.tr_prog)}</div><div class="card"><div class="card-title">3 Dinge, die gestern gut liefen</div>${mkTextRow('Was lief gut?','gut',entry.gut?.[0],1)}${mkTextRow('Was lief gut?','gut',entry.gut?.[1],2)}${mkTextRow('Was lief gut?','gut',entry.gut?.[2],3)}</div><div class="card"><div class="card-title">3 Dinge, die ich heute umsetze</div>${mkTextRow('Was setze ich um?','heute',entry.heute?.[0],1)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[1],2)}${mkTextRow('Was setze ich um?','heute',entry.heute?.[2],3)}</div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveEntry()">Eintrag speichern ✓</button></div>`;
   // Import-Daten anwenden (vorausgefüllt, aber editierbar)
   if(this._importData&&this._importDate===dateS){
     const _imp=this._importData;
@@ -955,20 +994,48 @@ saveMonthly(){
 },
 openFinal(){
   const sq=S.get('statusQuo')||{},fin=S.get('final')||{},cfg=S.get('settings')||{};
-  const ds=this._currentDate||dateStr(addDays(parseDate(cfg.startDate||dateStr(new Date())),89));
+  const dur=cfg.durationDays!==undefined?cfg.durationDays:90;
+  const durLabel=dur!==null?dur+' Tage geschafft!':'Challenge-Ziel erreicht!';
+  const ds=this._currentDate||dateStr(addDays(parseDate(cfg.startDate||dateStr(new Date())),(dur||90)-1));
   const avgNow=movingAvg(ds),startW=sq.gewicht,deltaW=avgNow&&startW?(avgNow-startW).toFixed(1):null;
   const rows=MEASUREMENTS.map(m=>{
     const startV=sq.umfaenge?.[m.k]||null,nowV=fin.umfaenge?.[m.k]||'',delta=nowV&&startV?(nowV-startV).toFixed(1):null;
     return`<tr><td>${m.l}</td><td style="color:var(--text2)">${startV||'—'}</td><td><input class="td-inp" type="number" step="0.1" id="fm_${m.k}" value="${nowV}" inputmode="decimal"></td><td><span class="${delta!==null?(+delta>0?'delta-pos':'delta-neg'):''}">${delta!==null?fmtDelta(delta,'cm'):'—'}</span></td></tr>`;
   }).join('');
   const mkFoto=(key,label)=>{const img=fin.fotos?.[key];return`<div class="photo-slot${img?' has-img':''}" id="fps-${key}" onclick="App._photoTarget='final_${key}';document.getElementById('photo-input').click()">${img?`<img src="${img}" alt="${label}">`:`<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M7 20c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg><span class="photo-label">${label}</span>`}</div>`};
-  document.getElementById('final-content').innerHTML=`<div class="final-hero"><div class="trophy">🏆</div><h1>90 Tage geschafft!</h1><p>Trag deine finalen Maße ein und vergleiche mit Tag 1.</p></div><div class="card"><div class="card-title">Körpergewicht</div><div class="weight-compare"><div class="wc-item"><div class="wc-val">${startW||'—'}</div><div class="wc-lbl">Tag 1</div></div><div class="wc-item"><div class="wc-val">${avgNow||'—'}</div><div class="wc-lbl">Tag 90</div></div><div class="wc-item"><div class="wc-val ${deltaW!==null?(+deltaW>0?'wc-delta-pos':'wc-delta-neg'):''}">${deltaW!==null?fmtDelta(deltaW,'kg'):'—'}</div><div class="wc-lbl">Veränderung</div></div></div></div><div class="card" style="padding-bottom:0"><div class="card-title">Umfänge — Vergleich</div><div style="overflow-x:auto"><table class="meas-table"><thead><tr><th>Messung</th><th>Tag 1</th><th>Tag 90</th><th>Δ</th></tr></thead><tbody>${rows}</tbody></table></div></div><div class="card"><div class="card-title">Nachher-Fotos</div><div class="photo-grid">${mkFoto('vorn','Von vorn')}${mkFoto('hinten','Von hinten')}${mkFoto('seitlich','Seitlich')}</div></div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveFinal()">Auswertung speichern ✓</button></div><div class="btn-wrap" style="margin-top:10px"><button class="btn" style="background:var(--card2);color:var(--text)" onclick="App.openFotoCompare()">🔍 Vorher/Nachher Vergleich</button></div>`;
+  document.getElementById('final-content').innerHTML=`<div class="final-hero"><div class="trophy">🏆</div><h1>${durLabel}</h1><p>Trag deine finalen Maße ein und vergleiche mit Tag 1.</p></div><div class="card"><div class="card-title">Körpergewicht</div><div class="weight-compare"><div class="wc-item"><div class="wc-val">${startW||'—'}</div><div class="wc-lbl">Tag 1</div></div><div class="wc-item"><div class="wc-val">${avgNow||'—'}</div><div class="wc-lbl">Tag ${dur!==null?dur:'Ende'}</div></div><div class="wc-item"><div class="wc-val ${deltaW!==null?(+deltaW>0?'wc-delta-pos':'wc-delta-neg'):''}">${deltaW!==null?fmtDelta(deltaW,'kg'):'—'}</div><div class="wc-lbl">Veränderung</div></div></div></div><div class="card" style="padding-bottom:0"><div class="card-title">Umfänge — Vergleich</div><div style="overflow-x:auto"><table class="meas-table"><thead><tr><th>Messung</th><th>Tag 1</th><th>Tag 90</th><th>Δ</th></tr></thead><tbody>${rows}</tbody></table></div></div><div class="card"><div class="card-title">Nachher-Fotos</div><div class="photo-grid">${mkFoto('vorn','Von vorn')}${mkFoto('hinten','Von hinten')}${mkFoto('seitlich','Seitlich')}</div></div><div class="btn-wrap spacer-top"><button class="btn btn-primary" onclick="App.saveFinal()">Auswertung speichern ✓</button></div><div class="btn-wrap" style="margin-top:10px"><button class="btn" style="background:var(--card2);color:var(--text)" onclick="App.openFotoCompare()">🔍 Vorher/Nachher Vergleich</button></div><div class="btn-wrap" style="margin-top:16px;flex-direction:column;gap:8px"><button class="btn" style="background:var(--accent-soft);color:var(--accent);font-weight:700;width:100%" onclick="App.continueTracking()">📈 Tracking fortführen ∞</button><button class="btn" style="background:var(--card2);color:var(--text);width:100%" onclick="App.endChallenge()">🏁 Challenge abschließen</button></div>`;
   this.showScreen('final');window.scrollTo(0,0);
 },
 saveFinal(){
   const fin=S.get('final')||{};if(!fin.umfaenge)fin.umfaenge={};
   MEASUREMENTS.forEach(m=>{const el=document.getElementById('fm_'+m.k);if(el&&el.value)fin.umfaenge[m.k]=parseFloat(el.value)});
   S.set('final',fin);toast('Abschlussauswertung gespeichert 🏆');sync();
+},
+continueTracking(){
+  const cfg=S.get('settings')||{};
+  cfg.durationDays=null;
+  delete cfg.challengeCompleted;
+  S.set('settings',cfg);sync();
+  toast('Tracking läuft weiter ∞');this.showScreen('calendar');
+},
+endChallenge(){
+  const cfg=S.get('settings')||{};
+  cfg.challengeCompleted=true;
+  S.set('settings',cfg);sync();
+  toast('Challenge abgeschlossen 🏆');this.showScreen('calendar');
+},
+newChallenge(){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML=`<div style='background:var(--card);border-radius:18px;padding:24px 20px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px'><div style='font-weight:700;font-size:18px'>🚀 Neue Challenge starten?</div><div style='font-size:14px;color:var(--text2)'>Deine bisherigen Daten bleiben erhalten und können später als Vergleich genutzt werden. Nur Startdatum und Dauer werden zurückgesetzt.</div><button class='btn btn-primary' onclick='App._startNewChallenge();this.closest("[data-overlay]").remove()'>Neue Challenge starten</button><button class='btn' style='background:var(--card2);color:var(--text)' onclick='this.closest("[data-overlay]").remove()'>Abbrechen</button></div>`;
+  overlay.setAttribute('data-overlay','1');overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};
+  document.body.appendChild(overlay);
+},
+_startNewChallenge(){
+  const cfg=S.get('settings')||{};
+  delete cfg.startDate;delete cfg.durationDays;delete cfg.challengeCompleted;
+  S.set('settings',cfg);sync();
+  this._setupDuration=90;this.showScreen('setup');this.wizardGo(1);
 },
 renderStatusQuo(){
   const sq=S.get('statusQuo')||{};
@@ -1002,7 +1069,9 @@ renderSettings(){
   if(notifTime&&reminder.time)notifTime.value=reminder.time;
   const fields={'cfg-start':cfg.startDate||'','cfg-name':cfg.name||'','cfg-groesse':cfg.groesse||'','cfg-geburt':cfg.geburtsdatum||'','cfg-geschlecht':cfg.geschlecht||'','cfg-kal':t.kalorien||'','cfg-pro':t.protein||'','cfg-fat':t.fett||'','cfg-kh':t.kh||'','cfg-sleep':t.schlaf||'','cfg-steps':t.schritte||'','cfg-water':t.wasser||''};
   Object.entries(fields).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v});
-  if(cfg.startDate){const end=addDays(parseDate(cfg.startDate),89);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end)}
+  const _rsDur=cfg.durationDays!==undefined?cfg.durationDays:90;
+  const _rsDurLbl=document.getElementById('cfg-dur-label');if(_rsDurLbl)_rsDurLbl.textContent=_rsDur===null?'Unendlich ∞':_rsDur+' Tage';
+  if(cfg.startDate){if(_rsDur!==null){const end=addDays(parseDate(cfg.startDate),_rsDur-1);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);}else{const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent='—';}}
   const alterLbl=document.getElementById('cfg-alter-label');if(alterLbl){const age=calcAge(cfg.geburtsdatum);alterLbl.textContent=age!==null?age+' Jahre':'—'}
   const vLbl=document.getElementById('app-version-label');if(vLbl)vLbl.textContent=APP_VERSION;
 },
@@ -1011,8 +1080,9 @@ async saveSettings(){
   if(!startDate){toast('Bitte Startdatum eingeben');return}
   const notifEnabled=document.getElementById('cfg-notif-enabled')?.checked||false;
   const notifTime=document.getElementById('cfg-notif-time')?.value||'20:00';
-  S.set('settings',{startDate,name:document.getElementById('cfg-name')?.value||'',groesse:+document.getElementById('cfg-groesse')?.value||null,geburtsdatum:document.getElementById('cfg-geburt')?.value||'',geschlecht:document.getElementById('cfg-geschlecht')?.value||'',targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5},reminder:{enabled:notifEnabled,time:notifTime}});
-  const end=addDays(parseDate(startDate),89);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);
+  const _ssCfg=S.get('settings')||{};const _ssDur=_ssCfg.durationDays!==undefined?_ssCfg.durationDays:90;
+  S.set('settings',{startDate,durationDays:_ssDur,name:document.getElementById('cfg-name')?.value||'',groesse:+document.getElementById('cfg-groesse')?.value||null,geburtsdatum:document.getElementById('cfg-geburt')?.value||'',geschlecht:document.getElementById('cfg-geschlecht')?.value||'',targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5},reminder:{enabled:notifEnabled,time:notifTime},challengeCompleted:_ssCfg.challengeCompleted||false});
+  if(_ssDur!==null){const end=addDays(parseDate(startDate),_ssDur-1);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);}else{const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent='—';}
   if(notifEnabled&&Notification.permission==='granted'){await this.subscribePush();}else if(!notifEnabled){await this.unsubscribePush();}
   toast('Einstellungen gespeichert ✓');sync();
 },
