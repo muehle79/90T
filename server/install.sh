@@ -33,7 +33,7 @@ echo "    PWA-Dateien kopiert."
 # Schritt 4: Python venv + Pakete
 echo "[4/9] Python venv einrichten..."
 python3 -m venv "$APP/venv"
-"$APP/venv/bin/pip" install --quiet flask gunicorn bcrypt pywebpush
+"$APP/venv/bin/pip" install --quiet flask gunicorn bcrypt pywebpush anthropic
 "$APP/venv/bin/pip" freeze > "$APP/requirements.txt"
 
 # Schritt 5: .env anlegen (interaktiv)

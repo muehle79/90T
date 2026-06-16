@@ -42,7 +42,7 @@ done
 
 if [ "$BACKEND_CHANGED" = true ]; then
   echo "  → Python-Pakete aktualisieren..."
-  "$APP/venv/bin/pip" install --quiet pywebpush 2>/dev/null || true
+  "$APP/venv/bin/pip" install --quiet pywebpush anthropic 2>/dev/null || true
   echo "  → Datenbank-Schema aktualisieren..."
   "$APP/venv/bin/python" "$APP/setup_db.py"
   echo "  → Service wird neugestartet..."

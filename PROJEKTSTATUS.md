@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `2.0.0`  
-**Letzter Commit:** `128133e feat: Analyse-Screen — Datenanalyse auf Knopfdruck (v2.0.0)`
+**Aktuelle Version:** `2.1.0`  
+**Letzter Commit:** `— (noch nicht committed)`
 
 ---
 
@@ -13,6 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
+| 2.1.0 | `—` | Feat: KI-Bericht im Analyse-Screen (Claude Haiku, /api/ai-report, ANTHROPIC_API_KEY) |
 | 2.0.0 | `128133e` | Feat: Analyse-Screen — Gewichtstrend, Compliance, Korrelationen, Report-Download, DB-Speicherung |
 | 1.0.x | `8038f32` | Initiale Builds, URL-Import (iOS Kurzbefehl), Locale-Fix |
 | 1.1.0 | `05d6a68` | 4 Bug-Fixes: Foto-Upload, Check-Tage, Kalender-Dots, PWA-Export/Import |
@@ -84,7 +85,7 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | `icon-192.png` / `icon-512.png` / `favicon.png` | App-Icons (Kinetic Meridian Design, ohne feste Tageszahl) |
 | `import.html` | Hilfsseite für URL-basierten Daten-Import (iOS Kurzbefehl) |
 | `export.html` | Einmal-Export-Seite ohne Auth (für Migration von alten Daten) |
-| `server/app.py` | Flask-Backend: Auth + KV-Sync + Web-Push (VAPID) + Analyse-Endpunkte |
+| `server/app.py` | Flask-Backend: Auth + KV-Sync + Web-Push (VAPID) + Analyse + KI-Bericht (/api/ai-report) |
 | `server/setup_db.py` | SQLite-Schema-Initialisierung (inkl. push_subscriptions) |
 | `server/90tc.service` | systemd-Unit |
 | `server/install.sh` | Installations-Skript für Raspberry Pi (inkl. VAPID + Cron) |

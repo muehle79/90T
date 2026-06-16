@@ -21,6 +21,7 @@ VAPID_PRIVATE_PEM   = os.environ.get('VAPID_PRIVATE_PEM', '')   # Pfad zur PEM-D
 VAPID_PUBLIC_KEY    = os.environ.get('VAPID_PUBLIC_KEY', '')     # base64url-kodierter öffentlicher Schlüssel
 VAPID_CLAIMS_EMAIL  = os.environ.get('VAPID_CLAIMS_EMAIL', 'mailto:admin@example.com')
 PUSH_TRIGGER_SECRET = os.environ.get('PUSH_TRIGGER_SECRET', '')
+ANTHROPIC_API_KEY   = os.environ.get('ANTHROPIC_API_KEY', '')
 
 def get_db():
     if 'db' not in g:
@@ -296,6 +297,128 @@ def get_analysis(analysis_id):
     if not row:
         return jsonify({'error': 'Nicht gefunden'}), 404
     return jsonify(json.loads(row['data']))
+
+# ── KI-Bericht ────────────────────────────────────────────────────────────────
+def _build_ai_prompt(data):
+    m  = data.get('meta', {})
+    w  = data.get('weight', {})
+    n  = data.get('nutrition', {})
+    tr = data.get('training', {})
+    rc = data.get('recovery', {})
+    c  = data.get('correlations', {})
+    sc = data.get('score', {})
+    meas = data.get('measurements', {})
+
+    lines = [
+        "Erstelle einen wissenschaftlich fundierten, persönlichen Fitness- und Gesundheitsbericht für folgende Challenge-Daten:",
+        "",
+        f"## Übersicht",
+        f"- Tag {m.get('dayN','?')} von {m.get('dur','90')} | Logging-Rate {m.get('logRate','?')}% | Compliance-Score {sc.get('avg','—')}%",
+    ]
+
+    if w.get('start'):
+        lines += [
+            "", "## Gewicht",
+            f"- Start {w['start']} kg → Aktuell {w.get('current','—')} kg (Δ {w.get('delta','—')} kg)",
+            f"- Wöchentliche Rate: {w.get('weeklyRate','—')} kg/Woche",
+        ]
+        if w.get('prediction'):
+            lines.append(f"- Prognose Challengeende: {w['prediction']} kg")
+
+    nt = n.get('targets', {})
+    if n.get('avgKal'):
+        nd = n.get('nutDays', 1) or 1
+        kp = round(n.get('kalCmp', 0) / nd * 100)
+        pp = round(n.get('proCmp', 0) / nd * 100)
+        lines += [
+            "", "## Ernährung",
+            f"- Ø Kalorien {n['avgKal']} kcal (Ziel {nt.get('kalorien','—')}), Kalorienplan {kp}% der Tage eingehalten",
+            f"- Ø Protein {n.get('avgPro','—')} g (Ziel {nt.get('protein','—')} g), Ziel {pp}% erreicht",
+            f"- Ø Fett {n.get('avgFat','—')} g | Ø KH {n.get('avgKh','—')} g",
+            f"- Konsistenz (Stabw. Kcal): ±{n.get('kalStd','—')} kcal",
+        ]
+        if n.get('empirTDEE'):
+            lines.append(f"- Empirischer TDEE (aus Daten): {n['empirTDEE']} kcal/Tag")
+        if n.get('formulaTDEE'):
+            lines.append(f"- Mifflin-TDEE (Formel): {n['formulaTDEE']} kcal/Tag")
+
+    if tr.get('trDone', 0) > 0:
+        lines += [
+            "", "## Training",
+            f"- Durchgeführt {tr.get('trDone','—')}× von {tr.get('trPlan','—')} geplant ({tr.get('trCmp','—')}%)",
+            f"- Trainingsfortschritt erreicht: {tr.get('trProgRate','—')}% | Längste Streak {tr.get('maxStreak','—')} Tage",
+        ]
+
+    if rc.get('avgSl'):
+        tg = rc.get('targets', {})
+        lines += [
+            "", "## Erholung & Lifestyle",
+            f"- Ø Schlaf {rc['avgSl']} h (Ziel {tg.get('schlaf',7)} h)",
+            f"- Ø Schritte {rc.get('avgSt','—')} (Ziel {tg.get('schritte',10000)})",
+            f"- Ø Wasser {rc.get('avgWa','—')} L (Ziel {tg.get('wasser',2.5)} L)",
+        ]
+
+    sl = c.get('slTr', {})
+    pr = c.get('prPr', {})
+    corr_lines = []
+    if sl.get('gT', 0) >= 3 or sl.get('bT', 0) >= 3:
+        gP = round(sl['g']/sl['gT']*100) if sl.get('gT') else '—'
+        bP = round(sl['b']/sl['bT']*100) if sl.get('bT') else '—'
+        corr_lines.append(f"- Schlaf → Training Folgetag: {gP}% (guter Schlaf) vs. {bP}% (schlechter Schlaf)")
+    if pr.get('gT', 0) >= 3 or pr.get('bT', 0) >= 3:
+        gP = round(pr['g']/pr['gT']*100) if pr.get('gT') else '—'
+        bP = round(pr['b']/pr['bT']*100) if pr.get('bT') else '—'
+        corr_lines.append(f"- Protein → Trainingsfortschritt: {gP}% (ausreichend Protein) vs. {bP}% (zu wenig)")
+    if corr_lines:
+        lines += ["", "## Zusammenhänge"] + corr_lines
+
+    mkeys = ['schulter','brust','rechterArm','linkerArm','ueber5','nabel','unter5','huefte','rechtsBein','linksBein']
+    mlbls = {'schulter':'Schulter','brust':'Brust','rechterArm':'Rechter Arm','linkerArm':'Linker Arm',
+             'ueber5':'Über Nabel','nabel':'Nabel','unter5':'Unter Nabel','huefte':'Hüfte',
+             'rechtsBein':'Rechtes Bein','linksBein':'Linkes Bein'}
+    ms = meas.get('start', {}) or {}
+    ml = meas.get('latest', {}) or {}
+    meas_lines = []
+    for k in mkeys:
+        s, l = ms.get(k), ml.get(k)
+        if s or l:
+            dt = f" (Δ {'+' if l-s>0 else ''}{round(l-s,1)} cm)" if s and l else ""
+            meas_lines.append(f"- {mlbls[k]}: {s or '—'} → {l or '—'} cm{dt}")
+    if meas_lines:
+        lines += ["", "## Körperumfänge"] + meas_lines
+
+    lines += [
+        "", "---",
+        "Bitte erstelle einen strukturierten deutschen Bericht mit diesen 6 Abschnitten:",
+        "1. **Ernährung** — Kalorienverteilung, Makros, Konsistenz; Bezug auf aktuelle Studien (z.B. Proteinempfehlung 1,6–2,2 g/kg)",
+        "2. **Körperumfänge & Komposition** — Was die Messwerte über Fett- vs. Muskelmasse aussagen",
+        "3. **Training** — Regelmäßigkeit, Progression, Streak; Einordnung nach Trainingswissenschaft",
+        "4. **Erholung & Lifestyle** — Schlaf, NEAT, Hydration und ihr Einfluss auf Erfolg (wissenschaftlich belegt)",
+        "5. **Zusammenhänge** — Interpretation der Korrelationen, was sie für diesen Nutzer bedeuten",
+        "6. **Empfehlungen** — 3–5 konkrete, priorisierte Maßnahmen für die verbleibende Zeit",
+        "Schreibe direkt, motivierend und ehrlich. Verwende Markdown (##, **, - Listen). Keine Disclaimer.",
+    ]
+    return '\n'.join(lines)
+
+@app.route('/api/ai-report', methods=['POST'])
+@login_required
+def ai_report():
+    if not ANTHROPIC_API_KEY:
+        return jsonify({'error': 'KI-Bericht nicht konfiguriert — ANTHROPIC_API_KEY fehlt in der .env auf dem Server'}), 503
+    data = request.get_json(force=True) or {}
+    prompt = _build_ai_prompt(data)
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        resp = client.messages.create(
+            model='claude-haiku-4-5-20251001',
+            max_tokens=2500,
+            messages=[{'role': 'user', 'content': prompt}]
+        )
+        text = ''.join(getattr(b, 'text', '') for b in resp.content)
+        return jsonify({'ok': True, 'report': text})
+    except Exception as e:
+        return jsonify({'error': f'API-Fehler: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=False)
