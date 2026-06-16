@@ -5,7 +5,7 @@
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
 **Aktuelle Version:** `1.8.0`  
-**Letzter Commit:** `feat: echte Web-Push-Erinnerungen (VAPID, server-seitig, unabhängig von App-Status)`
+**Letzter Commit:** `47f03d0 feat: echte Web-Push-Erinnerungen via VAPID (v1.8.0)`
 
 ---
 
@@ -37,7 +37,7 @@
 | 1.7.0 | `3fac75b` | Fix: controllerchange-Listener — PWA lädt automatisch neu wenn neuer SW aktiv |
 | 1.7.0 | `207c436` | Fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import) |
 | 1.7.1 | — | Versionssprung für alle 1.7.0-Fixes — Changelog-Modal + Push-Erinnerung sichtbar |
-| 1.8.0 | — | Feat: Echte Web-Push via VAPID — server-seitig, funktioniert auch wenn App geschlossen |
+| 1.8.0 | `47f03d0` | Feat: Echte Web-Push via VAPID — server-seitig, funktioniert auch wenn App geschlossen |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
 
@@ -79,10 +79,13 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | `icon-192.png` / `icon-512.png` / `favicon.png` | App-Icons (Kinetic Meridian Design, ohne feste Tageszahl) |
 | `import.html` | Hilfsseite für URL-basierten Daten-Import (iOS Kurzbefehl) |
 | `export.html` | Einmal-Export-Seite ohne Auth (für Migration von alten Daten) |
-| `server/app.py` | Flask-Backend: Auth + KV-Sync + statische Dateien |
-| `server/setup_db.py` | SQLite-Schema-Initialisierung |
+| `server/app.py` | Flask-Backend: Auth + KV-Sync + Web-Push (VAPID) |
+| `server/setup_db.py` | SQLite-Schema-Initialisierung (inkl. push_subscriptions) |
 | `server/90tc.service` | systemd-Unit |
-| `server/install.sh` | Installations-Skript für Raspberry Pi |
+| `server/install.sh` | Installations-Skript für Raspberry Pi (inkl. VAPID + Cron) |
+| `server/deploy.sh` | Update-Skript: pull → statische Dateien → Backend neu starten |
+| `server/setup_push.sh` | Einmalige Push-Einrichtung für bestehende Installs |
+| `server/fix_push_secret.sh` | Fix: PUSH_TRIGGER_SECRET nachtragen + Cron-Job aktualisieren |
 | `PROJEKTSTATUS.md` | Diese Datei |
 
 ---
@@ -95,6 +98,16 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 - **Sync-Strategie:** Offline-first, Dirty-Queue in localStorage (`90tc__dirty`), Last-Write-Wins pro Key anhand `updated_at` (Unix-ms)
 - **Sync-Aufruf:** App-Start (nach Auth), nach jedem S.set(), bei `online`-Event
 - **Multi-Device:** iPhone → Server → Mac (und zurück) ✓
+
+## Web Push
+
+- **Standard:** VAPID (Web Push Protocol) — funktioniert auf iOS 16.4+ als Home-Screen-PWA
+- **Schlüssel:** `VAPID_PRIVATE_PEM` (Datei auf Pi) + `VAPID_PUBLIC_KEY` (base64url, in .env)
+- **Abonnement:** Browser → `pushManager.subscribe()` → `/api/push/subscribe` → SQLite `push_subscriptions`
+- **Versand:** Cron jede Minute → `POST /api/push/trigger` (Secret: `PUSH_TRIGGER_SECRET`) → pywebpush → APNs/FCM
+- **Zeitzone:** Europe/Berlin (Pi-Systemzeit), Vergleich mit `settings.reminder.time`
+- **Cron prüfen:** `crontab -l | grep push`
+- **Manuell testen:** `SECRET=$(grep PUSH_TRIGGER_SECRET /home/pi/90tc-app/.env | tail -1 | cut -d= -f2) && curl -s -X POST http://127.0.0.1:8080/api/push/trigger -H "X-Push-Secret: $SECRET"`
 
 ---
 
