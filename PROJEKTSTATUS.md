@@ -5,7 +5,7 @@
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
 **Aktuelle Version:** `1.9.0`  
-**Letzter Commit:** `— (noch nicht gepusht)`
+**Letzter Commit:** `5429233 feat: frei wählbare Challenge-Dauer + Tracking fortführen / beenden (v1.9.0)`
 
 ---
 
@@ -37,7 +37,7 @@
 | 1.7.0 | `3fac75b` | Fix: controllerchange-Listener — PWA lädt automatisch neu wenn neuer SW aktiv |
 | 1.7.0 | `207c436` | Fix: checkReminderNotif bei jedem App-Start aufrufen (nicht nur bei URL-Import) |
 | 1.7.1 | — | Versionssprung für alle 1.7.0-Fixes — Changelog-Modal + Push-Erinnerung sichtbar |
-| 1.9.0 | `—` | Feat: Frei wählbare Challenge-Dauer (90T / eigener Zeitraum / ∞), Tracking fortführen oder beenden, Neue Challenge starten |
+| 1.9.0 | `5429233` | Feat: Frei wählbare Challenge-Dauer (90T / eigener Zeitraum / ∞), Tracking fortführen oder beenden, Neue Challenge starten |
 | 1.8.0 | `47f03d0` | Feat: Echte Web-Push via VAPID — server-seitig, funktioniert auch wenn App geschlossen |
 
 > **Regel:** Bei jeder Änderung `APP_VERSION` in `index.html` erhöhen + `PROJEKTSTATUS.md` mit committen.
