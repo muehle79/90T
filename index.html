@@ -97,6 +97,25 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 .wizard-step.active{display:block}
 .dur-btn{flex:1;padding:9px 4px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;line-height:1.3}
 .dur-btn.dur-btn-active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ana-hero{background:linear-gradient(135deg,var(--accent),#f59e0b);padding:24px 20px;margin:16px;border-radius:var(--radius);text-align:center;color:#fff}
+.ana-score{font-size:54px;font-weight:800;line-height:1}
+.ana-score-label{font-size:14px;opacity:.85;margin-top:4px}
+.ana-meta{font-size:12px;opacity:.7;margin-top:6px;line-height:1.5}
+.ana-section{margin:16px 16px 0}
+.ana-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:8px;padding:0 2px}
+.ana-stat{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:15px;gap:8px}
+.ana-stat:last-child{border-bottom:none}
+.ana-stat-lbl{color:var(--text2);font-size:14px;flex:1}
+.ana-stat-val{font-weight:600;text-align:right;font-size:14px}
+.ana-sub{font-size:11px;font-weight:400;color:var(--text2)}
+.ana-ok{color:var(--green)}.ana-warn{color:var(--yellow)}.ana-bad{color:var(--red)}
+.ana-tag{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border-radius:20px;padding:5px 11px;font-size:13px;margin:3px}
+.ana-cnt{background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700}
+.ana-corr{display:flex;gap:10px;margin-top:10px}
+.ana-corr-box{flex:1;background:var(--bg2);border-radius:10px;padding:12px 8px;text-align:center}
+.ana-corr-pct{font-size:26px;font-weight:800}
+.ana-corr-sub{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.3}
+.ana-corr-note{text-align:center;margin-top:8px;font-size:13px;color:var(--text2);padding:0 4px}
 .ios-toggle{position:relative;display:inline-block;width:50px;height:28px;flex:none}
 .ios-toggle input{opacity:0;width:0;height:0;position:absolute}
 .ios-toggle .slider{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:28px;transition:.25s}
@@ -415,6 +434,21 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
   <div id="fotocompare-content"></div>
 </div>
 
+<div id="screen-analysis" class="screen">
+  <div class="header">
+    <button class="header-btn" onclick="App.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h1>Analyse</h1>
+    <div style="width:36px"></div>
+  </div>
+  <div id="analysis-content">
+    <div style="padding:32px 16px;text-align:center">
+      <div style="font-size:48px;line-height:1;margin-bottom:14px">📊</div>
+      <p style="color:var(--text2);font-size:15px;line-height:1.6;margin-bottom:24px">Wertet alle bisher erfassten Daten aus — Körper, Ernährung, Training und Erholung.</p>
+      <button class="btn btn-primary" style="width:100%;font-size:16px;padding:14px 0" onclick="App.buildAnalysis()">Analyse erstellen</button>
+    </div>
+  </div>
+</div>
+
 <div id="screen-settings" class="screen">
   <div class="header" style="position:relative;top:0">
     <h1 style="flex:1;text-align:left;font-size:22px;font-weight:700;padding-top:4px">Einstellungen</h1>
@@ -524,6 +558,10 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
     </div>
     Heute
   </button>
+  <button class="nav-btn" id="nav-analysis" onclick="App.showScreen('analysis')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Analyse
+  </button>
   <button class="nav-btn" id="nav-settings" onclick="App.showScreen('settings')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     Einstellungen
@@ -532,8 +570,9 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='1.9.3';
+const APP_VERSION='2.0.0';
 const CHANGELOG=[
+  {version:'2.0.0',items:['📊 Analyse-Screen: Alle Daten auf Knopfdruck analysieren — Gewichtstrend, Ernährungskonsistenz, Compliance-Score, Korrelationen','💾 Analyse wird automatisch in der Datenbank gespeichert','📄 Report-Download als druckbares HTML']},
   {version:'1.9.1',items:['🔢 Kalorien-Modus wählbar: automatisch aus Makros berechnen oder manuell eingeben']},
   {version:'1.9.0',items:['⏱ Frei wählbare Challenge-Dauer: 90 Tage, eigener Zeitraum oder unendlich','🔄 Nach Abschluss: Tracking fortführen oder Challenge beenden','🚀 Neue Challenge starten — bisherige Daten bleiben als Vergleich erhalten']},
   {version:'1.8.0',items:['🔔 Echte Push-Erinnerungen — kommen jetzt zuverlässig auch wenn die App geschlossen ist']},
@@ -604,6 +643,8 @@ function toast(msg,dur=2200){const el=document.getElementById('toast');el.textCo
 function compressPhoto(file,cb){const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const max=900;let{width:w,height:h}=img;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r)}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);cb(canvas.toDataURL('image/jpeg',.72))};img.src=e.target.result};reader.readAsDataURL(file)}
 function buildMeasGrid(containerId,prefix,data={}){const container=document.getElementById(containerId);if(!container)return;container.innerHTML=MEASUREMENTS.map(m=>`<div class="meas-item"><span class="meas-label">${m.l}</span><div class="meas-inp"><input type="number" step="0.1" placeholder="0.0" id="${prefix}_${m.k}" value="${data[m.k]||''}" inputmode="decimal"><span class="meas-unit">cm</span></div></div>`).join('')}
 function readMeasGrid(prefix){const r={};MEASUREMENTS.forEach(m=>{const el=document.getElementById(`${prefix}_${m.k}`);if(el&&el.value)r[m.k]=parseFloat(el.value)});return r}
+function linReg(xs,ys){const n=xs.length;if(n<2)return null;const mx=xs.reduce((a,b)=>a+b,0)/n,my=ys.reduce((a,b)=>a+b,0)/n;const num=xs.reduce((a,x,i)=>a+(x-mx)*(ys[i]-my),0);const den=xs.reduce((a,x)=>a+(x-mx)**2,0);if(!den)return null;const s=num/den,ic=my-s*mx;return{slope:s,intercept:ic,predict:x=>s*x+ic}}
+function stdDev(arr){const n=arr.length;if(n<2)return 0;const m=arr.reduce((a,b)=>a+b,0)/n;return Math.sqrt(arr.reduce((a,x)=>a+(x-m)**2,0)/(n-1))}
 function getTargetsForDay(dn){
   const cfg=S.get('settings')||{};
   const defaultTargets=cfg.targets||{};
@@ -743,6 +784,7 @@ showScreen(name,data={}){
   if(name==='calendar')this.renderCalendar();
   else if(name==='settings')this.renderSettings();
   else if(name==='statusquo')this.renderStatusQuo();
+  else if(name==='analysis'){}
 },
 back(){const name=(this._prevScreen||'screen-calendar').replace('screen-','');this.showScreen(name)},
 startSetup(){this.showRaw('screen-setup');this.wizardGo(1)},
@@ -1410,6 +1452,227 @@ async register(){
     if(r.ok){msg.className='auth-msg ok';msg.textContent='Registriert! Jetzt anmelden.';App.authTab('login');}
     else{const e=await r.json();msg.className='auth-msg';msg.textContent=e.error||'Fehler';}
   }catch{msg.textContent='Verbindungsfehler';}
+},
+buildAnalysis(){
+  const d=this._computeAnalysis();
+  if(!d){toast('Bitte zuerst Einstellungen einrichten (Startdatum)');return;}
+  if(d.meta.logRate===0){toast('Noch keine Tageseinträge vorhanden');return;}
+  this._lastAnalysis=d;
+  const inner=this._renderAnalysisHTML(d)
+    +'<div style="padding:16px;display:flex;flex-direction:column;gap:8px;margin-top:4px">'
+    +'<button class="btn btn-primary" onclick="App.saveAnalysis()">💾 Analyse speichern</button>'
+    +'<button class="btn" style="background:var(--card2);color:var(--text)" onclick="App.downloadReport()">📄 Als Report herunterladen</button>'
+    +'</div><div style="height:20px"></div>';
+  document.getElementById('analysis-content').innerHTML=inner;
+  window.scrollTo(0,0);
+},
+_computeAnalysis(){
+  const cfg=S.get('settings')||{};const sq=S.get('statusQuo')||{};const fin=S.get('final')||{};
+  if(!cfg.startDate)return null;
+  const start=parseDate(cfg.startDate);
+  const dur=cfg.durationDays!==undefined?cfg.durationDays:90;
+  const today=dateStr(new Date());const todayN=dayNumber(today)||0;
+  const maxDay=dur!==null?Math.min(todayN,dur):todayN;
+  if(maxDay<1)return null;
+  const allDays=[];for(let i=0;i<maxDay;i++){const d=dateStr(addDays(start,i));allDays.push({date:d,dn:i+1,entry:S.get('daily_'+d)||null});}
+  const logged=allDays.filter(d=>d.entry);
+  const logRate=Math.round(logged.length/maxDay*100);
+  // WEIGHT
+  const wE=logged.filter(d=>d.entry.gewicht!=null).map(d=>({dn:d.dn,w:parseFloat(d.entry.gewicht)}));
+  const wVals=wE.map(e=>e.w);
+  const wStartVal=sq.gewicht?parseFloat(sq.gewicht):(wVals.length?wVals[0]:null);
+  const wCurrent=wVals.length?wVals[wVals.length-1]:null;
+  const wDelta=wStartVal&&wCurrent?(wCurrent-wStartVal).toFixed(1):null;
+  const wMin=wVals.length?Math.min(...wVals).toFixed(1):null;
+  const wMax=wVals.length?Math.max(...wVals).toFixed(1):null;
+  const wReg=wE.length>=5?linReg(wE.map(e=>e.dn),wE.map(e=>e.w)):null;
+  const weeklyRate=wReg&&maxDay>=7?(wReg.slope*7).toFixed(2):null;
+  const wPred=wReg&&dur!==null&&dur>maxDay?wReg.predict(dur).toFixed(1):null;
+  // NUTRITION
+  const t0=cfg.targets||{};
+  const nutD=logged.filter(d=>d.entry.kal_ist!=null);
+  const avgKal=nutD.length?Math.round(nutD.reduce((a,d)=>a+d.entry.kal_ist,0)/nutD.length):null;
+  const avgPro=nutD.length?Math.round(nutD.reduce((a,d)=>a+(d.entry.pro_ist||0),0)/nutD.length):null;
+  const avgFat=nutD.length?Math.round(nutD.reduce((a,d)=>a+(d.entry.fat_ist||0),0)/nutD.length):null;
+  const avgKh=nutD.length?Math.round(nutD.reduce((a,d)=>a+(d.entry.kh_ist||0),0)/nutD.length):null;
+  let kalCmp=0,proCmp=0;
+  nutD.forEach(d=>{const t=getTargetsForDay(d.dn);if(t.kalorien&&Math.abs(d.entry.kal_ist-t.kalorien)/t.kalorien<=0.15)kalCmp++;if(t.protein&&(d.entry.pro_ist||0)>=t.protein*0.9)proCmp++;});
+  const kalStd=nutD.length>1?Math.round(stdDev(nutD.map(d=>d.entry.kal_ist))):null;
+  let empirTDEE=null;
+  if(wDelta!==null&&avgKal&&maxDay>=7)empirTDEE=Math.round(avgKal-parseFloat(wDelta)*7700/maxDay);
+  let formulaTDEE=null;
+  const ht=cfg.groesse,age=calcAge(cfg.geburtsdatum),gnd=cfg.geschlecht;
+  if(ht&&age&&wStartVal&&gnd){const bmr=gnd==='m'?10*wStartVal+6.25*ht-5*age+5:10*wStartVal+6.25*ht-5*age-161;formulaTDEE=Math.round(bmr*1.55);}
+  // TRAINING
+  const trD=logged.filter(d=>d.entry.tr_geplant!==undefined||d.entry.tr_durch!==undefined);
+  const trPlan=trD.filter(d=>d.entry.tr_geplant===true).length;
+  const trDone=trD.filter(d=>d.entry.tr_durch===true).length;
+  const trProg=trD.filter(d=>d.entry.tr_prog===true).length;
+  const trCmp=trPlan>0?Math.round(trDone/trPlan*100):null;
+  const trProgRate=trDone>0?Math.round(trProg/trDone*100):null;
+  let maxStreak=0,curStreak=0;
+  allDays.forEach(d=>{if(d.entry?.tr_durch===true){curStreak++;maxStreak=Math.max(maxStreak,curStreak);}else curStreak=0;});
+  // RECOVERY
+  const slD=logged.filter(d=>d.entry.sleep_ist!=null);
+  const stD=logged.filter(d=>d.entry.steps_ist!=null);
+  const waD=logged.filter(d=>d.entry.water_ist!=null);
+  const avgSl=slD.length?(slD.reduce((a,d)=>a+d.entry.sleep_ist,0)/slD.length).toFixed(1):null;
+  const avgSt=stD.length?Math.round(stD.reduce((a,d)=>a+d.entry.steps_ist,0)/stD.length):null;
+  const avgWa=waD.length?(waD.reduce((a,d)=>a+d.entry.water_ist,0)/waD.length).toFixed(1):null;
+  const tSl=t0.schlaf||7,tSt=t0.schritte||10000,tWa=t0.wasser||2.5;
+  const slCmp=slD.filter(d=>d.entry.sleep_ist>=tSl*0.9).length;
+  const stCmp=stD.filter(d=>d.entry.steps_ist>=tSt*0.9).length;
+  const waCmp=waD.filter(d=>d.entry.water_ist>=tWa*0.9).length;
+  // CORRELATIONS: Schlaf → Training Folgetag
+  let slTrG=0,slTrGT=0,slTrB=0,slTrBT=0;
+  for(let i=0;i<allDays.length-1;i++){const e=allDays[i].entry,eN=allDays[i+1].entry;if(!e?.sleep_ist||!eN)continue;if(e.sleep_ist>=tSl){slTrGT++;if(eN.tr_durch===true)slTrG++;}else{slTrBT++;if(eN.tr_durch===true)slTrB++;}}
+  // CORRELATIONS: Protein → Progression
+  let prPrG=0,prPrGT=0,prPrB=0,prPrBT=0;
+  logged.forEach(d=>{const e=d.entry;if(e.tr_durch!==true)return;const t=getTargetsForDay(d.dn);if((e.pro_ist||0)>=t.protein*0.9){prPrGT++;if(e.tr_prog===true)prPrG++;}else{prPrBT++;if(e.tr_prog===true)prPrB++;}});
+  // COMPLIANCE SCORE
+  let scoreSum=0,scoreCnt=0;
+  allDays.forEach(d=>{const e=d.entry;if(!e)return;const t=getTargetsForDay(d.dn);let sc=0,mx=0;
+    if(t.kalorien&&e.kal_ist!=null){mx+=20;if(Math.abs(e.kal_ist-t.kalorien)/t.kalorien<=0.15)sc+=20;}
+    if(t.protein&&e.pro_ist!=null){mx+=20;if(e.pro_ist>=t.protein*0.9)sc+=20;}
+    if(e.tr_geplant!==undefined){mx+=20;if(e.tr_geplant===false||e.tr_durch===true)sc+=20;}
+    if(t.schlaf&&e.sleep_ist!=null){mx+=15;if(e.sleep_ist>=t.schlaf*0.9)sc+=15;}
+    if(t.schritte&&e.steps_ist!=null){mx+=15;if(e.steps_ist>=t.schritte*0.9)sc+=15;}
+    if(t.wasser&&e.water_ist!=null){mx+=10;if(e.water_ist>=t.wasser*0.9)sc+=10;}
+    if(mx>0){scoreSum+=sc/mx*100;scoreCnt++;}});
+  const avgScore=scoreCnt>0?Math.round(scoreSum/scoreCnt):null;
+  // TEXT
+  const sw=new Set(['ich','das','die','der','und','ein','eine','ist','war','hab','habe','mit','auf','zu','für','nicht','hat','bin','von','aus','es','an','am','dem','des','als','auch','noch','im','nach','beim','bei','so','sich','mich','mein','meine','aber','dass','dann','wenn','oder','sehr','heute','gestern','habe','haben','wird','kann','mehr','nur','mal','jetzt','beim']);
+  const topW=(texts)=>{const f={};texts.forEach(t=>{if(!t)return;t.toLowerCase().split(/\W+/).filter(w=>w.length>3&&!sw.has(w)).forEach(w=>f[w]=(f[w]||0)+1)});return Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([w,c])=>({w,c}))};
+  const allGut=[],allHe=[];
+  logged.forEach(d=>{const e=d.entry;[e.gut?.[0],e.gut?.[1],e.gut?.[2]].forEach(t=>t&&allGut.push(t));[e.heute?.[0],e.heute?.[1],e.heute?.[2]].forEach(t=>t&&allHe.push(t))});
+  // LATEST MEASUREMENTS
+  const wkNums=Object.keys(localStorage).filter(k=>k.startsWith('90tc_weekly_')).map(k=>+k.replace('90tc_weekly_','')).sort((a,b)=>a-b);
+  const lastWk=wkNums.length?S.get('weekly_'+wkNums[wkNums.length-1]):null;
+  const latestMeas=fin.umfaenge||lastWk?.umfaenge||null;
+  return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
+},
+_renderAnalysisHTML(d){
+  const {meta,weight,nutrition,training,recovery,correlations,score,text,measurements}=d;
+  const durStr=meta.dur!==null?meta.dur+' Tage':'∞';
+  const cc=p=>p>=75?'ana-ok':p>=50?'ana-warn':'ana-bad';
+  const st=(lbl,val,sub='',cls='')=>`<div class="ana-stat"><span class="ana-stat-lbl">${lbl}</span><span class="ana-stat-val${cls?' '+cls:''}">${val}${sub?`<span class="ana-sub"> ${sub}</span>`:''}</span></div>`;
+  let h=`<div class="ana-hero"><div class="ana-score">${score.avg!==null?score.avg+'%':'—'}</div><div class="ana-score-label">Compliance-Score</div><div class="ana-meta">Tag ${meta.dayN} von ${durStr} · ${meta.logRate}% Tage geloggt · ${score.days} Einträge bewertet</div></div>`;
+  // GEWICHT
+  if(weight.count>0||weight.start){
+    h+=`<div class="ana-section"><div class="ana-section-title">Körper & Gewicht</div><div class="card">`;
+    if(weight.start)h+=st('Startgewicht',weight.start+' kg');
+    if(weight.current)h+=st('Aktuell (letzter Eintrag)',weight.current+' kg');
+    if(weight.delta!==null){const n=parseFloat(weight.delta);h+=st('Gesamtveränderung',fmtDelta(weight.delta,'kg'),'',n<0?'ana-ok':n>0?'ana-bad':'');}
+    if(weight.weeklyRate!==null){const r=parseFloat(weight.weeklyRate);h+=st('Wöchentl. Veränderung',fmtDelta(weight.weeklyRate,'kg/Woche'),'',r<0&&r>=-1?'ana-ok':r<-1?'ana-warn':'');}
+    if(weight.min)h+=st('Tiefstes Gewicht',weight.min+' kg');
+    if(weight.max)h+=st('Höchstes Gewicht',weight.max+' kg');
+    if(weight.prediction!==null)h+=st('Prognose Tag '+meta.dur,weight.prediction+' kg','(Trendfortschreibung)');
+    h+=`</div></div>`;
+  }
+  // UMFÄNGE
+  if(measurements.start||measurements.latest){
+    h+=`<div class="ana-section"><div class="ana-section-title">Körperumfänge</div><div class="card" style="padding:0;overflow-x:auto"><table class="meas-table"><thead><tr><th>Messung</th><th>Start</th><th>Aktuell</th><th>Δ</th></tr></thead><tbody>`;
+    MEASUREMENTS.forEach(m=>{const s=measurements.start?.[m.k],l=measurements.latest?.[m.k];const dt=s&&l?(l-s).toFixed(1):null;h+=`<tr><td>${m.l}</td><td style="color:var(--text2)">${s||'—'}</td><td>${l||'—'}</td><td><span class="${dt!==null?(parseFloat(dt)<0?'delta-neg':'delta-pos'):''}">${dt!==null?fmtDelta(dt,'cm'):'—'}</span></td></tr>`;});
+    h+=`</tbody></table></div></div>`;
+  }
+  // ERNÄHRUNG
+  if(nutrition.nutDays>0){
+    const t=nutrition.targets;
+    h+=`<div class="ana-section"><div class="ana-section-title">Ernährung</div><div class="card">`;
+    if(nutrition.avgKal!==null)h+=st('Ø Kalorien/Tag',nutrition.avgKal+' kcal',t.kalorien?'(Ziel: '+t.kalorien+')':'');
+    if(nutrition.avgPro!==null)h+=st('Ø Protein/Tag',nutrition.avgPro+' g',t.protein?'(Ziel: '+t.protein+'g)':'');
+    if(nutrition.avgFat!==null)h+=st('Ø Fett/Tag',nutrition.avgFat+' g');
+    if(nutrition.avgKh!==null)h+=st('Ø Kohlenhydrate/Tag',nutrition.avgKh+' g');
+    h+=`</div><div class="card" style="margin-top:8px">`;
+    if(nutrition.nutDays>0){const kp=Math.round(nutrition.kalCmp/nutrition.nutDays*100),pp=Math.round(nutrition.proCmp/nutrition.nutDays*100);h+=st('Kalorienplan eingehalten',kp+'%','(±15%, '+nutrition.kalCmp+'/'+nutrition.nutDays+'d)',cc(kp));h+=st('Proteinziel erreicht',pp+'%','(≥90%, '+nutrition.proCmp+'/'+nutrition.nutDays+'d)',cc(pp));}
+    if(nutrition.kalStd!==null){const ok=nutrition.kalStd<200,mid=nutrition.kalStd<400;h+=st('Konsistenz (Stabw. Kcal)','±'+nutrition.kalStd+' kcal',ok?'sehr konsistent':mid?'mäßig':'inkonsistent',ok?'ana-ok':mid?'ana-warn':'ana-bad');}
+    h+=`</div>`;
+    if(nutrition.empirTDEE||nutrition.formulaTDEE){h+=`<div class="card" style="margin-top:8px">`;if(nutrition.empirTDEE)h+=st('Empir. TDEE (aus deinen Daten)',nutrition.empirTDEE+' kcal/Tag');if(nutrition.formulaTDEE)h+=st('TDEE Mifflin (Formel)',nutrition.formulaTDEE+' kcal/Tag','PAL 1.55');if(nutrition.empirTDEE&&nutrition.formulaTDEE){const diff=nutrition.empirTDEE-nutrition.formulaTDEE;h+=st('Differenz',fmtDelta(diff.toString(),' kcal'),'empir. vs. Formel',diff>100?'ana-warn':diff<-100?'ana-warn':'ana-ok');}h+=`</div>`;}
+    h+=`</div>`;
+  }
+  // TRAINING
+  if(training.trDays>0||training.trDone>0){
+    h+=`<div class="ana-section"><div class="ana-section-title">Training</div><div class="card">`;
+    if(training.trPlan>0){h+=st('Trainings geplant',training.trPlan+'×');h+=st('Trainings durchgeführt',training.trDone+'×','('+training.trCmp+'%)',cc(training.trCmp||0));}
+    else if(training.trDone>0)h+=st('Trainings durchgeführt',training.trDone+'×');
+    if(training.trProgRate!==null)h+=st('Progression erreicht',training.trProgRate+'%','von '+training.trDone+' Trainings',cc(training.trProgRate));
+    if(training.maxStreak>1)h+=st('Längste Trainings-Streak',training.maxStreak+' Tage');
+    h+=`</div></div>`;
+  }
+  // ERHOLUNG
+  if(recovery.slDays>0||recovery.stDays>0||recovery.waDays>0){
+    const t=recovery.targets;
+    h+=`<div class="ana-section"><div class="ana-section-title">Erholung & Lifestyle</div><div class="card">`;
+    if(recovery.avgSl!==null){const p=Math.round(recovery.slCmp/recovery.slDays*100);h+=st('Ø Schlaf',recovery.avgSl+'h','(Ziel '+t.schlaf+'h, '+p+'% ok)',cc(p));}
+    if(recovery.avgSt!==null){const p=Math.round(recovery.stCmp/recovery.stDays*100);h+=st('Ø Schritte',recovery.avgSt.toLocaleString('de-DE'),'(Ziel '+t.schritte.toLocaleString('de-DE')+', '+p+'% ok)',cc(p));}
+    if(recovery.avgWa!==null){const p=Math.round(recovery.waCmp/recovery.waDays*100);h+=st('Ø Wasser',recovery.avgWa+'L','(Ziel '+t.wasser+'L, '+p+'% ok)',cc(p));}
+    h+=`</div></div>`;
+  }
+  // KORRELATIONEN
+  const c=correlations;const hasST=c.slTr.gT>=3||c.slTr.bT>=3,hasPP=c.prPr.gT>=3||c.prPr.bT>=3;
+  if(hasST||hasPP){
+    h+=`<div class="ana-section"><div class="ana-section-title">Zusammenhänge</div>`;
+    if(hasST){const gP=c.slTr.gT?Math.round(c.slTr.g/c.slTr.gT*100):null,bP=c.slTr.bT?Math.round(c.slTr.b/c.slTr.bT*100):null,dl=gP!==null&&bP!==null?gP-bP:null;h+=`<div class="card"><div class="card-title">Schlaf → Training Folgetag</div><div class="ana-corr"><div class="ana-corr-box"><div class="ana-corr-pct ana-ok">${gP!==null?gP+'%':'—'}</div><div class="ana-corr-sub">Nach gutem Schlaf<br>(≥${recovery.targets.schlaf}h, n=${c.slTr.gT})</div></div><div class="ana-corr-box"><div class="ana-corr-pct ana-bad">${bP!==null?bP+'%':'—'}</div><div class="ana-corr-sub">Nach wenig Schlaf<br>(<${recovery.targets.schlaf}h, n=${c.slTr.bT})</div></div></div>${dl!==null?`<div class="ana-corr-note">${dl>10?'✅ Starker Einfluss +'+dl+'%':dl>0?'⚠️ Leichter Zusammenhang +'+dl+'%':'ℹ️ Kein klarer Zusammenhang'}</div>`:''}</div>`;}
+    if(hasPP){const gP=c.prPr.gT?Math.round(c.prPr.g/c.prPr.gT*100):null,bP=c.prPr.bT?Math.round(c.prPr.b/c.prPr.bT*100):null,dl=gP!==null&&bP!==null?gP-bP:null;h+=`<div class="card" style="margin-top:8px"><div class="card-title">Protein → Trainingsfortschritt</div><div class="ana-corr"><div class="ana-corr-box"><div class="ana-corr-pct ana-ok">${gP!==null?gP+'%':'—'}</div><div class="ana-corr-sub">Progression bei<br>ausreichend Protein<br>(n=${c.prPr.gT})</div></div><div class="ana-corr-box"><div class="ana-corr-pct ana-bad">${bP!==null?bP+'%':'—'}</div><div class="ana-corr-sub">Progression bei<br>zu wenig Protein<br>(n=${c.prPr.bT})</div></div></div>${dl!==null?`<div class="ana-corr-note">${dl>15?'✅ Protein hat Einfluss +'+dl+'%':dl>0?'⚠️ Leichter Zusammenhang +'+dl+'%':'ℹ️ Kein klarer Zusammenhang'}</div>`:''}</div>`;}
+    h+=`</div>`;
+  }
+  // TEXT
+  if(text.gut.length>0||text.heute.length>0){
+    h+=`<div class="ana-section"><div class="ana-section-title">Deine häufigsten Themen</div>`;
+    if(text.gut.length>0){h+=`<div class="card"><div class="card-title">Was lief gut</div><div style="display:flex;flex-wrap:wrap;padding-top:4px">`;text.gut.forEach(({w,c})=>h+=`<div class="ana-tag">${w} <span class="ana-cnt">${c}×</span></div>`);h+=`</div></div>`;}
+    if(text.heute.length>0){h+=`<div class="card" style="margin-top:8px"><div class="card-title">Was ich umsetze</div><div style="display:flex;flex-wrap:wrap;padding-top:4px">`;text.heute.forEach(({w,c})=>h+=`<div class="ana-tag">${w} <span class="ana-cnt">${c}×</span></div>`);h+=`</div></div>`;}
+    h+=`</div>`;
+  }
+  // EMPFEHLUNGEN
+  const recs=[];
+  if(nutrition.nutDays>0){const kp=Math.round(nutrition.kalCmp/nutrition.nutDays*100),pp=Math.round(nutrition.proCmp/nutrition.nutDays*100);if(kp<60)recs.push('🍽️ Kalorienplan: Nur '+kp+'% der Tage im Zielbereich — tägliches Meal-Prep oder Foto-Protokoll helfen.');if(pp<60)recs.push('🥩 Protein: Ziel nur an '+pp+'% der Tage erreicht — proteinreiche Snacks (Quark, Hüttenkäse, Whey) als Puffer einplanen.');if(nutrition.kalStd>=400)recs.push('📊 Konsistenz: Große Kcal-Schwankungen (±'+nutrition.kalStd+'). Strukturiertere Ernährung verbessert Fortschritt.');}
+  if(recovery.slDays>0){const p=Math.round(recovery.slCmp/recovery.slDays*100);if(p<60)recs.push('😴 Schlaf: Nur '+p+'% der Nächte ausreichend Schlaf — Schlaf ist der stärkste Hebel für Regeneration und Gewichtsverlust.');}
+  if(training.trPlan>0&&(training.trCmp||0)<70)recs.push('🏋️ Training: Nur '+training.trCmp+'% Compliance — realistischere Planung oder feste Trainingszeiten helfen.');
+  if(recovery.stDays>0){const p=Math.round(recovery.stCmp/recovery.stDays*100);if(p<50)recs.push('👟 Schritte: Ziel nur an '+p+'% erreicht — NEAT (Alltagsaktivität) ist oft der größte Kalorienverbraucher.');}
+  if(recs.length>0){h+=`<div class="ana-section"><div class="ana-section-title">Empfehlungen</div><div class="card">`;recs.forEach(r=>h+=`<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.5;color:var(--text)">${r}</div>`);h+='<div style="height:1px"></div></div></div>';}
+  return h;
+},
+async saveAnalysis(){
+  const data=this._lastAnalysis;if(!data){toast('Erst Analyse erstellen');return;}
+  const cfg=S.get('settings')||{};const dur=cfg.durationDays!==undefined?cfg.durationDays:90;
+  const title='Analyse Tag '+data.meta.dayN+(dur!==null?' von '+dur:'');
+  try{
+    const r=await fetch('/api/analysis',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({title,date:data.meta.date,data})});
+    if(r.ok){toast('✅ Analyse gespeichert ('+new Date().toLocaleDateString('de-DE')+')');}
+    else toast('❌ Fehler beim Speichern');
+  }catch{toast('❌ Verbindungsfehler');}
+},
+downloadReport(){
+  const data=this._lastAnalysis;if(!data){toast('Erst Analyse erstellen');return;}
+  const cfg=S.get('settings')||{};const dur=cfg.durationDays!==undefined?cfg.durationDays:90;
+  const bodyHTML=this._renderAnalysisHTML(data);
+  const css=`body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:700px;margin:0 auto;padding:20px;color:#111;background:#fff;font-size:15px}
+    h1{font-size:22px;margin:0 0 4px}.report-meta{color:#777;font-size:13px;margin-bottom:24px}
+    .ana-hero{background:linear-gradient(135deg,#F97316,#f59e0b);padding:24px;border-radius:12px;color:#fff;margin-bottom:20px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .ana-score{font-size:52px;font-weight:800}.ana-score-label{font-size:14px;opacity:.85}.ana-meta{font-size:12px;opacity:.7;margin-top:6px}
+    .ana-section{margin:20px 0}.ana-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#777;margin-bottom:8px}
+    .card{background:#f5f5f5;border-radius:10px;padding:12px 16px;margin-bottom:8px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .card-title{font-weight:700;font-size:14px;margin-bottom:10px}
+    .ana-stat{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid #e0e0e0;font-size:14px;gap:8px}.ana-stat:last-child{border-bottom:none}
+    .ana-stat-lbl{color:#666;flex:1}.ana-stat-val{font-weight:600;text-align:right}.ana-sub{font-size:11px;font-weight:400;color:#999}
+    .ana-ok{color:#16a34a}.ana-warn{color:#d97706}.ana-bad{color:#dc2626}
+    .meas-table{width:100%;border-collapse:collapse;font-size:13px}.meas-table th,.meas-table td{padding:7px 8px;border-bottom:1px solid #e0e0e0;text-align:left}.meas-table th{font-weight:700;font-size:11px;color:#777}
+    .delta-neg{color:#16a34a}.delta-pos{color:#dc2626}
+    .ana-corr{display:flex;gap:10px;margin-top:10px}.ana-corr-box{flex:1;background:#ebebeb;border-radius:8px;padding:12px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .ana-corr-pct{font-size:26px;font-weight:800}.ana-corr-sub{font-size:11px;color:#777;margin-top:3px;line-height:1.3}.ana-corr-note{text-align:center;margin-top:8px;font-size:13px;color:#777}
+    .ana-tag{display:inline-flex;align-items:center;gap:5px;background:#e5e5e5;border-radius:20px;padding:5px 11px;font-size:13px;margin:3px}
+    .ana-cnt{background:#fed7aa;color:#c2410c;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700}
+    @media print{@page{margin:15mm}body{padding:0}}`;
+  const reportHTML=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>90TC Analyse — ${data.meta.date}</title><style>${css}</style></head><body>
+    <h1>90-Tage-Challenge — Analyse</h1>
+    <div class="report-meta">Erstellt: ${new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'})} · Tag ${data.meta.dayN}${dur!==null?' von '+dur:''} · ${cfg.name||''}</div>
+    ${bodyHTML}
+  </body></html>`;
+  const blob=new Blob([reportHTML],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='90TC-Analyse-'+data.meta.date+'.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('📄 Report heruntergeladen — im Browser öffnen, dann Drucken → Als PDF speichern');
 },
 async doLogout(){
   await fetch('/api/logout',{method:'POST',credentials:'include'});

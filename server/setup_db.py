@@ -28,6 +28,13 @@ con.executescript("""
         auth       TEXT NOT NULL,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+    CREATE TABLE IF NOT EXISTS analyses (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        title      TEXT NOT NULL DEFAULT 'Analyse',
+        data       TEXT NOT NULL
+    );
 """)
 con.commit()
 con.close()

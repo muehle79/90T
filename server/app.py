@@ -263,5 +263,39 @@ def push_trigger():
 
     return jsonify({'ok': True, 'sent': sent, 'time': current_time})
 
+# ── Analysen ──────────────────────────────────────────────────────────────────
+@app.route('/api/analysis', methods=['POST'])
+@login_required
+def save_analysis():
+    d = request.get_json(force=True) or {}
+    title = d.get('title', 'Analyse')
+    db = get_db()
+    db.execute(
+        "INSERT INTO analyses (user_id, title, data) VALUES (?,?,?)",
+        (g.user['id'], title, json.dumps(d))
+    )
+    db.commit()
+    return jsonify({'ok': True}), 201
+
+@app.route('/api/analysis', methods=['GET'])
+@login_required
+def get_analyses():
+    rows = get_db().execute(
+        "SELECT id, created_at, title FROM analyses WHERE user_id=? ORDER BY created_at DESC",
+        (g.user['id'],)
+    ).fetchall()
+    return jsonify([{'id': r['id'], 'created_at': r['created_at'], 'title': r['title']} for r in rows])
+
+@app.route('/api/analysis/<int:analysis_id>', methods=['GET'])
+@login_required
+def get_analysis(analysis_id):
+    row = get_db().execute(
+        "SELECT data FROM analyses WHERE id=? AND user_id=?",
+        (analysis_id, g.user['id'])
+    ).fetchone()
+    if not row:
+        return jsonify({'error': 'Nicht gefunden'}), 404
+    return jsonify(json.loads(row['data']))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=False)

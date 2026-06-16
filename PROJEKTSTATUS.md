@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `1.9.3`  
-**Letzter Commit:** `10c81b0 fix: iOS-Toggle-Breite — inline style überschreibt settings-row label flex:1 (v1.9.3)`
+**Aktuelle Version:** `2.0.0`  
+**Letzter Commit:** `— (noch nicht committed)`
 
 ---
 
@@ -13,6 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
+| 2.0.0 | `—` | Feat: Analyse-Screen — Gewichtstrend, Compliance, Korrelationen, Report-Download, DB-Speicherung |
 | 1.0.x | `8038f32` | Initiale Builds, URL-Import (iOS Kurzbefehl), Locale-Fix |
 | 1.1.0 | `05d6a68` | 4 Bug-Fixes: Foto-Upload, Check-Tage, Kalender-Dots, PWA-Export/Import |
 | 1.2.0 | `dc9617a` | 4 Features: Gewichts-Chart, Foto-Vergleich, Export-Reminder, Notifications |
@@ -83,7 +84,7 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | `icon-192.png` / `icon-512.png` / `favicon.png` | App-Icons (Kinetic Meridian Design, ohne feste Tageszahl) |
 | `import.html` | Hilfsseite für URL-basierten Daten-Import (iOS Kurzbefehl) |
 | `export.html` | Einmal-Export-Seite ohne Auth (für Migration von alten Daten) |
-| `server/app.py` | Flask-Backend: Auth + KV-Sync + Web-Push (VAPID) |
+| `server/app.py` | Flask-Backend: Auth + KV-Sync + Web-Push (VAPID) + Analyse-Endpunkte |
 | `server/setup_db.py` | SQLite-Schema-Initialisierung (inkl. push_subscriptions) |
 | `server/90tc.service` | systemd-Unit |
 | `server/install.sh` | Installations-Skript für Raspberry Pi (inkl. VAPID + Cron) |
@@ -120,6 +121,7 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | Screen-ID | Zweck | Erreichbar via |
 |---|---|---|
 | `screen-auth` | Login / Registrieren | App-Start ohne gültige Session |
+| `screen-analysis` | Datenanalyse + Report | Nav-Bar |
 | `screen-splash` | Startscreen / Onboarding | Nach Login ohne Settings |
 | `screen-setup` | 3-Schritt-Wizard Ersteinrichtung | Splash |
 | `screen-calendar` | Kalender + Statistiken | Nav-Bar |
