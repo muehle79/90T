@@ -1,0 +1,5 @@
+server/venv/
+server/db/
+server/static/
+server/.env
+server/*.pem
