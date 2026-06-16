@@ -18,8 +18,8 @@ if grep -q "VAPID_PUBLIC_KEY" "$APP/.env" 2>/dev/null; then
     echo "  – bereits vorhanden, übersprungen"
 else
     "$APP/venv/bin/python3" << PYEOF
+import base64, os, secrets
 from py_vapid import Vapid
-import base64, os
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 app = '/home/pi/90tc-app'
 v = Vapid()
@@ -30,14 +30,13 @@ os.chmod(app + '/vapid_private.pem', 0o600)
 pub = base64.urlsafe_b64encode(
     v.public_key.public_bytes(Encoding.X962, PublicFormat.UncompressedPoint)
 ).rstrip(b'=').decode()
+push_secret = secrets.token_hex(24)
 with open(app + '/.env', 'a') as f:
     f.write('\nVAPID_PRIVATE_PEM=' + app + '/vapid_private.pem\n')
     f.write('VAPID_PUBLIC_KEY=' + pub + '\n')
     f.write('VAPID_CLAIMS_EMAIL=mailto:lars.muehlhaus@gmail.com\n')
-import secrets
-push_secret = secrets.token_hex(24)
-f.write('PUSH_TRIGGER_SECRET=' + push_secret + '\n')
-print('  ✓ VAPID-Schlüssel generiert')
+    f.write('PUSH_TRIGGER_SECRET=' + push_secret + '\n')
+print('  Schluessel generiert')
 PYEOF
 fi
 
