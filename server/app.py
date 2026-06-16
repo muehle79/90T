@@ -16,6 +16,7 @@ STATIC = os.path.join(BASE, 'static')
 app = Flask(__name__, static_folder=None)
 app.secret_key = os.environ['SECRET_KEY']
 INVITE_CODE         = os.environ.get('INVITE_CODE', '')
+SECURE_COOKIE       = os.environ.get('SECURE_COOKIE', 'true').lower() != 'false'
 VAPID_PRIVATE_PEM   = os.environ.get('VAPID_PRIVATE_PEM', '')   # Pfad zur PEM-Datei
 VAPID_PUBLIC_KEY    = os.environ.get('VAPID_PUBLIC_KEY', '')     # base64url-kodierter öffentlicher Schlüssel
 VAPID_CLAIMS_EMAIL  = os.environ.get('VAPID_CLAIMS_EMAIL', 'mailto:admin@example.com')
@@ -105,7 +106,7 @@ def login():
     db.commit()
     resp = make_response(jsonify({'ok': True, 'userId': row['id']}))
     resp.set_cookie('90tc_session', token,
-                    httponly=True, secure=True, samesite='Lax',
+                    httponly=True, secure=SECURE_COOKIE, samesite='Lax',
                     max_age=60*60*24*365)
     return resp
 
