@@ -572,8 +572,9 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.2.0';
+const APP_VERSION='2.2.1';
 const CHANGELOG=[
+  {version:'2.2.1',items:['🔧 Analyse: Monatliche Umfänge werden jetzt korrekt als „Aktuell" berücksichtigt']},
   {version:'2.2.0',items:['📊 Wochencheck: Gleitendes Gewicht + Kalorien der Vorwoche','📅 Monatscheck: 5 Gewichtsmetriken (gleit. Gew., Δ Woche, Δ Monat, Δ Tag 1)','📏 Umfänge-Popup „Richtig messen" in Wochen- und Monatscheck']},
   {version:'2.1.0',items:['🤖 KI-Bericht: Wissenschaftlich fundierter Analysebericht per KI — Ernährung, Training, Erholung, Empfehlungen','📄 KI-Bericht wird beim Report-Download mit eingebettet']},
   {version:'2.0.0',items:['📊 Analyse-Screen: Alle Daten auf Knopfdruck analysieren — Gewichtstrend, Ernährungskonsistenz, Compliance-Score, Korrelationen','💾 Analyse wird automatisch in der Datenbank gespeichert','📄 Report-Download als druckbares HTML']},
@@ -1562,10 +1563,11 @@ _computeAnalysis(){
   const topW=(texts)=>{const f={};texts.forEach(t=>{if(!t)return;t.toLowerCase().split(/\W+/).filter(w=>w.length>3&&!sw.has(w)).forEach(w=>f[w]=(f[w]||0)+1)});return Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([w,c])=>({w,c}))};
   const allGut=[],allHe=[];
   logged.forEach(d=>{const e=d.entry;[e.gut?.[0],e.gut?.[1],e.gut?.[2]].forEach(t=>t&&allGut.push(t));[e.heute?.[0],e.heute?.[1],e.heute?.[2]].forEach(t=>t&&allHe.push(t))});
-  // LATEST MEASUREMENTS
-  const wkNums=Object.keys(localStorage).filter(k=>k.startsWith('90tc_weekly_')).map(k=>+k.replace('90tc_weekly_','')).sort((a,b)=>a-b);
-  const lastWk=wkNums.length?S.get('weekly_'+wkNums[wkNums.length-1]):null;
-  const latestMeas=fin.umfaenge||lastWk?.umfaenge||null;
+  // LATEST MEASUREMENTS — Weekly + Monthly, nach datum sortiert
+  const allMeasChecks=[];
+  Object.keys(localStorage).filter(k=>k.startsWith('90tc_weekly_')||k.startsWith('90tc_monthly_')).forEach(k=>{const d=S.get(k.replace('90tc_',''));if(d?.umfaenge&&Object.keys(d.umfaenge).length>0)allMeasChecks.push(d);});
+  allMeasChecks.sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
+  const latestMeas=fin.umfaenge||allMeasChecks[0]?.umfaenge||null;
   return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
 },
 _renderAnalysisHTML(d){

@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `2.2.0`  
-**Letzter Commit:** `1ef5d55`
+**Aktuelle Version:** `2.2.1`  
+**Letzter Commit:** `—`
 
 ---
 
@@ -13,6 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
+| 2.2.1 | `—` | Fix: Analyse berücksichtigt jetzt monatliche Umfänge als „Aktuell" |
 | 2.2.0 | `1ef5d55` | Feat: Wochencheck Vorwoche-Gewicht + Kalorien, Monatscheck 5 Gewichtsmetriken, Umfänge-Popup „Richtig messen" mit eingebettetem Bild |
 | 2.1.0 | `916a7c9` | Feat: KI-Bericht im Analyse-Screen (Claude Haiku, /api/ai-report, ANTHROPIC_API_KEY) |
 | 2.0.0 | `128133e` | Feat: Analyse-Screen — Gewichtstrend, Compliance, Korrelationen, Report-Download, DB-Speicherung |
