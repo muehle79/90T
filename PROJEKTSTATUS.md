@@ -1,11 +1,11 @@
 # 90-Tage-Challenge PWA — Projektstatus
 
-**Stand:** 2026-06-16  
+**Stand:** 2026-06-17  
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `2.1.0`  
-**Letzter Commit:** `916a7c9 feat: KI-Bericht im Analyse-Screen via Claude Haiku (v2.1.0)`
+**Aktuelle Version:** `2.2.0`  
+**Letzter Commit:** `— (wird nach Push nachgetragen)`
 
 ---
 
@@ -13,6 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
+| 2.2.0 | `—` | Feat: Wochencheck Vorwoche-Gewicht + Kalorien, Monatscheck 5 Gewichtsmetriken, Umfänge-Popup „Richtig messen" mit eingebettetem Bild |
 | 2.1.0 | `916a7c9` | Feat: KI-Bericht im Analyse-Screen (Claude Haiku, /api/ai-report, ANTHROPIC_API_KEY) |
 | 2.0.0 | `128133e` | Feat: Analyse-Screen — Gewichtstrend, Compliance, Korrelationen, Report-Download, DB-Speicherung |
 | 1.0.x | `8038f32` | Initiale Builds, URL-Import (iOS Kurzbefehl), Locale-Fix |
