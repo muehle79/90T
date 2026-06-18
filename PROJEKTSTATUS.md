@@ -4,8 +4,8 @@
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `2.4.2`  
-**Letzter Commit:** `dbf2bc5`
+**Aktuelle Version:** `2.4.3`  
+**Letzter Commit:** `(aktuell)`
 
 ---
 
@@ -13,6 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
+| 2.4.3 | `(aktuell)` | Feat: Sparkline-Chart gleitendes Gewicht seit Tag 1 + Δ in Analyse |
 | 2.4.2 | `dbf2bc5` | Feat: Abmelden-Button in den Einstellungen |
 | 2.4.1 | `bd21ae3` | Feat: KI-Statistik Gesamtkosten pro Nutzer + Summe, Modellname im KI-Bericht, gleitendes Gewicht in Analyse |
 | 2.4.0 | `9885823` | Feat: Benutzername bei Registrierung, Nutzerverwaltung mit Admin/Passwort/Löschen, KI-Provider API-Keys im Admin, KI-Nutzungsstatistik (Tokens + EUR-Kosten), KI-Modellwahl mit Live-Test |

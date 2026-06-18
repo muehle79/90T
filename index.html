@@ -636,8 +636,9 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.4.2';
+const APP_VERSION='2.4.3';
 const CHANGELOG=[
+  {version:'2.4.3',items:['📈 Analyse: Sparkline-Chart des gleitenden Gewichts seit Tag 1 + Δ-Anzeige']},
   {version:'2.4.2',items:['🚪 Abmelden-Button in den Einstellungen']},
   {version:'2.4.1',items:['📊 KI-Statistik: Gesamtkosten pro Nutzer und Gesamtsumme','🤖 KI-Bericht: Modellname wird im Bericht angezeigt','⚖️ Analyse: Gleitendes 7-Tage-Gewicht in Körper & Gewicht']},
   {version:'2.4.0',items:['👤 Registrierung: Benutzername wird jetzt abgefragt','🛡️ Nutzerverwaltung: Admin-Rechte vergeben, Passwort zurücksetzen, Nutzer anlegen','🔑 API-Keys: Anthropic, OpenAI und Google direkt im Admin speichern','📊 KI-Nutzungsstatistik: Tokenzahlen und Kosten pro Nutzer und Modell']},
@@ -1824,6 +1825,8 @@ _computeAnalysis(){
   const wReg=wE.length>=5?linReg(wE.map(e=>e.dn),wE.map(e=>e.w)):null;
   const weeklyRate=wReg&&maxDay>=7?(wReg.slope*7).toFixed(2):null;
   const wPred=wReg&&dur!==null&&dur>maxDay?wReg.predict(dur).toFixed(1):null;
+  const maSeries=[];for(let i=6;i<maxDay;i++){const d=dateStr(addDays(start,i));const ma=movingAvg(d);if(ma)maSeries.push({dn:i+1,v:parseFloat(ma)});}
+  const maDelta=maSeries.length>=2?(maSeries[maSeries.length-1].v-maSeries[0].v).toFixed(1):null;
   // NUTRITION
   const t0=cfg.targets||{};
   const nutD=logged.filter(d=>d.entry.kal_ist!=null);
@@ -1886,7 +1889,7 @@ _computeAnalysis(){
   Object.keys(localStorage).filter(k=>k.startsWith('90tc_weekly_')||k.startsWith('90tc_monthly_')).forEach(k=>{const d=S.get(k.replace('90tc_',''));if(d?.umfaenge&&Object.keys(d.umfaenge).length>0)allMeasChecks.push(d);});
   allMeasChecks.sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
   const latestMeas=fin.umfaenge||allMeasChecks[0]?.umfaenge||null;
-  return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,movingAvg:movingAvg(today),delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
+  return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,movingAvg:movingAvg(today),maSeries,maDelta,delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
 },
 _renderAnalysisHTML(d){
   const {meta,weight,nutrition,training,recovery,correlations,score,text,measurements}=d;
@@ -1900,11 +1903,42 @@ _renderAnalysisHTML(d){
     if(weight.start)h+=st('Startgewicht',weight.start+' kg');
     if(weight.current)h+=st('Aktuell (letzter Eintrag)',weight.current+' kg');
     if(weight.movingAvg)h+=st('Gleitendes Gewicht (7 Tage)',weight.movingAvg+' kg');
+    if(weight.maDelta!==null){const n=parseFloat(weight.maDelta);h+=st('Δ Gleit. Gewicht seit Tag 1',fmtDelta(weight.maDelta,'kg'),'',n<0?'ana-ok':n>0?'ana-bad':'');}
     if(weight.delta!==null){const n=parseFloat(weight.delta);h+=st('Gesamtveränderung',fmtDelta(weight.delta,'kg'),'',n<0?'ana-ok':n>0?'ana-bad':'');}
     if(weight.weeklyRate!==null){const r=parseFloat(weight.weeklyRate);h+=st('Wöchentl. Veränderung',fmtDelta(weight.weeklyRate,'kg/Woche'),'',r<0&&r>=-1?'ana-ok':r<-1?'ana-warn':'');}
     if(weight.min)h+=st('Tiefstes Gewicht',weight.min+' kg');
     if(weight.max)h+=st('Höchstes Gewicht',weight.max+' kg');
     if(weight.prediction!==null)h+=st('Prognose Tag '+meta.dur,weight.prediction+' kg','(Trendfortschreibung)');
+    if(weight.maSeries&&weight.maSeries.length>=3){
+      const ms=weight.maSeries;
+      const minV=Math.min(...ms.map(p=>p.v)),maxV=Math.max(...ms.map(p=>p.v));
+      const vRange=(maxV-minV)||0.5;
+      const padV=vRange*0.15;
+      const lo=minV-padV,hi=maxV+padV,vR=hi-lo;
+      const W=300,H=72,pL=38,pR=6,pT=6,pB=18,cW=W-pL-pR,cH=H-pT-pB;
+      const sx=dn=>pL+((dn-ms[0].dn)/Math.max(ms[ms.length-1].dn-ms[0].dn,1))*cW;
+      const sy=v=>pT+cH-((v-lo)/vR)*cH;
+      let path='';ms.forEach(p=>{const px=sx(p.dn).toFixed(1),py=sy(p.v).toFixed(1);path+=(path?'L':'M')+px+','+py;});
+      const yMid=(lo+hi)/2;
+      const firstPt=ms[0],lastPt=ms[ms.length-1];
+      const deltaCol=parseFloat(weight.maDelta)<0?'var(--green)':parseFloat(weight.maDelta)>0?'var(--red)':'var(--text2)';
+      h+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2)">Gleitendes Gewicht seit Tag 1</span>
+          <span style="font-size:12px;font-weight:700;color:${deltaCol}">${weight.maDelta!==null?(parseFloat(weight.maDelta)>0?'+':'')+weight.maDelta+' kg':''}</span>
+        </div>
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;overflow:visible">
+          <line x1="${pL}" y1="${pT}" x2="${pL}" y2="${H-pB}" stroke="var(--border)" stroke-width="1"/>
+          <line x1="${pL}" y1="${H-pB}" x2="${W-pR}" y2="${H-pB}" stroke="var(--border)" stroke-width="1"/>
+          ${[lo+padV,yMid,hi-padV].map(v=>`<line x1="${pL}" y1="${sy(v).toFixed(1)}" x2="${W-pR}" y2="${sy(v).toFixed(1)}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/><text x="${pL-4}" y="${(sy(v)+3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--text2)" font-family="-apple-system,sans-serif">${v.toFixed(1)}</text>`).join('')}
+          <path d="${path}" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="${sx(firstPt.dn).toFixed(1)}" cy="${sy(firstPt.v).toFixed(1)}" r="3" fill="var(--blue)"/>
+          <circle cx="${sx(lastPt.dn).toFixed(1)}" cy="${sy(lastPt.v).toFixed(1)}" r="3" fill="${deltaCol}"/>
+          <text x="${sx(firstPt.dn).toFixed(1)}" y="${H-pB+12}" text-anchor="middle" font-size="8" fill="var(--text2)" font-family="-apple-system,sans-serif">Tag ${firstPt.dn}</text>
+          <text x="${sx(lastPt.dn).toFixed(1)}" y="${H-pB+12}" text-anchor="middle" font-size="8" fill="var(--text2)" font-family="-apple-system,sans-serif">Tag ${lastPt.dn}</text>
+        </svg>
+      </div>`;
+    }
     h+=`</div></div>`;
   }
   // UMFÄNGE
