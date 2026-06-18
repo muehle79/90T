@@ -636,7 +636,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.4.4';
+const APP_VERSION='2.4.5';
 const CHANGELOG=[
   {version:'2.4.4',items:['⚖️ Analyse: Gleit. Gewicht Start + Aktuell + Δ seit Tag 1 (Sparkline entfernt)']},
   {version:'2.4.3',items:['📈 Analyse: Sparkline-Chart des gleitenden Gewichts seit Tag 1 + Δ-Anzeige']},
@@ -841,7 +841,7 @@ async init(){
       if(cfg&&cfg.startDate&&dayNumber(_d)){setTimeout(()=>{this.openEntry(_d);toast('📥 Importiert — orange Felder prüfen & speichern',3500)},150)}
     }
     const cfgStart=document.getElementById('cfg-start');
-    if(cfgStart)cfgStart.addEventListener('change',()=>{const d=parseDate(cfgStart.value);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(addDays(d,89))});
+    if(cfgStart)cfgStart.addEventListener('change',()=>{const d=parseDate(cfgStart.value);const lbl=document.getElementById('cfg-end-label');if(!lbl)return;const _dur=(S.get('settings')||{}).durationDays;const dur=_dur!==undefined?_dur:90;if(dur===null){lbl.textContent='—';}else{lbl.textContent=formatDate(addDays(d,dur-1));}});
   }catch(e){document.body.innerHTML=`<div style="padding:40px;font-family:sans-serif;color:red"><h2>Fehler</h2><pre style="font-size:12px;white-space:pre-wrap">${e.message}</pre></div>`}
 },
 showRaw(id){
