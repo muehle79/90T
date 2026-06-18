@@ -635,8 +635,9 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.4.0';
+const APP_VERSION='2.4.1';
 const CHANGELOG=[
+  {version:'2.4.1',items:['📊 KI-Statistik: Gesamtkosten pro Nutzer und Gesamtsumme','🤖 KI-Bericht: Modellname wird im Bericht angezeigt','⚖️ Analyse: Gleitendes 7-Tage-Gewicht in Körper & Gewicht']},
   {version:'2.4.0',items:['👤 Registrierung: Benutzername wird jetzt abgefragt','🛡️ Nutzerverwaltung: Admin-Rechte vergeben, Passwort zurücksetzen, Nutzer anlegen','🔑 API-Keys: Anthropic, OpenAI und Google direkt im Admin speichern','📊 KI-Nutzungsstatistik: Tokenzahlen und Kosten pro Nutzer und Modell']},
   {version:'2.3.0',items:['🔧 Admin-Bereich: Nutzer, Analysen, Backups, KI-Modell-Auswahl','🤖 KI-Bericht: Wählbar aus Anthropic, OpenAI und Google Gemini Modellen']},
   {version:'2.2.1',items:['🔧 Analyse: Monatliche Umfänge werden jetzt korrekt als „Aktuell" berücksichtigt']},
@@ -1282,23 +1283,35 @@ async loadAdminUsage(days){
     const maxCost=Math.max(...rows.flatMap(u=>u.models.map(m=>m.cost_usd)),0.0001);
     const provColors={'anthropic':'#5a1e96','openai':'#1a7f5a','google':'#1a5fa8'};
     const getProvider=model=>model.startsWith('claude-')?'anthropic':model.startsWith('gpt-')||model.startsWith('o')?'openai':'google';
-    body.innerHTML=rows.map(u=>`<div class="usage-user-card">
-      <div class="usage-user-name">${u.username||u.email}</div>
-      ${u.models.map(m=>{
-        const pct=Math.round((m.cost_usd/maxCost)*100);
-        const col=provColors[getProvider(m.model)]||'var(--accent)';
-        return `<div class="usage-model-row">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:12px;font-weight:600">${m.model}</span>
-            <span style="font-size:11px;color:var(--text2)">${m.calls}× · ${(m.input_tokens+m.output_tokens).toLocaleString()} Tok</span>
-          </div>
-          <div class="usage-bar-wrap">
-            <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:${pct}%;background:${col}"></div></div>
-            <div class="usage-bar-cost">${(m.cost_usd*EUR).toFixed(4)}€</div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`).join('');
+    const totalAll=rows.reduce((s,u)=>s+u.models.reduce((a,m)=>a+m.cost_usd,0),0);
+    const userCards=rows.map(u=>{
+      const userTotal=u.models.reduce((a,m)=>a+m.cost_usd,0);
+      return `<div class="usage-user-card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+          <div class="usage-user-name" style="margin-bottom:0">${u.username||u.email}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--accent)">${(userTotal*EUR).toFixed(4)}€ gesamt</div>
+        </div>
+        ${u.models.map(m=>{
+          const pct=Math.round((m.cost_usd/maxCost)*100);
+          const col=provColors[getProvider(m.model)]||'var(--accent)';
+          return `<div class="usage-model-row">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;font-weight:600">${m.model}</span>
+              <span style="font-size:11px;color:var(--text2)">${m.calls}× · ${(m.input_tokens+m.output_tokens).toLocaleString()} Tok</span>
+            </div>
+            <div class="usage-bar-wrap">
+              <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+              <div class="usage-bar-cost">${(m.cost_usd*EUR).toFixed(4)}€</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('');
+    const totalCard=`<div style="background:var(--card);border-radius:10px;padding:12px 16px;margin-top:4px;display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--border)">
+      <span style="font-weight:700;font-size:14px">Gesamtkosten</span>
+      <span style="font-weight:800;font-size:16px;color:var(--accent)">${(totalAll*EUR).toFixed(4)}€</span>
+    </div>`;
+    body.innerHTML=userCards+totalCard;
   }catch{body.innerHTML='<div style="color:var(--red);padding:16px">Fehler beim Laden</div>';}
 },
 _adminToggleNewUserForm(){
@@ -1871,7 +1884,7 @@ _computeAnalysis(){
   Object.keys(localStorage).filter(k=>k.startsWith('90tc_weekly_')||k.startsWith('90tc_monthly_')).forEach(k=>{const d=S.get(k.replace('90tc_',''));if(d?.umfaenge&&Object.keys(d.umfaenge).length>0)allMeasChecks.push(d);});
   allMeasChecks.sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
   const latestMeas=fin.umfaenge||allMeasChecks[0]?.umfaenge||null;
-  return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
+  return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,movingAvg:movingAvg(today),delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
 },
 _renderAnalysisHTML(d){
   const {meta,weight,nutrition,training,recovery,correlations,score,text,measurements}=d;
@@ -1884,6 +1897,7 @@ _renderAnalysisHTML(d){
     h+=`<div class="ana-section"><div class="ana-section-title">Körper & Gewicht</div><div class="card">`;
     if(weight.start)h+=st('Startgewicht',weight.start+' kg');
     if(weight.current)h+=st('Aktuell (letzter Eintrag)',weight.current+' kg');
+    if(weight.movingAvg)h+=st('Gleitendes Gewicht (7 Tage)',weight.movingAvg+' kg');
     if(weight.delta!==null){const n=parseFloat(weight.delta);h+=st('Gesamtveränderung',fmtDelta(weight.delta,'kg'),'',n<0?'ana-ok':n>0?'ana-bad':'');}
     if(weight.weeklyRate!==null){const r=parseFloat(weight.weeklyRate);h+=st('Wöchentl. Veränderung',fmtDelta(weight.weeklyRate,'kg/Woche'),'',r<0&&r>=-1?'ana-ok':r<-1?'ana-warn':'');}
     if(weight.min)h+=st('Tiefstes Gewicht',weight.min+' kg');
@@ -2017,7 +2031,8 @@ async buildAiReport(){
       return;
     }
     this._lastAiReport=j.report;
-    sec.innerHTML=this._renderAiReportHTML(j.report);
+    this._lastAiModel=j.model||'';
+    sec.innerHTML=this._renderAiReportHTML(j.report,j.model);
     if(btn){btn.disabled=false;btn.textContent='🔄 KI-Bericht neu erstellen';}
     sec.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){
@@ -2025,7 +2040,7 @@ async buildAiReport(){
     if(btn){btn.disabled=false;btn.textContent='🤖 KI-Bericht erstellen';}
   }
 },
-_renderAiReportHTML(md){
+_renderAiReportHTML(md,model){
   const lines=md.split('\n');let html='';let inUl=false;
   for(const line of lines){
     const t=line.trim();
@@ -2039,7 +2054,7 @@ _renderAiReportHTML(md){
   return `<div class="card" style="margin-top:0">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
       <div style="font-size:26px">🤖</div>
-      <div><div style="font-weight:700;font-size:16px">KI-Bericht</div><div style="font-size:11px;color:var(--text2)">Erstellt mit Claude Haiku · Wissenschaftlich fundiert</div></div>
+      <div><div style="font-weight:700;font-size:16px">KI-Bericht</div><div style="font-size:11px;color:var(--text2)">Erstellt mit ${model||this._lastAiModel||'KI'} · Wissenschaftlich fundiert</div></div>
     </div>
     <div style="font-size:14px;line-height:1.6;color:var(--text)">${html}</div>
   </div>`;
