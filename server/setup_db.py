@@ -1,5 +1,6 @@
 import sqlite3, os
 DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'db', '90tc.db')
+os.makedirs(os.path.dirname(DB), exist_ok=True)
 con = sqlite3.connect(DB)
 con.executescript("""
     CREATE TABLE IF NOT EXISTS users (
