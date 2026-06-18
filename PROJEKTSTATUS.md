@@ -5,7 +5,7 @@
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
 **Aktuelle Version:** `2.4.0`  
-**Letzter Commit:** `(aktuell)`
+**Letzter Commit:** `9885823`
 
 ---
 
@@ -13,8 +13,8 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
-| 2.4.0 | `(aktuell)` | Feat: Benutzername bei Registrierung, Nutzerverwaltung mit Admin/Passwort/Löschen, KI-Provider API-Keys im Admin, KI-Nutzungsstatistik (Tokens + EUR-Kosten), KI-Modellwahl mit Live-Test |
-| 2.3.0 | `(aktuell)` | Feat: Admin-Bereich (Systemübersicht, Nutzerverwaltung, Backups), Multi-Provider KI (Anthropic / OpenAI / Google Gemini), KI-Nutzungs-Tracking (ai_usage-Tabelle), DB-basierte Admin-Erkennung |
+| 2.4.0 | `9885823` | Feat: Benutzername bei Registrierung, Nutzerverwaltung mit Admin/Passwort/Löschen, KI-Provider API-Keys im Admin, KI-Nutzungsstatistik (Tokens + EUR-Kosten), KI-Modellwahl mit Live-Test |
+| 2.3.0 | `9885823` | Feat: Admin-Bereich (Systemübersicht, Nutzerverwaltung, Backups), Multi-Provider KI (Anthropic / OpenAI / Google Gemini), KI-Nutzungs-Tracking (ai_usage-Tabelle), DB-basierte Admin-Erkennung |
 | 2.2.1 | `1a93506` | Fix: Analyse berücksichtigt jetzt monatliche Umfänge als „Aktuell" |
 | 2.2.0 | `1ef5d55` | Feat: Wochencheck Vorwoche-Gewicht + Kalorien, Monatscheck 5 Gewichtsmetriken, Umfänge-Popup „Richtig messen" mit eingebettetem Bild |
 | 2.1.0 | `916a7c9` | Feat: KI-Bericht im Analyse-Screen (Claude Haiku, /api/ai-report, ANTHROPIC_API_KEY) |
