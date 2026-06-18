@@ -35,7 +35,31 @@ con.executescript("""
         title      TEXT NOT NULL DEFAULT 'Analyse',
         data       TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS config (
+        key   TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS ai_usage (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+        model         TEXT NOT NULL,
+        input_tokens  INTEGER NOT NULL DEFAULT 0,
+        output_tokens INTEGER NOT NULL DEFAULT 0,
+        cost_usd      REAL NOT NULL DEFAULT 0
+    );
 """)
+
+# Migrations: Spalten zu users hinzufügen wenn noch nicht vorhanden
+for col, definition in [
+    ('username', 'TEXT NOT NULL DEFAULT ""'),
+    ('is_admin',  'INTEGER NOT NULL DEFAULT 0'),
+]:
+    try:
+        con.execute(f"ALTER TABLE users ADD COLUMN {col} {definition}")
+    except sqlite3.OperationalError:
+        pass  # Spalte existiert bereits
+
 con.commit()
 con.close()
 print("Datenbank initialisiert:", DB)

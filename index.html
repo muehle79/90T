@@ -162,6 +162,58 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 .wc-delta-neg{color:var(--red)}
 .weight-compare-4{grid-template-columns:1fr 1fr 1fr 1fr}
 .wc-val-sm{font-size:15px}
+.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+.admin-stat{background:var(--card2);border-radius:12px;padding:12px 8px;text-align:center}
+.admin-stat-val{font-size:20px;font-weight:700;color:var(--text)}
+.admin-stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+.admin-section{margin-bottom:16px}
+.admin-section-title{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin:0 0 8px 2px}
+.provider-badge{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 6px;margin-right:4px}
+.provider-anthropic{background:#5a1e96;color:#fff}
+.provider-openai{background:#1a7f5a;color:#fff}
+.provider-google{background:#1a5fa8;color:#fff}
+.admin-user-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.admin-user-row:last-child{border-bottom:none}
+.admin-user-info{flex:1;min-width:0}
+.admin-user-name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-user-meta{font-size:11px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-badge{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 6px;margin-left:4px}
+.admin-badge-admin{background:var(--accent-soft);color:var(--accent)}
+.admin-badge-du{background:var(--blue-soft);color:var(--blue)}
+.admin-icon-btn{width:32px;height:32px;border:none;border-radius:8px;background:var(--card2);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s,color .15s}
+.admin-icon-btn:hover{background:var(--bg2)}
+.admin-icon-btn.ib-red:hover{background:var(--red-soft);color:var(--red)}
+.admin-icon-btn.ib-blue:hover{background:var(--accent-soft);color:var(--accent)}
+.admin-icon-btn:disabled{opacity:.35;cursor:default;pointer-events:none}
+.admin-new-user-form{padding:12px 16px;background:var(--card2);border-top:1px solid var(--border);display:none;flex-direction:column;gap:8px}
+.admin-new-user-form.open{display:flex}
+.admin-new-inp{padding:9px 12px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;width:100%}
+.admin-new-inp:focus{border-color:var(--accent)}
+.admin-key-row{padding:12px 16px;border-bottom:1px solid var(--border)}
+.admin-key-row:last-of-type{border-bottom:none}
+.admin-key-label{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.admin-key-label span{font-weight:600;font-size:14px;flex:1}
+.admin-key-status{font-size:11px;font-weight:700}
+.admin-key-status.ok{color:var(--green)}
+.admin-key-status.miss{color:var(--red)}
+.admin-key-input{width:100%;padding:10px 12px;background:var(--bg2);border:1.5px solid transparent;border-radius:8px;font-size:13px;color:var(--text);outline:none;transition:border-color .2s;font-family:monospace}
+.admin-key-input:focus{border-color:var(--accent)}
+.usage-tabs{display:flex;gap:4px;background:var(--card2);border-radius:10px;padding:4px;margin-bottom:12px}
+.usage-tab{flex:1;padding:7px;border:none;background:transparent;border-radius:7px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.usage-tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.usage-user-card{background:var(--card2);border-radius:10px;padding:12px;margin-bottom:8px}
+.usage-user-name{font-weight:700;font-size:14px;margin-bottom:8px}
+.usage-model-row{margin-bottom:6px}
+.usage-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:3px}
+.usage-bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.usage-bar-fill{height:100%;border-radius:3px}
+.usage-bar-cost{font-size:11px;font-weight:700;color:var(--text2);min-width:55px;text-align:right}
+.model-select-wrap{display:flex;gap:8px;align-items:stretch;margin-bottom:8px}
+.model-select{flex:1;min-width:0;padding:10px 8px;background:var(--bg2);border:1.5px solid transparent;border-radius:8px;font-size:13px;color:var(--text);outline:none;transition:border-color .2s;appearance:none;cursor:pointer}
+.model-select:focus{border-color:var(--accent)}
+.model-test-btn{flex-shrink:0;width:72px;background:var(--accent-soft);color:var(--accent);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;min-height:42px}
+.model-test-btn:hover{background:var(--accent);color:#fff}
+.model-price-display{font-size:12px;color:var(--text2);padding:4px 2px}
 .meas-table{width:100%;border-collapse:collapse;font-size:14px}
 .meas-table th{text-align:right;font-size:11px;color:var(--text2);padding:6px 4px;font-weight:600;text-transform:uppercase}
 .meas-table th:first-child{text-align:left}
@@ -249,6 +301,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <button class="auth-btn" onclick="App.login()">Anmelden</button>
 </div>
 <div id="form-register" style="display:none">
+<input class="auth-field" type="text" id="reg-username" placeholder="Benutzername" autocomplete="username">
 <input class="auth-field" type="email" id="reg-email" placeholder="E-Mail" autocomplete="email">
 <input class="auth-field" type="password" id="reg-pw" placeholder="Passwort (min. 8 Zeichen)" autocomplete="new-password">
 <input class="auth-field" type="text" id="reg-code" placeholder="Einladungscode">
@@ -545,8 +598,18 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
     </div>
   </div>
   <div class="btn-wrap" style="margin-top:10px"><button class="danger-btn" onclick="App.confirmReset()">Alle Daten löschen</button></div>
+  <div id="admin-btn-wrap" style="display:none;padding:0 16px;margin-top:12px"><button onclick="App.showScreen('admin')" style="width:100%;padding:12px;border-radius:var(--radius);border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer">🔧 Admin-Bereich</button></div>
   <div style="height:20px"></div>
   <div style="text-align:center;padding:0 16px 12px;color:var(--text2);font-size:11px;letter-spacing:.04em">Version <span id="app-version-label"></span> · 90-Tage-Challenge</div>
+</div>
+
+<div id="screen-admin" class="screen">
+  <div class="header">
+    <button class="header-btn" onclick="App.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h1 style="flex:1;text-align:left;font-size:20px;font-weight:700;padding-top:4px">Admin-Bereich</h1>
+    <button class="header-btn" onclick="App.loadAdmin()" title="Aktualisieren"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+  </div>
+  <div id="admin-content" style="padding-bottom:80px"></div>
 </div>
 
 <nav id="nav" style="display:none">
@@ -572,8 +635,10 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.2.1';
+const APP_VERSION='2.4.0';
 const CHANGELOG=[
+  {version:'2.4.0',items:['👤 Registrierung: Benutzername wird jetzt abgefragt','🛡️ Nutzerverwaltung: Admin-Rechte vergeben, Passwort zurücksetzen, Nutzer anlegen','🔑 API-Keys: Anthropic, OpenAI und Google direkt im Admin speichern','📊 KI-Nutzungsstatistik: Tokenzahlen und Kosten pro Nutzer und Modell']},
+  {version:'2.3.0',items:['🔧 Admin-Bereich: Nutzer, Analysen, Backups, KI-Modell-Auswahl','🤖 KI-Bericht: Wählbar aus Anthropic, OpenAI und Google Gemini Modellen']},
   {version:'2.2.1',items:['🔧 Analyse: Monatliche Umfänge werden jetzt korrekt als „Aktuell" berücksichtigt']},
   {version:'2.2.0',items:['📊 Wochencheck: Gleitendes Gewicht + Kalorien der Vorwoche','📅 Monatscheck: 5 Gewichtsmetriken (gleit. Gew., Δ Woche, Δ Monat, Δ Tag 1)','📏 Umfänge-Popup „Richtig messen" in Wochen- und Monatscheck']},
   {version:'2.1.0',items:['🤖 KI-Bericht: Wissenschaftlich fundierter Analysebericht per KI — Ernährung, Training, Erholung, Empfehlungen','📄 KI-Bericht wird beim Report-Download mit eingebettet']},
@@ -749,7 +814,7 @@ updateMonthlyCalories() {
 async init(){
   // Auth-Check (async/await — korrekte Struktur)
   let _authed=false;
-  try{const _r=await fetch('/api/me',{credentials:'include'});_authed=_r.ok;}catch{}
+  try{const _r=await fetch('/api/me',{credentials:'include'});if(_r.ok){const _me=await _r.json();_authed=true;this.isAdmin=!!_me.isAdmin;this._myUserId=_me.userId;}else{this.isAdmin=false;}}catch{this.isAdmin=false;}
   if(!_authed){this.showRaw('screen-auth');return;}
   await sync();
   try{
@@ -790,6 +855,7 @@ showScreen(name,data={}){
   else if(name==='settings')this.renderSettings();
   else if(name==='statusquo')this.renderStatusQuo();
   else if(name==='analysis'){}
+  else if(name==='admin')this.loadAdmin();
 },
 back(){const name=(this._prevScreen||'screen-calendar').replace('screen-','');this.showScreen(name)},
 startSetup(){this.showRaw('screen-setup');this.wizardGo(1)},
@@ -1072,6 +1138,240 @@ saveMonthly(){
   }
   S.set('monthly_'+mn,data);toast('Monatscheck gespeichert ✓');sync();setTimeout(()=>this.back(),500);
 },
+async loadAdmin(){
+  const ac=document.getElementById('admin-content');
+  if(!ac)return;
+  ac.innerHTML='<div style="padding:40px 16px;text-align:center;color:var(--text2)">Lade…</div>';
+  try{
+    const [st,us]=await Promise.all([
+      fetch('/api/admin/status',{credentials:'include'}).then(r=>r.json()),
+      fetch('/api/admin/users',{credentials:'include'}).then(r=>r.json()),
+    ]);
+    this._adminStatus=st;
+    const MODELS=[
+      {id:'claude-haiku-4-5-20251001',label:'Haiku 4.5',provider:'anthropic',inp:1.0,out:5.0},
+      {id:'claude-sonnet-4-6',label:'Sonnet 4.6',provider:'anthropic',inp:3.0,out:15.0},
+      {id:'claude-opus-4-8',label:'Opus 4.8',provider:'anthropic',inp:5.0,out:25.0},
+      {id:'gpt-4o-mini',label:'GPT-4o mini',provider:'openai',inp:0.15,out:0.60},
+      {id:'gpt-4o',label:'GPT-4o',provider:'openai',inp:2.50,out:10.0},
+      {id:'gpt-4.1-mini',label:'GPT-4.1 mini',provider:'openai',inp:0.40,out:1.60},
+      {id:'gemini-2.0-flash',label:'Gemini 2.0 Flash',provider:'google',inp:0.10,out:0.40},
+      {id:'gemini-2.5-flash',label:'Gemini 2.5 Flash',provider:'google',inp:0.30,out:2.50},
+      {id:'gemini-2.5-pro',label:'Gemini 2.5 Pro',provider:'google',inp:1.25,out:10.0},
+    ];
+    this._adminModels=MODELS;
+    const apiOk={anthropic:!!st.api_keys?.anthropic,openai:!!st.api_keys?.openai,google:!!st.api_keys?.google};
+    const curModel=st.ai_model||'claude-haiku-4-5-20251001';
+    this._pendingModel=curModel;
+    const EUR=0.92;
+    const fmtEur=usd=>(usd*EUR).toFixed(4)+'€';
+
+    // Systemübersicht
+    const sysHtml=`<div class="admin-stats">
+      <div class="admin-stat"><div class="admin-stat-val">${st.users??'—'}</div><div class="admin-stat-lbl">Nutzer</div></div>
+      <div class="admin-stat"><div class="admin-stat-val">${st.sessions??'—'}</div><div class="admin-stat-lbl">Sessions</div></div>
+      <div class="admin-stat"><div class="admin-stat-val">${st.db_size_kb??'—'} KB</div><div class="admin-stat-lbl">DB-Größe</div></div>
+      <div class="admin-stat"><div class="admin-stat-val">${st.analyses??'—'}</div><div class="admin-stat-lbl">Analysen</div></div>
+      <div class="admin-stat"><div class="admin-stat-val">${st.ai_reports??'—'}</div><div class="admin-stat-lbl">KI-Berichte</div></div>
+      <div class="admin-stat"><div class="admin-stat-val">${st.kv_entries??'—'}</div><div class="admin-stat-lbl">KV-Keys</div></div>
+    </div>
+    <div class="card" style="margin-top:4px;padding:12px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--text2)">Letztes Backup: <b>${st.last_backup||'keines'}</b></span>
+        <button onclick="App.adminBackup()" style="border:none;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;border-radius:8px;padding:7px 12px;cursor:pointer">💾 Backup</button>
+      </div>
+    </div>`;
+
+    // Nutzerverwaltung
+    const iconShield=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+    const iconKey=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`;
+    const iconTrash=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    const usersRows=(us||[]).map(u=>{
+      const isMe=u.id===this._myUserId;
+      return `<div class="admin-user-row">
+        <div class="admin-user-info">
+          <div class="admin-user-name">${u.username||'–'}${u.is_admin?`<span class="admin-badge admin-badge-admin">Admin</span>`:''}${isMe?`<span class="admin-badge admin-badge-du">DU</span>`:''}</div>
+          <div class="admin-user-meta">${u.email} · ${u.kv_entries} Keys · ${u.analyses} Analysen</div>
+        </div>
+        <button class="admin-icon-btn ib-blue" title="Admin-Rechte umschalten" onclick="App.adminToggleRole(${u.id})" ${isMe?'disabled':''}>${iconShield}</button>
+        <button class="admin-icon-btn" title="Passwort zurücksetzen" onclick="App.adminResetPassword(${u.id},'${u.username||u.email}')" style="color:var(--text2)">${iconKey}</button>
+        <button class="admin-icon-btn ib-red" title="Nutzer löschen" onclick="App.adminDeleteUser(${u.id},'${u.email}')" ${isMe?'disabled':''}>${iconTrash}</button>
+      </div>`;
+    }).join('');
+    const usersHtml=`<div class="card" style="padding:0;overflow:hidden">
+      ${usersRows||'<div style="padding:16px;color:var(--text2)">Keine Nutzer</div>'}
+      <div id="admin-new-user-form" class="admin-new-user-form">
+        <input class="admin-new-inp" id="nu-username" placeholder="Benutzername">
+        <input class="admin-new-inp" id="nu-email" type="email" placeholder="E-Mail">
+        <input class="admin-new-inp" id="nu-pw" type="password" placeholder="Passwort (min. 8 Zeichen)">
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px"><input type="checkbox" id="nu-admin"> Admin-Rechte</label>
+        <button class="btn btn-primary" style="margin-top:4px" onclick="App.adminCreateUser()">Nutzer anlegen</button>
+      </div>
+    </div>
+    <div class="btn-wrap" style="margin-top:8px">
+      <button class="btn" style="background:var(--card2);color:var(--text)" onclick="App._adminToggleNewUserForm()">+ Neuen Nutzer anlegen</button>
+    </div>`;
+
+    // KI-Nutzungsstatistik
+    const usageHtml=`<div class="card" style="padding:12px 16px">
+      <div class="usage-tabs">
+        <button class="usage-tab active" id="utab-7" onclick="App.loadAdminUsage(7)">7 Tage</button>
+        <button class="usage-tab" id="utab-30" onclick="App.loadAdminUsage(30)">30 Tage</button>
+        <button class="usage-tab" id="utab-all" onclick="App.loadAdminUsage('all')">Gesamt</button>
+      </div>
+      <div id="admin-usage-body"><div style="text-align:center;color:var(--text2);padding:20px">Lade…</div></div>
+    </div>`;
+
+    // KI-Provider & API-Keys
+    const providers=[
+      {id:'anthropic',label:'Anthropic',color:'#5a1e96'},
+      {id:'openai',label:'OpenAI',color:'#1a7f5a'},
+      {id:'google',label:'Google',color:'#1a5fa8'},
+    ];
+    const keysHtml=`<div class="card" style="padding:0;overflow:hidden">
+      ${providers.map(p=>`<div class="admin-key-row">
+        <div class="admin-key-label">
+          <span class="provider-badge provider-${p.id}">${p.label}</span>
+          <span>${p.label} API-Key</span>
+          <span class="admin-key-status ${apiOk[p.id]?'ok':'miss'}">${apiOk[p.id]?'✓ konfiguriert':'✗ fehlt'}</span>
+        </div>
+        <input class="admin-key-input" id="key-${p.id}" type="password" placeholder="${apiOk[p.id]?'zum Ändern neu eingeben':'API-Key eingeben'}">
+      </div>`).join('')}
+    </div>
+    <div class="btn-wrap" style="margin-top:8px">
+      <button class="btn btn-primary" onclick="App.adminSaveApiKeys()">Keys speichern</button>
+    </div>`;
+
+    // KI-Modellwahl
+    const modelOpts=MODELS.map(m=>{
+      const disabled=!apiOk[m.provider];
+      return `<option value="${m.id}" ${m.id===curModel?'selected':''} ${disabled?'disabled':''}>${m.label} (${m.provider})${disabled?' – kein Key':''}`;
+    }).join('');
+    const curM=MODELS.find(m=>m.id===curModel)||MODELS[0];
+    const modelHtml=`<div class="card" style="padding:12px 16px">
+      <div class="model-select-wrap">
+        <select class="model-select" id="admin-model-select" onchange="App._onModelSelect(this.value)">${modelOpts}</select>
+        <button class="model-test-btn" onclick="App.adminTestModel()">Testen</button>
+      </div>
+      <div class="model-price-display" id="model-price-display">In: ${(curM.inp*EUR).toFixed(2)}€/MTok · Out: ${(curM.out*EUR).toFixed(2)}€/MTok</div>
+      <div id="model-test-result" style="margin-top:6px;font-size:13px"></div>
+      <div class="btn-wrap" style="margin-top:8px;padding:0">
+        <button class="btn btn-primary" onclick="App.adminSaveModel()">Modell speichern</button>
+      </div>
+    </div>`;
+
+    ac.innerHTML=`<div style="padding:12px 16px 0">
+      <div class="admin-section"><div class="admin-section-title">Systemübersicht</div>${sysHtml}</div>
+      <div class="admin-section"><div class="admin-section-title">Nutzerverwaltung (${(us||[]).length})</div>${usersHtml}</div>
+      <div class="admin-section"><div class="admin-section-title">KI-Nutzungsstatistik</div>${usageHtml}</div>
+      <div class="admin-section"><div class="admin-section-title">KI-Provider &amp; API-Keys</div>${keysHtml}</div>
+      <div class="admin-section"><div class="admin-section-title">KI-Modellwahl</div>${modelHtml}</div>
+    </div>`;
+    this.loadAdminUsage(7);
+  }catch(e){ac.innerHTML=`<div style="padding:24px 16px;color:var(--red)">Fehler: ${e.message}</div>`;}
+},
+async loadAdminUsage(days){
+  ['7','30','all'].forEach(t=>{const el=document.getElementById('utab-'+t);if(el)el.classList.toggle('active',String(t)===String(days));});
+  const body=document.getElementById('admin-usage-body');
+  if(!body)return;
+  body.innerHTML='<div style="text-align:center;color:var(--text2);padding:20px">Lade…</div>';
+  const EUR=0.92;
+  try{
+    const rows=await fetch('/api/admin/ai-usage?days='+days,{credentials:'include'}).then(r=>r.json());
+    if(!rows||!rows.length){body.innerHTML='<div style="text-align:center;color:var(--text2);padding:16px">Noch keine KI-Nutzung</div>';return;}
+    const maxCost=Math.max(...rows.flatMap(u=>u.models.map(m=>m.cost_usd)),0.0001);
+    const provColors={'anthropic':'#5a1e96','openai':'#1a7f5a','google':'#1a5fa8'};
+    const getProvider=model=>model.startsWith('claude-')?'anthropic':model.startsWith('gpt-')||model.startsWith('o')?'openai':'google';
+    body.innerHTML=rows.map(u=>`<div class="usage-user-card">
+      <div class="usage-user-name">${u.username||u.email}</div>
+      ${u.models.map(m=>{
+        const pct=Math.round((m.cost_usd/maxCost)*100);
+        const col=provColors[getProvider(m.model)]||'var(--accent)';
+        return `<div class="usage-model-row">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;font-weight:600">${m.model}</span>
+            <span style="font-size:11px;color:var(--text2)">${m.calls}× · ${(m.input_tokens+m.output_tokens).toLocaleString()} Tok</span>
+          </div>
+          <div class="usage-bar-wrap">
+            <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+            <div class="usage-bar-cost">${(m.cost_usd*EUR).toFixed(4)}€</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+  }catch{body.innerHTML='<div style="color:var(--red);padding:16px">Fehler beim Laden</div>';}
+},
+_adminToggleNewUserForm(){
+  const f=document.getElementById('admin-new-user-form');
+  if(f)f.classList.toggle('open');
+},
+async adminCreateUser(){
+  const username=(document.getElementById('nu-username')?.value||'').trim();
+  const email=(document.getElementById('nu-email')?.value||'').trim();
+  const pw=document.getElementById('nu-pw')?.value||'';
+  const is_admin=document.getElementById('nu-admin')?.checked||false;
+  if(!username||!email||!pw){toast('Alle Felder ausfüllen');return;}
+  const r=await fetch('/api/admin/users',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,email,password:pw,is_admin})});
+  if(r.ok){toast('✅ Nutzer angelegt');this.loadAdmin();}
+  else{const e=await r.json();toast('❌ '+e.error,3000);}
+},
+async adminToggleRole(id){
+  const r=await fetch('/api/admin/users/'+id,{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'toggle_admin'})});
+  if(r.ok){const d=await r.json();toast(d.is_admin?'Admin-Rechte vergeben':'Admin-Rechte entzogen');this.loadAdmin();}
+  else{const e=await r.json();toast('❌ '+e.error,3000);}
+},
+async adminResetPassword(id,name){
+  const pw=prompt(`Neues Passwort für "${name}" (min. 8 Zeichen):`);
+  if(!pw)return;
+  if(pw.length<8){toast('❌ Passwort zu kurz',3000);return;}
+  const r=await fetch('/api/admin/users/'+id,{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset_password',password:pw})});
+  if(r.ok){toast('✅ Passwort geändert');}else{const e=await r.json();toast('❌ '+e.error,3000);}
+},
+adminDeleteUser(id,email){
+  if(!confirm(`Nutzer "${email}" und alle Daten unwiderruflich löschen?`))return;
+  fetch('/api/admin/users/'+id,{method:'DELETE',credentials:'include'}).then(r=>{if(r.ok){toast('Nutzer gelöscht');this.loadAdmin();}else{toast('❌ Löschen fehlgeschlagen',3000);}});
+},
+async adminSaveApiKeys(){
+  const data={};
+  ['anthropic','openai','google'].forEach(p=>{const v=(document.getElementById('key-'+p)?.value||'').trim();if(v)data[p]=v;});
+  if(!Object.keys(data).length){toast('Keine neuen Keys eingegeben');return;}
+  const r=await fetch('/api/admin/api-keys',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  if(r.ok){toast('✅ API-Keys gespeichert');this.loadAdmin();}
+  else{const e=await r.json();toast('❌ '+e.error,3000);}
+},
+_onModelSelect(id){
+  this._pendingModel=id;
+  const EUR=0.92;
+  const m=(this._adminModels||[]).find(x=>x.id===id);
+  const el=document.getElementById('model-price-display');
+  if(el&&m)el.textContent=`In: ${(m.inp*EUR).toFixed(2)}€/MTok · Out: ${(m.out*EUR).toFixed(2)}€/MTok`;
+},
+async adminTestModel(){
+  const model=this._pendingModel||document.getElementById('admin-model-select')?.value;
+  if(!model)return;
+  const res=document.getElementById('model-test-result');
+  if(res)res.innerHTML='<span style="color:var(--text2)">Teste…</span>';
+  const btn=document.querySelector('.model-test-btn');if(btn)btn.disabled=true;
+  try{
+    const t0=Date.now();
+    const r=await fetch('/api/admin/ai-test',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({model})});
+    const d=await r.json();
+    const ms=Date.now()-t0;
+    if(r.ok){if(res)res.innerHTML=`<span style="color:var(--green)">✓ ${d.response} <span style="color:var(--text2);font-size:11px">(${ms}ms · ${d.input_tokens}+${d.output_tokens} Tok)</span></span>`;}
+    else{if(res)res.innerHTML=`<span style="color:var(--red)">✗ ${d.error}</span>`;}
+  }catch(e){if(res)res.innerHTML=`<span style="color:var(--red)">✗ Verbindungsfehler</span>`;}
+  if(btn)btn.disabled=false;
+},
+async adminSaveModel(){
+  const model=this._pendingModel||document.getElementById('admin-model-select')?.value;
+  if(!model){toast('Kein Modell ausgewählt');return;}
+  const r=await fetch('/api/admin/config',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({ai_model:model})});
+  if(r.ok){toast('✅ Modell gespeichert');}else{const e=await r.json();toast('❌ '+e.error,3000);}
+},
+async adminBackup(){
+  const r=await fetch('/api/admin/backup',{method:'POST',credentials:'include'});
+  if(r.ok){const d=await r.json();toast('✅ Backup: '+d.file,3000);this.loadAdmin();}else{toast('❌ Backup fehlgeschlagen',3000);}
+},
 showMeasGuide(){
   const ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
@@ -1166,6 +1466,7 @@ renderSettings(){
   if(cfg.startDate){if(_rsDur!==null){const end=addDays(parseDate(cfg.startDate),_rsDur-1);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);}else{const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent='—';}}
   const alterLbl=document.getElementById('cfg-alter-label');if(alterLbl){const age=calcAge(cfg.geburtsdatum);alterLbl.textContent=age!==null?age+' Jahre':'—'}
   const vLbl=document.getElementById('app-version-label');if(vLbl)vLbl.textContent=APP_VERSION;
+  const adminWrap=document.getElementById('admin-btn-wrap');if(adminWrap)adminWrap.style.display=this.isAdmin?'block':'none';
 },
 async saveSettings(){
   const startDate=document.getElementById('cfg-start')?.value;
@@ -1457,13 +1758,15 @@ async login(){
   }catch{msg.textContent='Verbindungsfehler';}
 },
 async register(){
+  const username=document.getElementById('reg-username').value.trim();
   const email=document.getElementById('reg-email').value.trim();
   const pw=document.getElementById('reg-pw').value;
   const code=document.getElementById('reg-code').value.trim();
   const msg=document.getElementById('auth-msg');
   msg.textContent='';
+  if(!username){msg.className='auth-msg';msg.textContent='Benutzername erforderlich';return;}
   try{
-    const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pw,invite_code:code}),credentials:'include'});
+    const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,email,password:pw,invite_code:code}),credentials:'include'});
     if(r.ok){msg.className='auth-msg ok';msg.textContent='Registriert! Jetzt anmelden.';App.authTab('login');}
     else{const e=await r.json();msg.className='auth-msg';msg.textContent=e.error||'Fehler';}
   }catch{msg.textContent='Verbindungsfehler';}

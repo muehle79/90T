@@ -1,11 +1,11 @@
 # 90-Tage-Challenge PWA — Projektstatus
 
-**Stand:** 2026-06-17  
+**Stand:** 2026-06-18  
 **Live-URL (neu):** https://challenge.blue-bulls-flechtorf.de  
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
-**Aktuelle Version:** `2.2.1`  
-**Letzter Commit:** `1a93506`
+**Aktuelle Version:** `2.4.0`  
+**Letzter Commit:** `(aktuell)`
 
 ---
 
@@ -13,6 +13,8 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
+| 2.4.0 | `(aktuell)` | Feat: Benutzername bei Registrierung, Nutzerverwaltung mit Admin/Passwort/Löschen, KI-Provider API-Keys im Admin, KI-Nutzungsstatistik (Tokens + EUR-Kosten), KI-Modellwahl mit Live-Test |
+| 2.3.0 | `(aktuell)` | Feat: Admin-Bereich (Systemübersicht, Nutzerverwaltung, Backups), Multi-Provider KI (Anthropic / OpenAI / Google Gemini), KI-Nutzungs-Tracking (ai_usage-Tabelle), DB-basierte Admin-Erkennung |
 | 2.2.1 | `1a93506` | Fix: Analyse berücksichtigt jetzt monatliche Umfänge als „Aktuell" |
 | 2.2.0 | `1ef5d55` | Feat: Wochencheck Vorwoche-Gewicht + Kalorien, Monatscheck 5 Gewichtsmetriken, Umfänge-Popup „Richtig messen" mit eingebettetem Bild |
 | 2.1.0 | `916a7c9` | Feat: KI-Bericht im Analyse-Screen (Claude Haiku, /api/ai-report, ANTHROPIC_API_KEY) |
@@ -87,8 +89,8 @@ Single-file PWA als persönliches Tagebuch für die 90-Tage-Challenge. Basiert a
 | `icon-192.png` / `icon-512.png` / `favicon.png` | App-Icons (Kinetic Meridian Design, ohne feste Tageszahl) |
 | `import.html` | Hilfsseite für URL-basierten Daten-Import (iOS Kurzbefehl) |
 | `export.html` | Einmal-Export-Seite ohne Auth (für Migration von alten Daten) |
-| `server/app.py` | Flask-Backend: Auth + KV-Sync + Web-Push (VAPID) + Analyse + KI-Bericht (/api/ai-report) |
-| `server/setup_db.py` | SQLite-Schema-Initialisierung (inkl. push_subscriptions) |
+| `server/app.py` | Flask-Backend: Auth + KV-Sync + Web-Push (VAPID) + Analyse + KI-Bericht + Admin-API + Multi-Provider KI |
+| `server/setup_db.py` | SQLite-Schema-Initialisierung (inkl. push_subscriptions, ai_usage, config) |
 | `server/90tc.service` | systemd-Unit |
 | `server/install.sh` | Installations-Skript für Raspberry Pi (inkl. VAPID + Cron) |
 | `server/deploy.sh` | Update-Skript: pull → statische Dateien → Backend neu starten |
