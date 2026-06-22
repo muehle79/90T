@@ -5,7 +5,7 @@
 **Live-URL (alt/GitHub Pages):** https://muehle79.github.io/90T/ *(Weiterleitungsseite — nicht mehr primär)*  
 **Repository:** https://github.com/muehle79/90T (Branch: main)  
 **Aktuelle Version:** `2.4.6`  
-**Letzter Commit:** `—`
+**Letzter Commit:** `f486694`
 
 ---
 
@@ -13,7 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
-| 2.4.6 | `—` | Fix: Umfänge-Vergleich in Wochen-/Monatscheck korrigiert (Woche 5/9 vs. Monatscheck; Monat 3 vs. Woche 11) |
+| 2.4.6 | `f486694` | Fix: Umfänge-Vergleich in Wochen-/Monatscheck korrigiert (Woche 5/9 vs. Monatscheck; Monat 3 vs. Woche 11) |
 | 2.4.5 | `6f9df94` | Fix: Enddatum in Einstellungen zeigt '—' wenn Dauer „unendlich", korrekt bei Startdatum-Änderung |
 | 2.4.4 | `92b1be7` | Fix: Gleit. Gewicht Start + Aktuell + Δ seit Tag 1 in Analyse (Sparkline entfernt) |
 | 2.4.3 | `be7f31f` | Feat: Sparkline-Chart gleitendes Gewicht seit Tag 1 + Δ in Analyse |
