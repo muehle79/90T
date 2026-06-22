@@ -636,7 +636,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.4.5';
+const APP_VERSION='2.4.6';
 const CHANGELOG=[
   {version:'2.4.4',items:['⚖️ Analyse: Gleit. Gewicht Start + Aktuell + Δ seit Tag 1 (Sparkline entfernt)']},
   {version:'2.4.3',items:['📈 Analyse: Sparkline-Chart des gleitenden Gewichts seit Tag 1 + Δ-Anzeige']},
@@ -1054,7 +1054,8 @@ saveEntry(){
 },
 openWeekly(wn,dateS){
   this._currentDate=dateS;
-  const prev=S.get('weekly_'+(wn-1))||{},sq=S.get('statusQuo')||{},existing=S.get('weekly_'+wn)||{},cfg=S.get('settings')||{};
+  const _prevDay=(wn-1)*7,_prevIsMonthly=_prevDay>0&&_prevDay%28===0;
+  const prev=(_prevIsMonthly?S.get('monthly_'+(_prevDay/28)):S.get('weekly_'+(wn-1)))||{},sq=S.get('statusQuo')||{},existing=S.get('weekly_'+wn)||{},cfg=S.get('settings')||{};
   const start=cfg.startDate?parseDate(cfg.startDate):null;
   const startDay=start?dateStr(addDays(start,(wn-1)*7)):'';
   const endDay=start?dateStr(addDays(start,wn*7-1)):dateS;
@@ -1105,7 +1106,7 @@ saveWeekly(){
 },
 openMonthly(mn,dateS){
   this._currentDate=dateS;
-  const existing=S.get('monthly_'+mn)||{},sq=S.get('statusQuo')||{},prevW=S.get('weekly_'+(mn===1?3:7))||{},cfg=S.get('settings')||{};
+  const existing=S.get('monthly_'+mn)||{},sq=S.get('statusQuo')||{},prevW=S.get('weekly_'+(mn*4-1))||{},cfg=S.get('settings')||{};
   const start=cfg.startDate?parseDate(cfg.startDate):null;
   document.getElementById('monthly-header-title').textContent='Monat '+mn+' Check';
   const avgThis=movingAvg(dateS),avgPrev=movingAvg(dateStr(addDays(parseDate(dateS),-7))),avgStart=sq.gewicht;
