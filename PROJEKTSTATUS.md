@@ -13,7 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
-| 2.5.0 | `—` | Feat: Zielgewicht-Eingabe (Settings + Wizard), Zielgewicht-Anzeige in Analyse mit Abstand + Prognose, Defizitpausen-Empfehlung ab 4 Wochen, KI-Bericht mit PubMed-Studien (live abgerufen) + Zielgewicht-Abschnitt |
+| 2.5.0 | `f04ee80` | Feat: Zielgewicht-Eingabe (Settings + Wizard), Zielgewicht-Anzeige in Analyse mit Abstand + Prognose, Defizitpausen-Empfehlung ab 4 Wochen, KI-Bericht mit PubMed-Studien (live abgerufen) + Zielgewicht-Abschnitt |
 | 2.4.6 | `f486694` | Fix: Umfänge-Vergleich in Wochen-/Monatscheck korrigiert (Woche 5/9 vs. Monatscheck; Monat 3 vs. Woche 11) |
 | 2.4.5 | `6f9df94` | Fix: Enddatum in Einstellungen zeigt '—' wenn Dauer „unendlich", korrekt bei Startdatum-Änderung |
 | 2.4.4 | `92b1be7` | Fix: Gleit. Gewicht Start + Aktuell + Δ seit Tag 1 in Analyse (Sparkline entfernt) |
