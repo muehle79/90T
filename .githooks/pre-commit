@@ -1,0 +1,22 @@
+#!/bin/bash
+# Prüft dass APP_VERSION immer einen Eintrag im CHANGELOG-Array hat.
+
+VERSION=$(grep -o "APP_VERSION='[^']*'" index.html 2>/dev/null | head -1 | cut -d"'" -f2)
+
+if [ -z "$VERSION" ]; then
+  exit 0  # index.html nicht im Commit — kein Check nötig
+fi
+
+if ! grep -q "version:'$VERSION'" index.html 2>/dev/null; then
+  echo ""
+  echo "❌  Pre-commit: CHANGELOG-Eintrag fehlt!"
+  echo ""
+  echo "    APP_VERSION='$VERSION' hat keinen Eintrag im CHANGELOG-Array."
+  echo "    Bitte in index.html ergänzen (ganz oben im Array):"
+  echo ""
+  echo "    {version:'$VERSION',items:['...']},"
+  echo ""
+  exit 1
+fi
+
+exit 0
