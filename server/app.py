@@ -2,6 +2,7 @@ import os, json, sqlite3, bcrypt, secrets, shutil
 from datetime import datetime
 from functools import wraps
 from flask import Flask, request, jsonify, send_from_directory, make_response, g
+import requests as http_requests
 
 try:
     from pywebpush import webpush, WebPushException
@@ -580,7 +581,42 @@ def admin_backup():
     return jsonify({'ok': True, 'file': os.path.basename(dest)})
 
 # ── KI-Bericht ────────────────────────────────────────────────────────────────
-def _build_ai_prompt(data):
+def _fetch_research(queries, max_per_query=2, timeout=6):
+    """Holt Studien-Abstracts von PubMed (NCBI) für die gegebenen Suchbegriffe."""
+    snippets = []
+    seen_ids = set()
+    headers = {'User-Agent': '90TC-App/2.0 (mailto:admin@example.com)'}
+    base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
+    for q in queries:
+        try:
+            sr = http_requests.get(base + 'esearch.fcgi',
+                params={'db': 'pubmed', 'term': q, 'retmax': max_per_query,
+                        'retmode': 'json', 'sort': 'relevance'},
+                timeout=timeout, headers=headers)
+            if sr.status_code != 200:
+                continue
+            ids = [i for i in sr.json().get('esearchresult', {}).get('idlist', []) if i not in seen_ids]
+            if not ids:
+                continue
+            seen_ids.update(ids)
+            ar = http_requests.get(base + 'efetch.fcgi',
+                params={'db': 'pubmed', 'id': ','.join(ids),
+                        'retmode': 'text', 'rettype': 'abstract'},
+                timeout=timeout, headers=headers)
+            if ar.status_code != 200:
+                continue
+            # Jeden Abstract auf max. 350 Zeichen kürzen
+            for block in ar.text.split('\n\n'):
+                block = block.strip()
+                if len(block) > 80:
+                    snippets.append(block[:350] + ('…' if len(block) > 350 else ''))
+                    break
+        except Exception:
+            pass
+    return snippets
+
+
+def _build_ai_prompt(data, research_snippets=None):
     m  = data.get('meta', {})
     w  = data.get('weight', {})
     n  = data.get('nutrition', {})
@@ -589,16 +625,41 @@ def _build_ai_prompt(data):
     c  = data.get('correlations', {})
     sc = data.get('score', {})
     meas = data.get('measurements', {})
+
     lines = [
         "Erstelle einen wissenschaftlich fundierten, persönlichen Fitness- und Gesundheitsbericht für folgende Challenge-Daten:",
         "", "## Übersicht",
         f"- Tag {m.get('dayN','?')} von {m.get('dur','90')} | Logging-Rate {m.get('logRate','?')}% | Compliance-Score {sc.get('avg','—')}%",
     ]
+
+    # Gewicht + Zielgewicht
     if w.get('start'):
         lines += ["","## Gewicht",
             f"- Start {w['start']} kg → Aktuell {w.get('current','—')} kg (Δ {w.get('delta','—')} kg)",
             f"- Wöchentliche Rate: {w.get('weeklyRate','—')} kg/Woche"]
         if w.get('prediction'): lines.append(f"- Prognose: {w['prediction']} kg")
+        if w.get('zielgewicht'):
+            dist = w.get('distanceToGoal')
+            wks  = w.get('weeksToGoal')
+            lines.append(f"- **Zielgewicht: {w['zielgewicht']} kg** (Abstand: {dist:+.1f} kg)" if dist is not None else f"- Zielgewicht: {w['zielgewicht']} kg")
+            if wks is not None:
+                lines.append(f"- Prognose Zielerreichung: ~{wks} Wochen bei aktuellem Tempo")
+
+    # Defizitwochen + Diät-Pause-Bewertung
+    deficit_weeks = w.get('deficitWeeks')
+    if deficit_weeks and deficit_weeks >= 4:
+        nt_kal = n.get('targets', {}).get('kalorien') or 0
+        avg_kal = n.get('avgKal') or 0
+        tdee = n.get('empirTDEE') or n.get('formulaTDEE') or 0
+        in_deficit = avg_kal and tdee and avg_kal < tdee
+        if in_deficit or avg_kal:
+            lines += ["", f"## Defizitdauer: ~{deficit_weeks} Wochen"]
+            if deficit_weeks >= 8:
+                lines.append("- ⚠️ Kritisch: 8+ Wochen Defizit → metabolische Adaptation wahrscheinlich (Leptin ↓, T3 ↓, NEAT ↓)")
+                lines.append("- Empfehlung: 1–2 Wochen Erhaltungskalorien (Diet Break) vor Fortführung")
+            else:
+                lines.append("- 4–7 Wochen Defizit → Refeed-Tage oder kurze Diät-Pause empfehlenswert")
+
     nt = n.get('targets', {})
     if n.get('avgKal'):
         nd = n.get('nutDays',1) or 1
@@ -609,15 +670,18 @@ def _build_ai_prompt(data):
             f"- Ø Fett {n.get('avgFat','—')} g | Ø KH {n.get('avgKh','—')} g | Konsistenz ±{n.get('kalStd','—')} kcal"]
         if n.get('empirTDEE'): lines.append(f"- Empir. TDEE: {n['empirTDEE']} kcal/Tag")
         if n.get('formulaTDEE'): lines.append(f"- Mifflin-TDEE: {n['formulaTDEE']} kcal/Tag")
+
     if tr.get('trDone',0)>0:
         lines += ["","## Training",
             f"- {tr.get('trDone','—')}× von {tr.get('trPlan','—')} geplant ({tr.get('trCmp','—')}%)",
             f"- Progression {tr.get('trProgRate','—')}% | Streak {tr.get('maxStreak','—')} Tage"]
+
     if rc.get('avgSl'):
         tg = rc.get('targets',{})
         lines += ["","## Erholung & Lifestyle",
             f"- Ø Schlaf {rc['avgSl']} h (Ziel {tg.get('schlaf',7)} h)",
             f"- Ø Schritte {rc.get('avgSt','—')} | Ø Wasser {rc.get('avgWa','—')} L"]
+
     sl = c.get('slTr',{}); pr = c.get('prPr',{})
     corr = []
     if sl.get('gT',0)>=3 or sl.get('bT',0)>=3:
@@ -629,6 +693,7 @@ def _build_ai_prompt(data):
         bP=round(pr['b']/pr['bT']*100) if pr.get('bT') else '—'
         corr.append(f"- Protein→Progression: {gP}% (ausreichend) vs {bP}% (zu wenig)")
     if corr: lines += ["","## Zusammenhänge"]+corr
+
     mkeys = ['schulter','brust','rechterArm','linkerArm','ueber5','nabel','unter5','huefte','rechtsBein','linksBein']
     mlbls = {'schulter':'Schulter','brust':'Brust','rechterArm':'Rechter Arm','linkerArm':'Linker Arm',
              'ueber5':'Über Nabel','nabel':'Nabel','unter5':'Unter Nabel','huefte':'Hüfte',
@@ -641,14 +706,27 @@ def _build_ai_prompt(data):
             dt = f" (Δ {'+' if l-s>0 else ''}{round(l-s,1)} cm)" if s and l else ""
             ml_lines.append(f"- {mlbls[k]}: {s or '—'} → {l or '—'} cm{dt}")
     if ml_lines: lines += ["","## Körperumfänge"]+ml_lines
+
+    # Aktuelle Forschungs-Snippets aus dem Internet
+    if research_snippets:
+        lines += ["","## Aktuelle Forschung (automatisch abgerufen)"]
+        for s in research_snippets:
+            lines.append(f"- {s}")
+
+    goal_section = ""
+    if w.get('zielgewicht'):
+        goal_section = f"\n7. **Zielgewicht & Strategie** — Bewerte den Fortschritt zum Zielgewicht ({w['zielgewicht']} kg), analysiere ob das Tempo realistisch und gesund ist (0,3–0,8 kg/Woche optimal), und gib eine klare Empfehlung zur optimalen Strategie (Defizitgröße, Diät-Pausen, Refeeds) basierend auf den vorliegenden Daten und aktueller Forschung."
+
     lines += ["","---",
-        "Bitte erstelle einen strukturierten deutschen Bericht mit diesen 6 Abschnitten:",
-        "1. **Ernährung** — Makros, Konsistenz, Studien (Protein 1,6–2,2 g/kg)",
+        "Bitte erstelle einen strukturierten deutschen Bericht mit diesen Abschnitten:",
+        "1. **Ernährung** — Makros, Konsistenz, Studien (Protein 1,6–2,2 g/kg laut Morton et al. 2018)",
         "2. **Körperumfänge & Komposition** — Fett- vs. Muskelmasse",
         "3. **Training** — Regelmäßigkeit, Progression, Streak",
         "4. **Erholung & Lifestyle** — Schlaf, NEAT, Hydration",
         "5. **Zusammenhänge** — Korrelationen interpretieren",
-        "6. **Empfehlungen** — 3–5 konkrete Maßnahmen",
+        "6. **Empfehlungen** — 3–5 konkrete Maßnahmen" + goal_section,
+        "",
+        "Wichtig: Beziehe die abgerufenen Forschungs-Snippets explizit in den Bericht ein und zitiere die Quellen.",
         "Direkt, motivierend, ehrlich. Markdown (##, **, Listen). Keine Disclaimer."]
     return '\n'.join(lines)
 
@@ -657,7 +735,22 @@ def _build_ai_prompt(data):
 def ai_report():
     model  = get_config('ai_model', 'claude-haiku-4-5-20251001')
     data   = request.get_json(force=True) or {}
-    prompt = _build_ai_prompt(data)
+
+    # Relevante Forschungs-Queries basierend auf Nutzerdaten zusammenstellen
+    w = data.get('weight', {}); n = data.get('nutrition', {})
+    research_queries = ["caloric deficit diet break metabolic adaptation weight loss"]
+    if w.get('zielgewicht'):
+        research_queries.append("optimal weight loss rate muscle preservation body recomposition")
+    deficit_weeks = w.get('deficitWeeks') or 0
+    if deficit_weeks >= 4:
+        research_queries.append("diet break refeeding leptin metabolic rate weight loss study")
+    avg_pro = n.get('avgPro') or 0
+    tgt_pro = n.get('targets', {}).get('protein') or 0
+    if avg_pro and tgt_pro and avg_pro < tgt_pro * 0.85:
+        research_queries.append("protein intake muscle preservation caloric deficit study")
+    research_snippets = _fetch_research(research_queries[:3])
+
+    prompt = _build_ai_prompt(data, research_snippets=research_snippets)
     inp_tok = out_tok = 0
     try:
         if model.startswith('claude-'):

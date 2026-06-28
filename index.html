@@ -366,6 +366,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
       <div class="card-title">Körpergewicht</div>
       <div class="inp-row"><label>Gewicht</label><input class="inp inp-sm" type="number" id="sq-weight" placeholder="80.0" step="0.1"><span class="inp-unit">kg</span></div>
       <div class="inp-row"><label>Körperfettanteil</label><input class="inp inp-sm" type="number" id="sq-kfa" placeholder="20" step="0.1"><span class="inp-unit">%</span></div>
+      <div class="inp-row"><label>Zielgewicht</label><input class="inp inp-sm" type="number" id="sq-zielgewicht" placeholder="70.0" step="0.1"><span class="inp-unit">kg</span></div>
     </div>
     <div class="card" style="margin-top:12px">
       <div class="card-title">Umfänge (cm)</div>
@@ -519,6 +520,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
       <div class="settings-row"><label>Geburtsdatum</label><input type="date" id="cfg-geburt" oninput="App.updateAgeLabel()"></div>
       <div class="settings-row"><label>Aktuelles Alter</label><span id="cfg-alter-label" style="color:var(--text2);font-size:14px">—</span></div>
       <div class="settings-row"><label>Geschlecht</label><select id="cfg-geschlecht" style="background:var(--bg2);border:1.5px solid transparent;border-radius:8px;padding:6px 10px;font-size:15px;color:var(--text);outline:none;font-family:inherit"><option value="">— bitte wählen —</option><option value="m">Männlich</option><option value="w">Weiblich</option></select></div>
+      <div class="settings-row"><label>Zielgewicht</label><input type="number" id="cfg-zielgewicht" placeholder="75.0" step="0.1" style="width:80px;text-align:right"><span class="settings-row-unit">kg</span></div>
     </div>
   </div>
   <div class="settings-section">
@@ -636,7 +638,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.4.6';
+const APP_VERSION='2.5.0';
 const CHANGELOG=[
   {version:'2.4.4',items:['⚖️ Analyse: Gleit. Gewicht Start + Aktuell + Δ seit Tag 1 (Sparkline entfernt)']},
   {version:'2.4.3',items:['📈 Analyse: Sparkline-Chart des gleitenden Gewichts seit Tag 1 + Δ-Anzeige']},
@@ -880,7 +882,9 @@ wizardNext(step){
     this.wizardGo(2);
   }else if(step===2){
     const sq={datum:S.get('settings').startDate,gewicht:+document.getElementById('sq-weight')?.value||null,kfa:+document.getElementById('sq-kfa')?.value||null,fotos:S.get('statusQuo')?.fotos||{},umfaenge:readMeasGrid('sq')};
-    S.set('statusQuo',sq);this.wizardGo(3);
+    S.set('statusQuo',sq);
+    const _w2cfg=S.get('settings')||{};_w2cfg.zielgewicht=+document.getElementById('sq-zielgewicht')?.value||null;S.set('settings',_w2cfg);
+    this.wizardGo(3);
   }
 },
 wizardBack(step){this.wizardGo(step-1)},
@@ -1475,7 +1479,7 @@ renderSettings(){
   const notifTime=document.getElementById('cfg-notif-time');
   if(notifEnabled)notifEnabled.checked=!!reminder.enabled;
   if(notifTime&&reminder.time)notifTime.value=reminder.time;
-  const fields={'cfg-start':cfg.startDate||'','cfg-name':cfg.name||'','cfg-groesse':cfg.groesse||'','cfg-geburt':cfg.geburtsdatum||'','cfg-geschlecht':cfg.geschlecht||'','cfg-kal':t.kalorien||'','cfg-pro':t.protein||'','cfg-fat':t.fett||'','cfg-kh':t.kh||'','cfg-sleep':t.schlaf||'','cfg-steps':t.schritte||'','cfg-water':t.wasser||''};
+  const fields={'cfg-start':cfg.startDate||'','cfg-name':cfg.name||'','cfg-groesse':cfg.groesse||'','cfg-geburt':cfg.geburtsdatum||'','cfg-geschlecht':cfg.geschlecht||'','cfg-zielgewicht':cfg.zielgewicht||'','cfg-kal':t.kalorien||'','cfg-pro':t.protein||'','cfg-fat':t.fett||'','cfg-kh':t.kh||'','cfg-sleep':t.schlaf||'','cfg-steps':t.schritte||'','cfg-water':t.wasser||''};
   Object.entries(fields).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v});
   const kcalToggle=document.getElementById('cfg-kcal-from-macros');
   if(kcalToggle){kcalToggle.checked=cfg.kcalMode!=='manual';this.toggleKcalMode();}
@@ -1493,7 +1497,7 @@ async saveSettings(){
   const notifTime=document.getElementById('cfg-notif-time')?.value||'20:00';
   const _ssCfg=S.get('settings')||{};const _ssDur=_ssCfg.durationDays!==undefined?_ssCfg.durationDays:90;
   const _ssKcalFromMacros=document.getElementById('cfg-kcal-from-macros')?.checked!==false;
-  S.set('settings',{startDate,durationDays:_ssDur,kcalMode:_ssKcalFromMacros?'macros':'manual',name:document.getElementById('cfg-name')?.value||'',groesse:+document.getElementById('cfg-groesse')?.value||null,geburtsdatum:document.getElementById('cfg-geburt')?.value||'',geschlecht:document.getElementById('cfg-geschlecht')?.value||'',targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5},reminder:{enabled:notifEnabled,time:notifTime},challengeCompleted:_ssCfg.challengeCompleted||false});
+  S.set('settings',{startDate,durationDays:_ssDur,kcalMode:_ssKcalFromMacros?'macros':'manual',name:document.getElementById('cfg-name')?.value||'',groesse:+document.getElementById('cfg-groesse')?.value||null,geburtsdatum:document.getElementById('cfg-geburt')?.value||'',geschlecht:document.getElementById('cfg-geschlecht')?.value||'',zielgewicht:+document.getElementById('cfg-zielgewicht')?.value||null,targets:{kalorien:+document.getElementById('cfg-kal').value||1950,protein:+document.getElementById('cfg-pro').value||120,fett:+document.getElementById('cfg-fat').value||65,kh:+document.getElementById('cfg-kh').value||236,schlaf:+document.getElementById('cfg-sleep').value||8,schritte:+document.getElementById('cfg-steps').value||10000,wasser:+document.getElementById('cfg-water').value||2.5},reminder:{enabled:notifEnabled,time:notifTime},challengeCompleted:_ssCfg.challengeCompleted||false});
   if(_ssDur!==null){const end=addDays(parseDate(startDate),_ssDur-1);const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent=formatDate(end);}else{const lbl=document.getElementById('cfg-end-label');if(lbl)lbl.textContent='—';}
   if(notifEnabled&&Notification.permission==='granted'){await this.subscribePush();}else if(!notifEnabled){await this.unsubscribePush();}
   toast('Einstellungen gespeichert ✓');sync();
@@ -1831,6 +1835,10 @@ _computeAnalysis(){
   const maStart=movingAvg(maStartDate)?parseFloat(movingAvg(maStartDate)):null;
   const maCurrentVal=movingAvg(today)?parseFloat(movingAvg(today)):null;
   const maDelta=maStart&&maCurrentVal?(maCurrentVal-maStart).toFixed(1):null;
+  const zielgewicht=cfg.zielgewicht?parseFloat(cfg.zielgewicht):null;
+  const distanceToGoal=zielgewicht&&wCurrent!=null?+(wCurrent-zielgewicht).toFixed(1):null;
+  const weeksToGoal=distanceToGoal!==null&&weeklyRate&&parseFloat(weeklyRate)!==0?Math.round(Math.abs(distanceToGoal/parseFloat(weeklyRate))):null;
+  const deficitWeeks=maxDay>=7?Math.floor(maxDay/7):null;
   // NUTRITION
   const t0=cfg.targets||{};
   const nutD=logged.filter(d=>d.entry.kal_ist!=null);
@@ -1893,7 +1901,7 @@ _computeAnalysis(){
   Object.keys(localStorage).filter(k=>k.startsWith('90tc_weekly_')||k.startsWith('90tc_monthly_')).forEach(k=>{const d=S.get(k.replace('90tc_',''));if(d?.umfaenge&&Object.keys(d.umfaenge).length>0)allMeasChecks.push(d);});
   allMeasChecks.sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
   const latestMeas=fin.umfaenge||allMeasChecks[0]?.umfaenge||null;
-  return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,maStart,maCurrent:maCurrentVal,maDelta,delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
+  return{meta:{date:today,dayN:todayN,maxDay,logRate,dur,isEnd:dur!==null&&todayN>=dur,challengeCompleted:cfg.challengeCompleted},weight:{start:wStartVal,current:wCurrent,maStart,maCurrent:maCurrentVal,maDelta,delta:wDelta,min:wMin,max:wMax,weeklyRate,prediction:wPred,count:wE.length,zielgewicht,distanceToGoal,weeksToGoal,deficitWeeks},nutrition:{avgKal,avgPro,avgFat,avgKh,kalCmp,proCmp,nutDays:nutD.length,kalStd,empirTDEE,formulaTDEE,targets:t0},training:{trPlan,trDone,trProg,trCmp,trProgRate,maxStreak,trDays:trD.length},recovery:{avgSl,avgSt,avgWa,slCmp,stCmp,waCmp,slDays:slD.length,stDays:stD.length,waDays:waD.length,targets:{schlaf:tSl,schritte:tSt,wasser:tWa}},correlations:{slTr:{g:slTrG,gT:slTrGT,b:slTrB,bT:slTrBT},prPr:{g:prPrG,gT:prPrGT,b:prPrB,bT:prPrBT}},score:{avg:avgScore,days:scoreCnt},text:{gut:topW(allGut),heute:topW(allHe)},measurements:{start:sq.umfaenge,latest:latestMeas}};
 },
 _renderAnalysisHTML(d){
   const {meta,weight,nutrition,training,recovery,correlations,score,text,measurements}=d;
@@ -1914,7 +1922,18 @@ _renderAnalysisHTML(d){
     if(weight.min)h+=st('Tiefstes Gewicht',weight.min+' kg');
     if(weight.max)h+=st('Höchstes Gewicht',weight.max+' kg');
     if(weight.prediction!==null)h+=st('Prognose Tag '+meta.dur,weight.prediction+' kg','(Trendfortschreibung)');
+    if(weight.zielgewicht){h+=st('Zielgewicht',weight.zielgewicht+' kg');}
+    if(weight.distanceToGoal!==null){const n=weight.distanceToGoal;const reached=Math.abs(n)<0.5;h+=st('Abstand zum Ziel',reached?'✅ Ziel erreicht!':(n>0?'+':'')+n+' kg','',reached?'ana-ok':n<0?'ana-ok':'ana-bad');}
+    if(weight.weeksToGoal!==null)h+=st('Zielerreichung bei aktuellem Tempo','~'+weight.weeksToGoal+' Wochen','(Trendfortschreibung)');
     h+=`</div></div>`;
+    if(weight.deficitWeeks!==null&&weight.deficitWeeks>=4){
+      const wks=weight.deficitWeeks;
+      const intense=wks>=8;
+      h+=`<div class="card" style="margin-top:8px;border-left:4px solid ${intense?'#dc2626':'#d97706'}">`;
+      h+=`<div class="card-title">${intense?'⚠️':'ℹ️'} Defizitpausen-Empfehlung</div>`;
+      h+=`<div style="font-size:14px;line-height:1.6;color:var(--text)">Du bist seit ca. <strong>${wks} Wochen</strong> im Kaloriendefizit. ${intense?'Studien zeigen: nach 8+ Wochen Defizit sinkt der Grundumsatz (metabolische Adaptation) signifikant — eine <strong>Diät-Pause von 1–2 Wochen</strong> auf Erhaltungskalorien kann den Stoffwechsel zurücksetzen und Muskelmasse schützen.':'Nach 4–6 Wochen kontinuierlichem Defizit empfiehlt die Forschung gelegentliche <strong>Refeed-Tage oder eine kurze Diät-Pause</strong> (1 Woche auf Erhaltungskalorien), um Leptinspiegel und Schilddrüsenhormone zu stabilisieren.'} Der KI-Bericht enthält personalisierte Empfehlungen dazu.</div>`;
+      h+=`</div>`;
+    }
   }
   // UMFÄNGE
   if(measurements.start||measurements.latest){
