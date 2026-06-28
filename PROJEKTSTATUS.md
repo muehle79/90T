@@ -13,6 +13,7 @@
 
 | Version | Commit | Inhalt |
 |---|---|---|
+| 2.5.2 | `—` | Fix: CHANGELOG-Einträge für 2.4.5–2.5.1 nachgetragen — Neuigkeiten-Modal erscheint jetzt korrekt |
 | 2.5.1 | `6a69b81` | Fix: Gunicorn-Timeout auf 120s erhöht (Gemini 2.5 Flash + PubMed → Verbindungsfehler), PubMed-Timeout reduziert, Ladetext angepasst |
 | 2.5.0 | `f04ee80` | Feat: Zielgewicht-Eingabe (Settings + Wizard), Zielgewicht-Anzeige in Analyse mit Abstand + Prognose, Defizitpausen-Empfehlung ab 4 Wochen, KI-Bericht mit PubMed-Studien (live abgerufen) + Zielgewicht-Abschnitt |
 | 2.4.6 | `f486694` | Fix: Umfänge-Vergleich in Wochen-/Monatscheck korrigiert (Woche 5/9 vs. Monatscheck; Monat 3 vs. Woche 11) |
