@@ -8,7 +8,7 @@ Group=pi
 WorkingDirectory=/home/pi/90tc-app
 EnvironmentFile=/home/pi/90tc-app/.env
 Environment="PATH=/home/pi/90tc-app/venv/bin"
-ExecStart=/home/pi/90tc-app/venv/bin/gunicorn -w 2 -b 127.0.0.1:8080 --timeout 30 app:app
+ExecStart=/home/pi/90tc-app/venv/bin/gunicorn -w 2 -b 127.0.0.1:8080 --timeout 120 app:app
 Restart=on-failure
 RestartSec=5s
 

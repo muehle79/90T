@@ -638,7 +638,7 @@ a,button,[onclick],input,select,textarea,label{touch-action:manipulation}
 <div id="toast"></div>
 
 <script>
-const APP_VERSION='2.5.0';
+const APP_VERSION='2.5.1';
 const CHANGELOG=[
   {version:'2.4.4',items:['⚖️ Analyse: Gleit. Gewicht Start + Aktuell + Δ seit Tag 1 (Sparkline entfernt)']},
   {version:'2.4.3',items:['📈 Analyse: Sparkline-Chart des gleitenden Gewichts seit Tag 1 + Δ-Anzeige']},
@@ -2051,7 +2051,7 @@ async buildAiReport(){
   if(!sec)return;
   if(btn){btn.disabled=true;btn.textContent='⏳ KI erstellt Bericht…';}
   sec.style.display='block';
-  sec.innerHTML='<div class="card" style="text-align:center;padding:28px 16px;color:var(--text2)"><div style="font-size:32px;margin-bottom:10px">🤖</div><div style="font-weight:600;margin-bottom:4px">KI analysiert deine Daten…</div><div style="font-size:12px">Das dauert ca. 10–20 Sekunden</div></div>';
+  sec.innerHTML='<div class="card" style="text-align:center;padding:28px 16px;color:var(--text2)"><div style="font-size:32px;margin-bottom:10px">🤖</div><div style="font-weight:600;margin-bottom:4px">KI analysiert deine Daten…</div><div style="font-size:12px">Das dauert ca. 20–60 Sekunden (je nach Modell)</div></div>';
   try{
     const r=await fetch('/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(data)});
     const j=await r.json();

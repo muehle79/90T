@@ -581,7 +581,7 @@ def admin_backup():
     return jsonify({'ok': True, 'file': os.path.basename(dest)})
 
 # ── KI-Bericht ────────────────────────────────────────────────────────────────
-def _fetch_research(queries, max_per_query=2, timeout=6):
+def _fetch_research(queries, max_per_query=1, timeout=3):
     """Holt Studien-Abstracts von PubMed (NCBI) für die gegebenen Suchbegriffe."""
     snippets = []
     seen_ids = set()
